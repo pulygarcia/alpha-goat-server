@@ -293,7 +293,7 @@ Entidades principales (detalle completo en `docs/data-model.md` cuando se cree):
 - **User**: id, email, username, passwordHash, avatar, role (USER/ADMIN), banned, createdAt
 - **Marca**: id, nombre, provincia, descripcion, logo
 - **Alfajor**: id, nombre, marcaId, tipo, descripcion, imagen, status, rejectionReason, createdById, createdAt
-- **Review**: id, userId, alfajorId, rating (1-10), dulzor (1-10), cantidadDDL (1-10), calidadBano (1-10), ratioTapaRelleno (1-10), textura (1-10), comentario, foto, createdAt
+- **Review**: id, userId, alfajorId, ratingGeneral (0.0-10.0), dulzor (0.0-10.0), cantidadDDL (0.0-10.0), calidadBano (0.0-10.0), ratioTapaRelleno (0.0-10.0), textura (0.0-10.0), comentario, fotoUrl, createdAt
 
 Constraint clave: **unique(userId, alfajorId)** en Review (1 review por usuario por alfajor).
 Constraint clave: **unique(nombre, marcaId)** en Alfajor (sin duplicados exactos).

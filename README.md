@@ -1,9 +1,6 @@
-# Alfajorímetro — Backend
+# AlphaGoat — Backend
 
-Backend del **Alfajorímetro**: una app tipo Untappd pero para alfajores argentinos. Los usuarios reseñan alfajores con un rating general más 5 ejes (dulzor, cantidad de DDL, calidad del baño, ratio tapa/relleno, textura). El sistema genera radar charts, rankings y recomendaciones a partir de esas reviews.
-
-> Repo solo del backend. El frontend vive en otro repo.
-
+Backend del **AlphaGoat**: app de reviews y puntajes para bajoneros. Con radar charts, rankings y recomendaciones a partir de reviews.
 ---
 
 ## Stack
