@@ -1,0 +1,47 @@
+# Progreso
+
+Estado de los módulos del backend. Se actualiza al cerrar cada feature.
+
+## Hecho
+
+### Setup
+- NestJS + TypeORM + Postgres + Swagger + ESLint/Prettier configurados.
+- `ConfigModule` global con validación de env (`env.validation.ts`).
+- `TypeOrmModule` async con SSL para Neon.
+
+### Docs
+- `docs/architecture.md` (servicios atómicos, módulos, endpoints, roadmap).
+- `docs/data-model.md` (entidades, relaciones, constraints, índices).
+
+### `users`
+- Entidad `User` (con `email`/`username` únicos, `role`, `banned`, timestamps).
+- DTOs: `UpdateProfileDto`, `ChangePasswordDto`, `UserResponseDto`.
+- Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`. Todos con `.spec.ts`.
+- Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`.
+
+### `auth`
+- DTOs: `RegisterDto`, `LoginDto`, `AuthResponseDto`.
+- Services: `PasswordHasher` (bcrypt), `JwtTokenSigner`, `UserRegistrar`, `UserAuthenticator`. Todos con `.spec.ts`.
+- `JwtStrategy` (passport-jwt) + `JwtAuthGuard`.
+- `RolesGuard` + decorator `@Roles()` con su spec.
+- `@CurrentUser()` decorator.
+- Controller: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`.
+
+### Testing
+- Jest configurado con `coverageThreshold: 85%` (branches, functions, lines, statements).
+- `collectCoverageFrom` excluye `*.module.ts`, `*.dto.ts`, `*.entity.ts`, `*.enum.ts`, `main.ts`.
+
+## Pendiente
+
+### Próximos módulos
+- `marcas` (CRUD admin).
+- `alfajores` (Creator con flujo PENDING, Finder, Searcher, Updater).
+- `reviews` (+ comments + likes).
+- `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
+- `moderation` (admin): approve / reject alfajores pendientes.
+
+### Deuda técnica conocida
+- **Migrations**: aún no se generó la migration inicial para `users`. `synchronize: false`, así que para correr la app contra Neon hay que generar/correr la primera migration con la CLI de TypeORM.
+- **Naming strategy**: `data-model.md` mencionaba `snake_case` en DB; las entidades quedan en `camelCase` (default de TypeORM). Si se quiere `snake_case`, agregar `typeorm-naming-strategies` y `namingStrategy: new SnakeNamingStrategy()` en `typeorm.config.ts`.
+- **HttpExceptionFilter global**: `architecture.md` lo menciona; todavía no se creó. Por ahora valen los filtros default de Nest.
+- **Seed de admin**: falta script para crear el primer ADMIN.

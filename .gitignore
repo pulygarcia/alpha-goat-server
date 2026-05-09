@@ -15,9 +15,8 @@ lerna-debug.log*
 # OS
 .DS_Store
 
-# Claude Code (local config y guías de proyecto)
+# Claude Code (config local y skills — se reinstalan, no se versionan)
 .claude/
-CLAUDE.md
 
 # Tests
 /coverage

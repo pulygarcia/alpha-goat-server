@@ -2,7 +2,7 @@
 
 Detalle de las entidades del backend. Complementa a `architecture.md`.
 
-> **Nota:** los nombres de columnas en TypeORM se escriben en `camelCase`; en Postgres quedan como `snake_case` mediante naming strategy. En este doc se usa `camelCase`.
+> **Nota:** los nombres de columnas se manejan con el default de TypeORM (`camelCase` también en Postgres). Si más adelante se decide pasar a `snake_case`, hay que agregar `typeorm-naming-strategies` y un `SnakeNamingStrategy` en `typeorm.config.ts`.
 
 ## Convenciones generales
 
