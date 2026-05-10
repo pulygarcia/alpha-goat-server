@@ -19,6 +19,15 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`. Todos con `.spec.ts`.
 - Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`.
 
+### `marcas`
+- Entidad `Marca` (nombre único, provincia, descripción, logoUrl, timestamps).
+- DTOs: `CreateMarcaDto`, `UpdateMarcaDto`, `SearchMarcasDto`, `MarcaResponseDto`, `PaginatedMarcasDto`.
+- Services: `MarcaCreator`, `MarcaFinder`, `MarcaSearcher` (paginado + filtro `q` con ILIKE), `MarcaUpdater`. Todos con `.spec.ts`.
+- Controllers:
+  - Público: `GET /marcas`, `GET /marcas/:id`.
+  - Admin (`@Roles(ADMIN)` + `RolesGuard`): `POST /admin/marcas`, `PATCH /admin/marcas/:id`.
+- Sin `MarcaRemover` por ahora (FK con `RESTRICT` desde `Alfajor`).
+
 ### `auth`
 - DTOs: `RegisterDto`, `LoginDto`, `AuthResponseDto`.
 - Services: `PasswordHasher` (bcrypt), `JwtTokenSigner`, `UserRegistrar`, `UserAuthenticator`. Todos con `.spec.ts`.
@@ -34,7 +43,6 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ## Pendiente
 
 ### Próximos módulos
-- `marcas` (CRUD admin).
 - `alfajores` (Creator con flujo PENDING, Finder, Searcher, Updater).
 - `reviews` (+ comments + likes).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
