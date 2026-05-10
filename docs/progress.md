@@ -19,6 +19,18 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`. Todos con `.spec.ts`.
 - Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`.
 
+### `alfajores`
+- Entidad `Alfajor` (FKs: `marcaId` RESTRICT, `createdById` SET NULL; unique `(nombre, marcaId)`).
+- Enums: `AlfajorStatus` (PENDING/APPROVED/REJECTED), `AlfajorTipo` (CHOCOLATE/BLANCO/NEGRO/FRUTAL/MAICENA/OTRO).
+- DTOs: `CreateAlfajorDto`, `UpdateAlfajorDto` (sin `marcaId`), `SearchAlfajoresDto`, `AlfajorResponseDto`, `PaginatedAlfajoresDto`.
+- Services + specs:
+  - `AlfajorCreator` — crea como `PENDING`, valida marca y unicidad `(nombre, marcaId)`.
+  - `AlfajorFinder` — byId con 404.
+  - `AlfajorSearcher` — paginado + filtros (`q`, `marcaId`, `tipo`); fuerza `APPROVED` salvo `includeAllStatuses` (admin).
+  - `AlfajorUpdater` — admin edita siempre; creador solo mientras `PENDING`.
+- Controller `AlfajoresController` con `GET /alfajores`, `GET /alfajores/:id`, `POST /alfajores` (auth), `PATCH /alfajores/:id` (auth, dueño-pending o admin).
+- `MarcaFinder` se reutiliza desde `MarcasModule` (export ya estaba listo).
+
 ### `marcas`
 - Entidad `Marca` (nombre único, provincia, descripción, logoUrl, timestamps).
 - DTOs: `CreateMarcaDto`, `UpdateMarcaDto`, `SearchMarcasDto`, `MarcaResponseDto`, `PaginatedMarcasDto`.
@@ -43,7 +55,6 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ## Pendiente
 
 ### Próximos módulos
-- `alfajores` (Creator con flujo PENDING, Finder, Searcher, Updater).
 - `reviews` (+ comments + likes).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
 - `moderation` (admin): approve / reject alfajores pendientes.

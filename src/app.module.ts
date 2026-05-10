@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { validateEnv } from './config/env.validation';
 import { typeOrmConfig } from './config/typeorm.config';
+import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { UsersModule } from './modules/users/users.module';
@@ -18,6 +19,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     UsersModule,
     MarcasModule,
+    AlfajoresModule,
   ],
 })
 export class AppModule {}
