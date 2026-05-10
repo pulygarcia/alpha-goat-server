@@ -19,6 +19,17 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`. Todos con `.spec.ts`.
 - Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`.
 
+### `reviews`
+- Entidad `Review` con FKs CASCADE (`userId`, `alfajorId`), unique `(userId, alfajorId)`.
+- 6 ratings `numeric(3,1)` con transformer string → number en lectura (ratingGeneral + dulzor + cantidadDDL + calidadBano + ratioTapaRelleno + textura).
+- DTOs: `CreateReviewDto`, `UpdateReviewDto` (sin `alfajorId`), `SearchReviewsDto`, `ReviewResponseDto`, `PaginatedReviewsDto`.
+- Services + specs:
+  - `ReviewCreator` — exige `Alfajor` en `APPROVED`, bloquea duplicados.
+  - `ReviewFinder`, `ReviewSearcher` (filtros `alfajorId`/`userId`, orden `createdAt DESC`).
+  - `ReviewUpdater` — solo el autor edita.
+  - `ReviewRemover` — autor o admin.
+- Controller `ReviewsController`: `GET /reviews`, `GET /reviews/:id`, `POST /reviews` (auth), `PATCH /reviews/:id` (auth), `DELETE /reviews/:id` (auth, 204).
+
 ### `alfajores`
 - Entidad `Alfajor` (FKs: `marcaId` RESTRICT, `createdById` SET NULL; unique `(nombre, marcaId)`).
 - Enums: `AlfajorStatus` (PENDING/APPROVED/REJECTED), `AlfajorTipo` (CHOCOLATE/BLANCO/NEGRO/FRUTAL/MAICENA/OTRO).
@@ -55,7 +66,8 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ## Pendiente
 
 ### Próximos módulos
-- `reviews` (+ comments + likes).
+- `comments` (planos sobre Review) + `CommentLike`.
+- `ReviewLike` (puede ir junto con comments en un módulo `likes`, o dentro de `reviews`).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
 - `moderation` (admin): approve / reject alfajores pendientes.
 

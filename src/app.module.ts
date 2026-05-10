@@ -6,6 +6,7 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     MarcasModule,
     AlfajoresModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}
