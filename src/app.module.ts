@@ -5,6 +5,7 @@ import { validateEnv } from './config/env.validation';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CommentsModule } from './modules/comments/comments.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UsersModule } from './modules/users/users.module';
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/users/users.module';
     MarcasModule,
     AlfajoresModule,
     ReviewsModule,
+    CommentsModule,
   ],
 })
 export class AppModule {}

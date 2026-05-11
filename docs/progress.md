@@ -51,6 +51,22 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
   - Admin (`@Roles(ADMIN)` + `RolesGuard`): `POST /admin/marcas`, `PATCH /admin/marcas/:id`.
 - Sin `MarcaRemover` por ahora (FK con `RESTRICT` desde `Alfajor`).
 
+### `comments`
+- Entidades `Comment` (FK CASCADE a Review y User) y `CommentLike` (FK CASCADE a Comment y User, unique `(commentId, userId)`).
+- DTOs: `CreateCommentDto` (contenido 1-1000 chars), `UpdateCommentDto`, `SearchCommentsDto` (page/limit), `CommentResponseDto`, `PaginatedCommentsDto`.
+- Services + specs:
+  - `CommentCreator` — valida que la Review exista via `ReviewFinder`.
+  - `CommentFinder` — byId con 404.
+  - `CommentSearcher` — paginado scoped al `reviewId`, orden `createdAt ASC`.
+  - `CommentUpdater` — solo el autor edita.
+  - `CommentRemover` — autor o admin.
+  - `CommentLikeToggler` — `like` idempotente, `unlike` con `delete`.
+- Controller `CommentsController`:
+  - `GET /reviews/:reviewId/comments`, `GET /comments/:id`.
+  - `POST /reviews/:reviewId/comments` (auth).
+  - `PATCH /comments/:id` (auth), `DELETE /comments/:id` (auth, 204).
+  - `PUT /comments/:id/like` (auth, 204), `DELETE /comments/:id/like` (auth, 204).
+
 ### `auth`
 - DTOs: `RegisterDto`, `LoginDto`, `AuthResponseDto`.
 - Services: `PasswordHasher` (bcrypt), `JwtTokenSigner`, `UserRegistrar`, `UserAuthenticator`. Todos con `.spec.ts`.
@@ -66,8 +82,7 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ## Pendiente
 
 ### Próximos módulos
-- `comments` (planos sobre Review) + `CommentLike`.
-- `ReviewLike` (puede ir junto con comments en un módulo `likes`, o dentro de `reviews`).
+- `review-likes` (ReviewLike: like/unlike a una review, unique por user).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
 - `moderation` (admin): approve / reject alfajores pendientes.
 
