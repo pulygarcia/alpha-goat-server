@@ -28,7 +28,7 @@ export class Alfajor {
   marcaId: string;
 
   @ManyToOne(() => Marca, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'marcaId' })
+  @JoinColumn({ name: 'marca_id' })
   marca?: Marca;
 
   @Column({ type: 'enum', enum: AlfajorTipo })
@@ -51,7 +51,7 @@ export class Alfajor {
   createdById: string | null;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'createdById' })
+  @JoinColumn({ name: 'created_by_id' })
   createdBy?: User | null;
 
   @CreateDateColumn({ type: 'timestamptz' })

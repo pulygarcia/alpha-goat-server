@@ -79,6 +79,19 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Jest configurado con `coverageThreshold: 85%` (branches, functions, lines, statements).
 - `collectCoverageFrom` excluye `*.module.ts`, `*.dto.ts`, `*.entity.ts`, `*.enum.ts`, `main.ts`.
 
+### Database / infra
+- **Conexión a Neon** funcionando. `DATABASE_PASSWORD` aislado en env y `DATABASE_URL` lo interpola con `${DATABASE_PASSWORD}` (`expandVariables: true` en `ConfigModule`).
+- **`SnakeNamingStrategy`** aplicado en `typeorm.config.ts` y en el `DataSource` standalone. Entidades alineadas: `@JoinColumn({ name: 'xxx_id' })` consistente con las columnas `xxxId` transformadas.
+- **`DataSource` standalone** en `src/database/data-source.ts` para la CLI de TypeORM. Carga `.env` con `dotenv-expand`.
+- Scripts npm: `typeorm`, `migration:generate`, `migration:run`, `migration:revert`.
+- **Migration inicial** (`Init...`) generada y corrida contra Neon — 6 tablas creadas con FKs e índices, todo en snake_case.
+
+### Seeds
+- `seed:admin` — idempotente, crea/promueve usuario ADMIN desde `ADMIN_EMAIL/USERNAME/PASSWORD` (env vars opcionales en validación).
+- `seed:marcas` — 12 marcas argentinas (Havanna, Cachafaz, Jorgito, Guaymallén, Capitán del Espacio, Balcarce, Fantoche, Águila, Milka, Cofler, Tofi, Terrabusi).
+- `seed:alfajores` — 23 alfajores APPROVED vinculados a las marcas.
+- Coverage excluye `database/**`.
+
 ## Pendiente
 
 ### Próximos módulos
@@ -87,7 +100,4 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - `moderation` (admin): approve / reject alfajores pendientes.
 
 ### Deuda técnica conocida
-- **Migrations**: aún no se generó la migration inicial para `users`. `synchronize: false`, así que para correr la app contra Neon hay que generar/correr la primera migration con la CLI de TypeORM.
-- **Naming strategy**: `data-model.md` mencionaba `snake_case` en DB; las entidades quedan en `camelCase` (default de TypeORM). Si se quiere `snake_case`, agregar `typeorm-naming-strategies` y `namingStrategy: new SnakeNamingStrategy()` en `typeorm.config.ts`.
-- **HttpExceptionFilter global**: `architecture.md` lo menciona; todavía no se creó. Por ahora valen los filtros default de Nest.
-- **Seed de admin**: falta script para crear el primer ADMIN.
+- **HttpExceptionFilter global**: pospuesto. El default de Nest cubre los `HttpException` de los services. Sumar el filter custom solo si aparece la necesidad (mapear `QueryFailedError` a 409, shape uniforme con `path`/`timestamp`, log centralizado de 5xx).

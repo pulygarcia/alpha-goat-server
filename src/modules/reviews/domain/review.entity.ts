@@ -36,7 +36,7 @@ export class Review {
   userId: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user?: User;
 
   @Index()
@@ -44,7 +44,7 @@ export class Review {
   alfajorId: string;
 
   @ManyToOne(() => Alfajor, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'alfajorId' })
+  @JoinColumn({ name: 'alfajor_id' })
   alfajor?: Alfajor;
 
   @Column(ratingColumn())

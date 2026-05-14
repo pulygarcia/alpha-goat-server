@@ -15,6 +15,7 @@ import { UsersModule } from './modules/users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      expandVariables: true,
       validate: validateEnv,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),

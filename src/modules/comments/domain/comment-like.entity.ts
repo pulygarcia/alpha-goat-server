@@ -22,14 +22,14 @@ export class CommentLike {
   commentId: string;
 
   @ManyToOne(() => Comment, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'commentId' })
+  @JoinColumn({ name: 'comment_id' })
   comment?: Comment;
 
   @Column({ type: 'uuid' })
   userId: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user?: User;
 
   @CreateDateColumn({ type: 'timestamptz' })

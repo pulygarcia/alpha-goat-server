@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { NodeEnv } from './env.validation';
 
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
@@ -19,6 +20,7 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
       synchronize: false,
       logging: !isProd ? ['error', 'warn'] : ['error'],
       autoLoadEntities: true,
+      namingStrategy: new SnakeNamingStrategy(),
     };
   },
 };

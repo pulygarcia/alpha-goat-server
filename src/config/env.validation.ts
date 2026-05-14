@@ -29,6 +29,10 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  DATABASE_PASSWORD: string;
+
+  @IsString()
+  @IsNotEmpty()
   DATABASE_URL: string;
 
   @IsString()
@@ -50,6 +54,21 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   CLOUDINARY_API_SECRET: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  ADMIN_EMAIL?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  ADMIN_USERNAME?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  ADMIN_PASSWORD?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
