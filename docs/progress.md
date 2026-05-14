@@ -86,6 +86,17 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Scripts npm: `typeorm`, `migration:generate`, `migration:run`, `migration:revert`.
 - **Migration inicial** (`Init...`) generada y corrida contra Neon — 6 tablas creadas con FKs e índices, todo en snake_case.
 
+### `moderation`
+- Services + specs:
+  - `AlfajorApprover` — `PENDING` → `APPROVED`, limpia `rejectionReason`. `BadRequest` si el alfajor no está en `PENDING`.
+  - `AlfajorRejecter` — `PENDING` → `REJECTED` con `rejectionReason` obligatorio (1-500 chars).
+- DTO: `RejectAlfajorDto`.
+- Controller `ModerationController` (`@Roles(ADMIN)` + `RolesGuard`):
+  - `GET /admin/alfajores/pending` — reutiliza `AlfajorSearcher` con `status: PENDING` + `includeAllStatuses: true` (no se creó un searcher dedicado).
+  - `PATCH /admin/alfajores/:id/approve`.
+  - `PATCH /admin/alfajores/:id/reject`.
+- Endpoints documentados con `@ApiOperation` y `@ApiResponse` (200/400/401/403/404).
+
 ### Seeds
 - `seed:admin` — idempotente, crea/promueve usuario ADMIN desde `ADMIN_EMAIL/USERNAME/PASSWORD` (env vars opcionales en validación).
 - `seed:marcas` — 12 marcas argentinas (Havanna, Cachafaz, Jorgito, Guaymallén, Capitán del Espacio, Balcarce, Fantoche, Águila, Milka, Cofler, Tofi, Terrabusi).
@@ -97,7 +108,6 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ### Próximos módulos
 - `review-likes` (ReviewLike: like/unlike a una review, unique por user).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
-- `moderation` (admin): approve / reject alfajores pendientes.
 
 ### Deuda técnica conocida
 - **HttpExceptionFilter global**: pospuesto. El default de Nest cubre los `HttpException` de los services. Sumar el filter custom solo si aparece la necesidad (mapear `QueryFailedError` a 409, shape uniforme con `path`/`timestamp`, log centralizado de 5xx).

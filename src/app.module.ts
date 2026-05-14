@@ -7,6 +7,7 @@ import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -25,6 +26,7 @@ import { UsersModule } from './modules/users/users.module';
     AlfajoresModule,
     ReviewsModule,
     CommentsModule,
+    ModerationModule,
   ],
 })
 export class AppModule {}

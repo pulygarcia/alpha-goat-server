@@ -249,9 +249,9 @@ Login, registro, generación y validación de JWT. Servicios:
 - `ReviewRemover`: borra propia review (o cualquier admin).
 
 ### `moderation` (admin only)
-- `AlfajorApprover`: cambia status a `APPROVED`.
-- `AlfajorRejecter`: cambia status a `REJECTED` con `rejectionReason`.
-- `PendingAlfajoresSearcher`: lista alfajores pendientes para el dashboard admin.
+- `AlfajorApprover`: cambia status `PENDING` → `APPROVED` y limpia `rejectionReason`. Si el alfajor no está en `PENDING`, devuelve `BadRequest`.
+- `AlfajorRejecter`: cambia status `PENDING` → `REJECTED` y guarda `rejectionReason`. Mismas restricciones que el approver.
+- Para listar pendientes se reutiliza `AlfajorSearcher` (de `AlfajoresModule`) pasándole `status: PENDING` + `includeAllStatuses: true`. No se creó un `PendingAlfajoresSearcher` dedicado.
 
 ### `uploads`
 - `CloudinaryUploader`: recibe un buffer/file, sube a Cloudinary, devuelve URL pública.
