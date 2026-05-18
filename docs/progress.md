@@ -110,4 +110,4 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
 
 ### Deuda técnica conocida
-- **HttpExceptionFilter global**: pospuesto. El default de Nest cubre los `HttpException` de los services. Sumar el filter custom solo si aparece la necesidad (mapear `QueryFailedError` a 409, shape uniforme con `path`/`timestamp`, log centralizado de 5xx).
+- (sin items abiertos)
