@@ -24,7 +24,8 @@
     "migration:revert": "npm run typeorm -- migration:revert -d src/database/data-source.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/database/seeds/admin.seed.ts",
     "seed:marcas": "ts-node -r tsconfig-paths/register src/database/seeds/marcas.seed.ts",
-    "seed:alfajores": "ts-node -r tsconfig-paths/register src/database/seeds/alfajores.seed.ts"
+    "seed:alfajores": "ts-node -r tsconfig-paths/register src/database/seeds/alfajores.seed.ts",
+    "seed:reviews": "ts-node -r tsconfig-paths/register src/database/seeds/reviews.seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
