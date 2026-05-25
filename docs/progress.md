@@ -101,7 +101,16 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - `seed:admin` — idempotente, crea/promueve usuario ADMIN desde `ADMIN_EMAIL/USERNAME/PASSWORD` (env vars opcionales en validación).
 - `seed:marcas` — 12 marcas argentinas (Havanna, Cachafaz, Jorgito, Guaymallén, Capitán del Espacio, Balcarce, Fantoche, Águila, Milka, Cofler, Tofi, Terrabusi).
 - `seed:alfajores` — 23 alfajores APPROVED vinculados a las marcas.
+- `seed:reviews` — 5 demo users (`demo.*@alfajorimetro.test`, password `Demo1234!`) + ~54 reseñas distribuidas en los últimos 14 días sobre los alfajores APPROVED. PRNG determinista; idempotente respetando `UNIQUE(userId, alfajorId)`.
 - Coverage excluye `database/**`.
+
+### `feed`
+- Endpoint `GET /feed/hero` (público): pick editorial del feed.
+  - `FeedHeroFinder`: top 1 alfajor APPROVED por #reviews en los últimos 7 días, desempate por avg `ratingGeneral`. Fallback all-time si la ventana semanal está vacía. Devuelve `null` (→ 204 en el controller) si no hay reseñas en la DB.
+  - Response: `{ alfajor + marca, ratings (6 ejes promedio histórico), stats { reviewsThisWeek, reviewsLastWeek, deltaPct, totalReviews }, period }`. `deltaPct = null` cuando `reviewsLastWeek = 0`.
+  - QueryBuilder para agregaciones (`COUNT`, `AVG`, `GROUP BY`); `findOne({ relations })` ORM puro para cargar el alfajor con marca.
+  - Tests: 5 verdes (empty, fallback all-time, deltaPct, alfajor inexistente, ventana de 7 días).
+- Bootstrap loguea `App running on http://localhost:<port>` + `Swagger docs on http://localhost:<port>/docs`.
 
 ## Pendiente
 
