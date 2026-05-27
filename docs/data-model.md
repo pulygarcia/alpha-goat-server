@@ -2,7 +2,7 @@
 
 Detalle de las entidades del backend. Complementa a `architecture.md`.
 
-> **Nota:** los nombres de columnas se manejan con el default de TypeORM (`camelCase` también en Postgres). Si más adelante se decide pasar a `snake_case`, hay que agregar `typeorm-naming-strategies` y un `SnakeNamingStrategy` en `typeorm.config.ts`.
+> **Nota:** las propiedades de las entidades son `camelCase`, pero en Postgres las columnas son `snake_case` (ej: `ratingGeneral` → `rating_general`). Se aplica con `SnakeNamingStrategy` (`typeorm-naming-strategies`) configurado en `data-source.ts` y `typeorm.config.ts`.
 
 ## Convenciones generales
 
@@ -148,6 +148,26 @@ Comentarios planos sobre una Review (sin anidamiento).
 
 ---
 
+## UserFollow
+
+Relación de seguimiento dirigida entre usuarios (`follower` sigue a `following`). No es simétrica: que A siga a B no implica que B siga a A — eso requiere otra fila con los roles invertidos.
+
+| Campo        | Tipo                                       | Notas                          |
+|--------------|--------------------------------------------|--------------------------------|
+| id           | uuid PK                                    |                                |
+| followerId   | uuid FK → User.id (ON DELETE CASCADE)      | el que sigue                   |
+| followingId  | uuid FK → User.id (ON DELETE CASCADE)      | el seguido                     |
+| createdAt    | timestamptz                                |                                |
+
+**Constraints:**
+- `UNIQUE(followerId, followingId)` — no se puede seguir dos veces al mismo user.
+
+**Índices:**
+- `(followerId)` para "a quiénes sigo" (lo usa `GET /feed?scope=following`).
+- `(followingId)` para "quiénes me siguen".
+
+---
+
 ## Diagrama de relaciones (resumen)
 
 ```
@@ -156,6 +176,8 @@ User 1───* Review           (CASCADE)
 User 1───* Comment          (CASCADE)
 User 1───* ReviewLike       (CASCADE)
 User 1───* CommentLike      (CASCADE)
+User 1───* UserFollow       (follower, CASCADE)
+User 1───* UserFollow       (following, CASCADE)
 
 Marca 1───* Alfajor         (RESTRICT)
 

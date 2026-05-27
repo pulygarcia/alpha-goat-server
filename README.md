@@ -128,9 +128,12 @@ src/
 │   ├── users/
 │   ├── alfajores/
 │   ├── marcas/
-│   ├── reviews/
+│   ├── reviews/           # reviews + likes (PUT/DELETE /reviews/:id/like)
+│   ├── comments/          # comentarios sobre reviews + likes
+│   ├── follows/           # seguir/dejar de seguir usuarios
+│   ├── feed/              # GET /feed/hero (público) + GET /feed (auth)
 │   ├── moderation/        # endpoints admin (approve / reject)
-│   └── uploads/           # Cloudinary
+│   └── uploads/           # Cloudinary (pendiente)
 └── database/
     ├── migrations/
     └── seeds/

@@ -4,6 +4,7 @@ import dataSource from '../data-source';
 import { Alfajor } from '../../modules/alfajores/domain/alfajor.entity';
 import { AlfajorStatus } from '../../modules/alfajores/domain/alfajor-status.enum';
 import { Review } from '../../modules/reviews/domain/review.entity';
+import { ReviewLike } from '../../modules/reviews/domain/review-like.entity';
 import { User } from '../../modules/users/domain/user.entity';
 
 const BCRYPT_ROUNDS = 10;
@@ -129,6 +130,34 @@ async function run(): Promise<void> {
     }
 
     console.log(`Reviews seed done. created=${created} skipped=${skipped}`);
+
+    // Likes: a cada reseña le asignamos una cantidad determinista de likers
+    // (0..N reviewers) para que el feed con sort=likes tenga un orden real.
+    const likeRepo = dataSource.getRepository(ReviewLike);
+    const allReviews = await reviewRepo.find();
+    let likesCreated = 0;
+    let likesSkipped = 0;
+
+    for (let i = 0; i < allReviews.length; i++) {
+      const review = allReviews[i];
+      const r = rng(1000 + i);
+      const likers = Math.floor(r() * (reviewers.length + 1));
+
+      for (let k = 0; k < likers; k++) {
+        const user = reviewers[k];
+        const exists = await likeRepo.findOne({
+          where: { reviewId: review.id, userId: user.id },
+        });
+        if (exists) {
+          likesSkipped++;
+          continue;
+        }
+        await likeRepo.save(likeRepo.create({ reviewId: review.id, userId: user.id }));
+        likesCreated++;
+      }
+    }
+
+    console.log(`Review likes seed done. created=${likesCreated} skipped=${likesSkipped}`);
     console.log(`Demo users password: ${DEFAULT_PASSWORD}`);
   } finally {
     await dataSource.destroy();

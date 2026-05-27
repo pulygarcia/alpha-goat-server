@@ -101,7 +101,7 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - `seed:admin` — idempotente, crea/promueve usuario ADMIN desde `ADMIN_EMAIL/USERNAME/PASSWORD` (env vars opcionales en validación).
 - `seed:marcas` — 12 marcas argentinas (Havanna, Cachafaz, Jorgito, Guaymallén, Capitán del Espacio, Balcarce, Fantoche, Águila, Milka, Cofler, Tofi, Terrabusi).
 - `seed:alfajores` — 23 alfajores APPROVED vinculados a las marcas.
-- `seed:reviews` — 5 demo users (`demo.*@alfajorimetro.test`, password `Demo1234!`) + ~54 reseñas distribuidas en los últimos 14 días sobre los alfajores APPROVED. PRNG determinista; idempotente respetando `UNIQUE(userId, alfajorId)`.
+- `seed:reviews` — 5 demo users (`demo.*@alfajorimetro.test`, password `Demo1234!`) + ~54 reseñas distribuidas en los últimos 14 días sobre los alfajores APPROVED + likes deterministas por reseña (0..5 likers) para que `GET /feed?sort=likes` tenga orden real. PRNG determinista; idempotente respetando `UNIQUE(userId, alfajorId)` y `UNIQUE(reviewId, userId)` de likes.
 - Coverage excluye `database/**`.
 
 ### `feed`
@@ -110,6 +110,12 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
   - Response: `{ alfajor + marca, ratings (6 ejes promedio histórico), stats { reviewsThisWeek, reviewsLastWeek, deltaPct, totalReviews }, period }`. `deltaPct = null` cuando `reviewsLastWeek = 0`.
   - QueryBuilder para agregaciones (`COUNT`, `AVG`, `GROUP BY`); `findOne({ relations })` ORM puro para cargar el alfajor con marca.
   - Tests: 5 verdes (empty, fallback all-time, deltaPct, alfajor inexistente, ventana de 7 días).
+- Endpoint `GET /feed` (auth, `JwtAuthGuard`): lista paginada de reseñas del feed.
+  - Query: `scope=today|week|following|province` (opcional), `sort=likes|recent|rating` (default `recent`), `province` (requerido si `scope=province`, sino 400), `page`/`limit` (default 1/20, max 50). Paginación `page/limit` consistente con el resto del back (no cursor).
+  - Response `{ items, total, page, limit }`. Cada item: `author {id, username, avatarUrl}`, `alfajor {id, nombre, tipo, imagenUrl}`, `marca {id, nombre, provincia}`, `quote` (comentario), `photoUrl`, `overall` (ratingGeneral), `axes (5 ejes)`, `likes`, `commentsCount`, `createdAt`. Sin `sharesCount` (no habrá compartir). Solo reseñas de alfajores APPROVED.
+  - `FeedFinder` en dos pasos para esquivar un bug de TypeORM (hidratar entidades + order by alias calculado + limit genera SQL inválido): (1) QueryBuilder plano que trae ids ordenados/paginados + conteos de likes/comments por subquery correlacionada; (2) `find({ where: { id: In(ids) }, relations })` repo-API puro y reordenado según el rank. `scope=following` usa `FollowToggler.followingIds`; si no sigue a nadie → feed vacío sin pegarle a la DB.
+  - Tests: 10 verdes (8 finder: province sin valor, following vacío, total 0, mapeo de conteos, reorden por rank, filtro following, order by likes, offset/limit; 2 controller: mapeo del item dto, forward de query+userId).
+  - Verificado con smoke test real contra Neon: sort recent/rating/likes, scope week/province/following, like/unlike y follow/unfollow end-to-end, 400 de province/auto-follow.
 - Bootstrap loguea `App running on http://localhost:<port>` + `Swagger docs on http://localhost:<port>/docs`.
 
 ### `review-likes`

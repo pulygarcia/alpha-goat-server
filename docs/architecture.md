@@ -248,6 +248,20 @@ Login, registro, generación y validación de JWT. Servicios:
 - `ReviewUpdater`: edita propia review.
 - `ReviewRemover`: borra propia review (o cualquier admin).
 
+### `comments`
+- `CommentCreator`, `CommentFinder`, `CommentSearcher`, `CommentUpdater`, `CommentRemover`: comentarios planos sobre una review.
+- `CommentLikeToggler`: like/unlike de un comentario (idempotente).
+
+### `review-likes` (dentro de `reviews`)
+- `ReviewLikeToggler`: like/unlike de una review. `like` idempotente, `unlike` con delete. Endpoints `PUT/DELETE /reviews/:id/like`.
+
+### `follows`
+- `FollowToggler`: `follow` (idempotente, rechaza auto-follow con 400, valida que el target exista), `unfollow`, y `followingIds(userId)` que consume el feed. Endpoints `PUT/DELETE /follows/:userId`. Exporta `FollowToggler`.
+
+### `feed`
+- `FeedHeroFinder`: pick editorial (alfajor destacado + stats semanales) para `GET /feed/hero` (público).
+- `FeedFinder`: lista paginada de reseñas para `GET /feed` (auth). Dos pasos (ids ordenados+conteos por QueryBuilder; entidades por `find`) para esquivar un bug de TypeORM al ordenar por alias calculado con joins+limit.
+
 ### `moderation` (admin only)
 - `AlfajorApprover`: cambia status `PENDING` → `APPROVED` y limpia `rejectionReason`. Si el alfajor no está en `PENDING`, devuelve `BadRequest`.
 - `AlfajorRejecter`: cambia status `PENDING` → `REJECTED` y guarda `rejectionReason`. Mismas restricciones que el approver.
@@ -262,6 +276,7 @@ Login, registro, generación y validación de JWT. Servicios:
 ```
 POST   /auth/register
 POST   /auth/login
+POST   /auth/logout
 GET    /auth/me
 
 GET    /users/:id
@@ -280,6 +295,21 @@ GET    /alfajores/:id/reviews
 POST   /alfajores/:id/reviews            # auth
 PATCH  /reviews/:id                      # owner
 DELETE /reviews/:id                      # owner o admin
+PUT    /reviews/:id/like                 # auth
+DELETE /reviews/:id/like                 # auth
+
+GET    /reviews/:id/comments
+POST   /reviews/:id/comments             # auth
+PATCH  /comments/:id                     # owner
+DELETE /comments/:id                     # owner o admin
+PUT    /comments/:id/like                # auth
+DELETE /comments/:id/like                # auth
+
+PUT    /follows/:userId                  # auth
+DELETE /follows/:userId                  # auth
+
+GET    /feed/hero                        # público (204 si no hay reviews)
+GET    /feed                             # auth — scope + sort + page/limit
 
 GET    /admin/alfajores/pending          # admin
 PATCH  /admin/alfajores/:id/approve      # admin
@@ -288,12 +318,15 @@ PATCH  /admin/alfajores/:id/reject       # admin
 
 ## Modelo de datos
 
-Entidades principales (detalle completo en `docs/data-model.md` cuando se cree):
+Detalle completo (todas las tablas, constraints e índices) en [`docs/data-model.md`](data-model.md). Resumen:
 
 - **User**: id, email, username, passwordHash, avatar, role (USER/ADMIN), banned, createdAt
 - **Marca**: id, nombre, provincia, descripcion, logo
 - **Alfajor**: id, nombre, marcaId, tipo, descripcion, imagen, status, rejectionReason, createdById, createdAt
 - **Review**: id, userId, alfajorId, ratingGeneral (0.0-10.0), dulzor (0.0-10.0), cantidadDDL (0.0-10.0), calidadBano (0.0-10.0), ratioTapaRelleno (0.0-10.0), textura (0.0-10.0), comentario, fotoUrl, createdAt
+- **Comment**: id, reviewId, userId, contenido, createdAt
+- **ReviewLike / CommentLike**: id, (reviewId|commentId), userId, createdAt — unique por par
+- **UserFollow**: id, followerId, followingId, createdAt — unique por par, relación dirigida
 
 Constraint clave: **unique(userId, alfajorId)** en Review (1 review por usuario por alfajor).
 Constraint clave: **unique(nombre, marcaId)** en Alfajor (sin duplicados exactos).
