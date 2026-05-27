@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { SearchReviewsDto } from './dto/search-reviews.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewCreator } from './services/review-creator';
 import { ReviewFinder } from './services/review-finder';
+import { ReviewLikeToggler } from './services/review-like-toggler';
 import { ReviewRemover } from './services/review-remover';
 import { ReviewSearcher } from './services/review-searcher';
 import { ReviewUpdater } from './services/review-updater';
@@ -35,6 +37,7 @@ export class ReviewsController {
     private readonly searcher: ReviewSearcher,
     private readonly updater: ReviewUpdater,
     private readonly remover: ReviewRemover,
+    private readonly likes: ReviewLikeToggler,
   ) {}
 
   @Get()
@@ -78,5 +81,27 @@ export class ReviewsController {
     @CurrentUser() user: User,
   ): Promise<void> {
     await this.remover.execute(id, { id: user.id, role: user.role });
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/like')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async like(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    await this.likes.like(id, user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/like')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unlike(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    await this.likes.unlike(id, user.id);
   }
 }

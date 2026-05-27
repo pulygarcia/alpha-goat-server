@@ -112,10 +112,16 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
   - Tests: 5 verdes (empty, fallback all-time, deltaPct, alfajor inexistente, ventana de 7 días).
 - Bootstrap loguea `App running on http://localhost:<port>` + `Swagger docs on http://localhost:<port>/docs`.
 
+### `review-likes`
+- Entidad `ReviewLike` (FKs CASCADE a Review y User, unique `(reviewId, userId)`, índice en `reviewId`).
+- `ReviewLikeToggler` — `like` idempotente (chequea existencia antes de insertar), `unlike` con `delete`. Patrón espejado de `CommentLikeToggler`.
+- Endpoints en `ReviewsController`: `PUT /reviews/:id/like` (auth, 204) y `DELETE /reviews/:id/like` (auth, 204).
+- Migration `AddReviewLikes1779736666318` corrida en Neon — crea tabla `review_likes` con su unique + FKs CASCADE.
+- Tests: 3 verdes (create, idempotente, delete).
+
 ## Pendiente
 
 ### Próximos módulos
-- `review-likes` (ReviewLike: like/unlike a una review, unique por user).
 - `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
 
 ### Deuda técnica conocida

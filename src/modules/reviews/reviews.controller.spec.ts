@@ -5,6 +5,7 @@ import { Review } from './domain/review.entity';
 import { ReviewsController } from './reviews.controller';
 import { ReviewCreator } from './services/review-creator';
 import { ReviewFinder } from './services/review-finder';
+import { ReviewLikeToggler } from './services/review-like-toggler';
 import { ReviewRemover } from './services/review-remover';
 import { ReviewSearcher } from './services/review-searcher';
 import { ReviewUpdater } from './services/review-updater';
@@ -16,6 +17,7 @@ describe('ReviewsController', () => {
   let searcher: jest.Mocked<ReviewSearcher>;
   let updater: jest.Mocked<ReviewUpdater>;
   let remover: jest.Mocked<ReviewRemover>;
+  let likes: jest.Mocked<ReviewLikeToggler>;
 
   const review = {
     id: 'r1',
@@ -44,6 +46,7 @@ describe('ReviewsController', () => {
         { provide: ReviewSearcher, useValue: { execute: jest.fn() } },
         { provide: ReviewUpdater, useValue: { execute: jest.fn() } },
         { provide: ReviewRemover, useValue: { execute: jest.fn() } },
+        { provide: ReviewLikeToggler, useValue: { like: jest.fn(), unlike: jest.fn() } },
       ],
     }).compile();
 
@@ -53,6 +56,7 @@ describe('ReviewsController', () => {
     searcher = module.get(ReviewSearcher);
     updater = module.get(ReviewUpdater);
     remover = module.get(ReviewRemover);
+    likes = module.get(ReviewLikeToggler);
   });
 
   it('search returns paginated dtos', async () => {
@@ -92,5 +96,17 @@ describe('ReviewsController', () => {
     remover.execute.mockResolvedValue();
     await controller.remove('r1', user);
     expect(remover.execute).toHaveBeenCalledWith('r1', { id: 'u1', role: UserRole.USER });
+  });
+
+  it('like forwards reviewId and userId', async () => {
+    likes.like.mockResolvedValue();
+    await controller.like('r1', user);
+    expect(likes.like).toHaveBeenCalledWith('r1', 'u1');
+  });
+
+  it('unlike forwards reviewId and userId', async () => {
+    likes.unlike.mockResolvedValue();
+    await controller.unlike('r1', user);
+    expect(likes.unlike).toHaveBeenCalledWith('r1', 'u1');
   });
 });
