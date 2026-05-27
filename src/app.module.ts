@@ -7,6 +7,7 @@ import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { FeedModule } from './modules/feed/feed.module';
+import { FollowsModule } from './modules/follows/follows.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './modules/users/users.module';
     ReviewsModule,
     CommentsModule,
     ModerationModule,
+    FollowsModule,
     FeedModule,
   ],
 })

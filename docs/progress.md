@@ -119,6 +119,13 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Migration `AddReviewLikes1779736666318` corrida en Neon — crea tabla `review_likes` con su unique + FKs CASCADE.
 - Tests: 3 verdes (create, idempotente, delete).
 
+### `follows`
+- Entidad `UserFollow` (relación dirigida `followerId → followingId`, unique `(followerId, followingId)`, índices en ambas FKs, CASCADE a User). No es simétrica: seguir de vuelta requiere otra fila con roles invertidos.
+- `FollowToggler` — `follow` idempotente (valida que el target exista vía `UserFinder` y rechaza seguirse a uno mismo con 400), `unfollow` con `delete`, y `followingIds(userId)` que devuelve los ids seguidos (lo consume el feed para `scope=following`).
+- Endpoints en `FollowsController`: `PUT /follows/:userId` (auth, 204) y `DELETE /follows/:userId` (auth, 204). El follower sale del JWT, el target de la URL.
+- Migration `AddUserFollows1779914186581` corrida en Neon — tabla `user_follows` con unique + 2 índices + 2 FKs CASCADE.
+- Tests: 7 verdes (follow create/idempotente/self-reject, unfollow, followingIds, controller follow/unfollow).
+
 ## Pendiente
 
 ### Próximos módulos
