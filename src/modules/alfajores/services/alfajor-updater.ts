@@ -1,4 +1,8 @@
-import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { UserRole } from '../../users/domain/user-role.enum';
@@ -20,7 +24,11 @@ export class AlfajorUpdater {
     private readonly finder: AlfajorFinder,
   ) {}
 
-  async execute(id: string, dto: UpdateAlfajorDto, actor: ActorContext): Promise<Alfajor> {
+  async execute(
+    id: string,
+    dto: UpdateAlfajorDto,
+    actor: ActorContext,
+  ): Promise<Alfajor> {
     const alfajor = await this.finder.byId(id);
 
     this.assertCanEdit(alfajor, actor);

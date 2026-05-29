@@ -12,7 +12,10 @@ describe('MarcaSearcher', () => {
     const module = await Test.createTestingModule({
       providers: [
         MarcaSearcher,
-        { provide: getRepositoryToken(Marca), useValue: { findAndCount: jest.fn() } },
+        {
+          provide: getRepositoryToken(Marca),
+          useValue: { findAndCount: jest.fn() },
+        },
       ],
     }).compile();
 

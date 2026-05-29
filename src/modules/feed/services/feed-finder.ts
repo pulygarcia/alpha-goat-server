@@ -30,7 +30,11 @@ export class FeedFinder {
   ) {}
 
   // `now` se inyecta para poder testear las ventanas today/week sin tocar el reloj.
-  async execute(dto: FeedQueryDto, userId: string, now: Date = new Date()): Promise<FeedResult> {
+  async execute(
+    dto: FeedQueryDto,
+    userId: string,
+    now: Date = new Date(),
+  ): Promise<FeedResult> {
     const { scope, sort, province, page, limit } = dto;
 
     if (scope === FeedScope.PROVINCE && !province) {
@@ -57,7 +61,9 @@ export class FeedFinder {
           qb.andWhere('r.createdAt >= :from', { from: startOfDay(now) });
           break;
         case FeedScope.WEEK:
-          qb.andWhere('r.createdAt >= :from', { from: new Date(now.getTime() - WEEK_MS) });
+          qb.andWhere('r.createdAt >= :from', {
+            from: new Date(now.getTime() - WEEK_MS),
+          });
           break;
         case FeedScope.FOLLOWING:
           qb.andWhere('r.userId IN (:...followingIds)', { followingIds });
@@ -69,7 +75,9 @@ export class FeedFinder {
       return qb;
     };
 
-    const total = await applyFilters(this.reviews.createQueryBuilder('r')).getCount();
+    const total = await applyFilters(
+      this.reviews.createQueryBuilder('r'),
+    ).getCount();
     if (total === 0) return { rows: [], total: 0, page, limit };
 
     // Paso 1: traemos SOLO ids ordenados/paginados + los conteos calculados.
@@ -78,17 +86,27 @@ export class FeedFinder {
     // orden y la paginación van en esta query plana de ids.
     const ranked = applyFilters(this.reviews.createQueryBuilder('r'))
       .select('r.id', 'id')
-      .addSelect('(SELECT COUNT(*) FROM review_likes rl WHERE rl.review_id = r.id)', 'likesCount')
-      .addSelect('(SELECT COUNT(*) FROM comments cm WHERE cm.review_id = r.id)', 'commentsCount');
+      .addSelect(
+        '(SELECT COUNT(*) FROM review_likes rl WHERE rl.review_id = r.id)',
+        'likesCount',
+      )
+      .addSelect(
+        '(SELECT COUNT(*) FROM comments cm WHERE cm.review_id = r.id)',
+        'commentsCount',
+      );
 
     // Las comillas dobles en los alias son necesarias: Postgres baja a lowercase
     // los identificadores sin comillar y nuestros alias son camelCase.
     switch (sort) {
       case FeedSort.LIKES:
-        ranked.orderBy('"likesCount"', 'DESC').addOrderBy('r.createdAt', 'DESC');
+        ranked
+          .orderBy('"likesCount"', 'DESC')
+          .addOrderBy('r.createdAt', 'DESC');
         break;
       case FeedSort.RATING:
-        ranked.orderBy('r.ratingGeneral', 'DESC').addOrderBy('r.createdAt', 'DESC');
+        ranked
+          .orderBy('r.ratingGeneral', 'DESC')
+          .addOrderBy('r.createdAt', 'DESC');
         break;
       case FeedSort.RECENT:
       default:

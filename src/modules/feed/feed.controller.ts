@@ -7,7 +7,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,8 +20,10 @@ import { User } from '../users/domain/user.entity';
 import { FeedHeroResponseDto } from './dto/feed-hero-response.dto';
 import { FeedQueryDto } from './dto/feed-query.dto';
 import { FeedItemDto, FeedListDto } from './dto/feed-response.dto';
+import { FeedStatsDto } from './dto/feed-stats-response.dto';
 import { FeedFinder, FeedRow } from './services/feed-finder';
 import { FeedHeroFinder, FeedHeroResult } from './services/feed-hero-finder';
+import { FeedStatsFinder } from './services/feed-stats-finder';
 
 @ApiTags('feed')
 @Controller('feed')
@@ -24,14 +31,26 @@ export class FeedController {
   constructor(
     private readonly heroFinder: FeedHeroFinder,
     private readonly finder: FeedFinder,
+    private readonly statsFinder: FeedStatsFinder,
   ) {}
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Conteos del subnav del feed (hoy / semana)' })
+  @ApiResponse({ status: 200, type: FeedStatsDto })
+  stats(): Promise<FeedStatsDto> {
+    return this.statsFinder.execute();
+  }
+
   @Get('hero')
-  @ApiOperation({ summary: 'Pick editorial del feed (alfajor destacado + stats semanales)' })
+  @ApiOperation({
+    summary: 'Pick editorial del feed (alfajor destacado + stats semanales)',
+  })
   @ApiResponse({ status: 200, type: FeedHeroResponseDto })
   @ApiResponse({ status: 204, description: 'No hay reviews todavía' })
   @HttpCode(HttpStatus.OK)
-  async hero(@Res({ passthrough: true }) res: Response): Promise<FeedHeroResponseDto | void> {
+  async hero(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<FeedHeroResponseDto | void> {
     const result = await this.heroFinder.execute();
     // 204 cuando todavía no hay reviews en el sistema. El front renderiza un
     // empty-state en vez de loading infinito.
@@ -45,10 +64,18 @@ export class FeedController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lista paginada de reseñas del feed (scope + sort)' })
+  @ApiOperation({
+    summary: 'Lista paginada de reseñas del feed (scope + sort)',
+  })
   @ApiResponse({ status: 200, type: FeedListDto })
-  async list(@Query() dto: FeedQueryDto, @CurrentUser() user: User): Promise<FeedListDto> {
-    const { rows, total, page, limit } = await this.finder.execute(dto, user.id);
+  async list(
+    @Query() dto: FeedQueryDto,
+    @CurrentUser() user: User,
+  ): Promise<FeedListDto> {
+    const { rows, total, page, limit } = await this.finder.execute(
+      dto,
+      user.id,
+    );
     return { items: rows.map(toItemDto), total, page, limit };
   }
 }
@@ -104,6 +131,9 @@ function toHeroDto(r: FeedHeroResult): FeedHeroResponseDto {
     },
     ratings: r.ratings,
     stats: r.stats,
-    period: { from: r.period.from.toISOString(), to: r.period.to.toISOString() },
+    period: {
+      from: r.period.from.toISOString(),
+      to: r.period.to.toISOString(),
+    },
   };
 }

@@ -21,7 +21,9 @@ export class ReviewRemover {
   async execute(id: string, actor: ActorContext): Promise<void> {
     const review = await this.finder.byId(id);
     if (actor.role !== UserRole.ADMIN && review.userId !== actor.id) {
-      throw new ForbiddenException('only the author or an admin can delete this review');
+      throw new ForbiddenException(
+        'only the author or an admin can delete this review',
+      );
     }
     await this.reviews.remove(review);
   }

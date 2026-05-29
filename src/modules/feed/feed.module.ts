@@ -7,10 +7,15 @@ import { Review } from '../reviews/domain/review.entity';
 import { FeedController } from './feed.controller';
 import { FeedFinder } from './services/feed-finder';
 import { FeedHeroFinder } from './services/feed-hero-finder';
+import { FeedStatsFinder } from './services/feed-stats-finder';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, Alfajor]), AuthModule, FollowsModule],
+  imports: [
+    TypeOrmModule.forFeature([Review, Alfajor]),
+    AuthModule,
+    FollowsModule,
+  ],
   controllers: [FeedController],
-  providers: [FeedHeroFinder, FeedFinder],
+  providers: [FeedHeroFinder, FeedFinder, FeedStatsFinder],
 })
 export class FeedModule {}

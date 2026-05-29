@@ -22,7 +22,10 @@ describe('UserPasswordChanger', () => {
           useValue: { save: jest.fn() },
         },
         { provide: UserFinder, useValue: { byId: jest.fn() } },
-        { provide: PasswordHasher, useValue: { compare: jest.fn(), hash: jest.fn() } },
+        {
+          provide: PasswordHasher,
+          useValue: { compare: jest.fn(), hash: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -38,7 +41,10 @@ describe('UserPasswordChanger', () => {
     hasher.compare.mockResolvedValue(true);
     hasher.hash.mockResolvedValue('newhash');
 
-    await changer.execute('u1', { currentPassword: 'old', newPassword: 'newpass1' });
+    await changer.execute('u1', {
+      currentPassword: 'old',
+      newPassword: 'newpass1',
+    });
 
     expect(user.passwordHash).toBe('newhash');
     expect(repo.save).toHaveBeenCalledWith(user);
@@ -49,7 +55,10 @@ describe('UserPasswordChanger', () => {
     hasher.compare.mockResolvedValue(false);
 
     await expect(
-      changer.execute('u1', { currentPassword: 'bad', newPassword: 'newpass1' }),
+      changer.execute('u1', {
+        currentPassword: 'bad',
+        newPassword: 'newpass1',
+      }),
     ).rejects.toThrow(UnauthorizedException);
 
     expect(hasher.hash).not.toHaveBeenCalled();

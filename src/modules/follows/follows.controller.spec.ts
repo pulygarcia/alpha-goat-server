@@ -13,7 +13,10 @@ describe('FollowsController', () => {
     const module = await Test.createTestingModule({
       controllers: [FollowsController],
       providers: [
-        { provide: FollowToggler, useValue: { follow: jest.fn(), unfollow: jest.fn() } },
+        {
+          provide: FollowToggler,
+          useValue: { follow: jest.fn(), unfollow: jest.fn() },
+        },
       ],
     }).compile();
     controller = module.get(FollowsController);

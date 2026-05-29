@@ -46,7 +46,10 @@ describe('ReviewsController', () => {
         { provide: ReviewSearcher, useValue: { execute: jest.fn() } },
         { provide: ReviewUpdater, useValue: { execute: jest.fn() } },
         { provide: ReviewRemover, useValue: { execute: jest.fn() } },
-        { provide: ReviewLikeToggler, useValue: { like: jest.fn(), unlike: jest.fn() } },
+        {
+          provide: ReviewLikeToggler,
+          useValue: { like: jest.fn(), unlike: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -60,7 +63,12 @@ describe('ReviewsController', () => {
   });
 
   it('search returns paginated dtos', async () => {
-    searcher.execute.mockResolvedValue({ items: [review], total: 1, page: 1, limit: 20 });
+    searcher.execute.mockResolvedValue({
+      items: [review],
+      total: 1,
+      page: 1,
+      limit: 20,
+    });
     const res = await controller.search({ page: 1, limit: 20 });
     expect(res.items[0].id).toBe('r1');
   });
@@ -95,7 +103,10 @@ describe('ReviewsController', () => {
   it('remove forwards actor context', async () => {
     remover.execute.mockResolvedValue();
     await controller.remove('r1', user);
-    expect(remover.execute).toHaveBeenCalledWith('r1', { id: 'u1', role: UserRole.USER });
+    expect(remover.execute).toHaveBeenCalledWith('r1', {
+      id: 'u1',
+      role: UserRole.USER,
+    });
   });
 
   it('like forwards reviewId and userId', async () => {

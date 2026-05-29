@@ -13,40 +13,131 @@ type SeedAlfajor = {
 };
 
 const ALFAJORES: SeedAlfajor[] = [
-  { nombre: 'Havanna Clásico', marcaNombre: 'Havanna', tipo: AlfajorTipo.NEGRO, descripcion: 'Tapas de cacao con dulce de leche, bañado en chocolate semiamargo.' },
-  { nombre: 'Havanna Mixto', marcaNombre: 'Havanna', tipo: AlfajorTipo.OTRO, descripcion: 'Combinación de chocolate negro y baño blanco.' },
-  { nombre: 'Havanna Dulce de Leche', marcaNombre: 'Havanna', tipo: AlfajorTipo.BLANCO, descripcion: 'Bañado en glaseado de azúcar con relleno de dulce de leche.' },
+  {
+    nombre: 'Havanna Clásico',
+    marcaNombre: 'Havanna',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion:
+      'Tapas de cacao con dulce de leche, bañado en chocolate semiamargo.',
+  },
+  {
+    nombre: 'Havanna Mixto',
+    marcaNombre: 'Havanna',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Combinación de chocolate negro y baño blanco.',
+  },
+  {
+    nombre: 'Havanna Dulce de Leche',
+    marcaNombre: 'Havanna',
+    tipo: AlfajorTipo.BLANCO,
+    descripcion: 'Bañado en glaseado de azúcar con relleno de dulce de leche.',
+  },
 
-  { nombre: 'Cachafaz Chocolate', marcaNombre: 'Cachafaz', tipo: AlfajorTipo.CHOCOLATE, descripcion: 'Tapas de chocolate amargo con dulce de leche.' },
-  { nombre: 'Cachafaz Maicena', marcaNombre: 'Cachafaz', tipo: AlfajorTipo.MAICENA, descripcion: 'Tapas de maicena con dulce de leche y coco rallado.' },
+  {
+    nombre: 'Cachafaz Chocolate',
+    marcaNombre: 'Cachafaz',
+    tipo: AlfajorTipo.CHOCOLATE,
+    descripcion: 'Tapas de chocolate amargo con dulce de leche.',
+  },
+  {
+    nombre: 'Cachafaz Maicena',
+    marcaNombre: 'Cachafaz',
+    tipo: AlfajorTipo.MAICENA,
+    descripcion: 'Tapas de maicena con dulce de leche y coco rallado.',
+  },
 
-  { nombre: 'Jorgito Negro', marcaNombre: 'Jorgito', tipo: AlfajorTipo.NEGRO, descripcion: 'Clásico alfajor de chocolate negro con dulce de leche.' },
-  { nombre: 'Jorgito Blanco', marcaNombre: 'Jorgito', tipo: AlfajorTipo.BLANCO, descripcion: 'Bañado en chocolate blanco con dulce de leche.' },
-  { nombre: 'Jorgito Mousse', marcaNombre: 'Jorgito', tipo: AlfajorTipo.OTRO, descripcion: 'Versión con relleno de mousse de chocolate.' },
+  {
+    nombre: 'Jorgito Negro',
+    marcaNombre: 'Jorgito',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Clásico alfajor de chocolate negro con dulce de leche.',
+  },
+  {
+    nombre: 'Jorgito Blanco',
+    marcaNombre: 'Jorgito',
+    tipo: AlfajorTipo.BLANCO,
+    descripcion: 'Bañado en chocolate blanco con dulce de leche.',
+  },
+  {
+    nombre: 'Jorgito Mousse',
+    marcaNombre: 'Jorgito',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Versión con relleno de mousse de chocolate.',
+  },
 
-  { nombre: 'Guaymallén Simple Negro', marcaNombre: 'Guaymallén', tipo: AlfajorTipo.NEGRO },
-  { nombre: 'Guaymallén Simple Blanco', marcaNombre: 'Guaymallén', tipo: AlfajorTipo.BLANCO },
-  { nombre: 'Guaymallén Triple', marcaNombre: 'Guaymallén', tipo: AlfajorTipo.NEGRO, descripcion: 'Triple capa con doble relleno de dulce de leche.' },
+  {
+    nombre: 'Guaymallén Simple Negro',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.NEGRO,
+  },
+  {
+    nombre: 'Guaymallén Simple Blanco',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.BLANCO,
+  },
+  {
+    nombre: 'Guaymallén Triple',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con doble relleno de dulce de leche.',
+  },
 
-  { nombre: 'Capitán del Espacio', marcaNombre: 'Capitán del Espacio', tipo: AlfajorTipo.NEGRO, descripcion: 'Alfajor artesanal con relleno generoso de dulce de leche.' },
+  {
+    nombre: 'Capitán del Espacio',
+    marcaNombre: 'Capitán del Espacio',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Alfajor artesanal con relleno generoso de dulce de leche.',
+  },
 
-  { nombre: 'Balcarce', marcaNombre: 'Balcarce', tipo: AlfajorTipo.OTRO, descripcion: 'Postre tradicional con merengue, crema y dulce de leche.' },
+  {
+    nombre: 'Balcarce',
+    marcaNombre: 'Balcarce',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Postre tradicional con merengue, crema y dulce de leche.',
+  },
 
-  { nombre: 'Fantoche Clásico', marcaNombre: 'Fantoche', tipo: AlfajorTipo.NEGRO, descripcion: 'Alfajor cordobés con dulce de leche y baño de chocolate.' },
-  { nombre: 'Fantoche Blanco', marcaNombre: 'Fantoche', tipo: AlfajorTipo.BLANCO },
+  {
+    nombre: 'Fantoche Clásico',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Alfajor cordobés con dulce de leche y baño de chocolate.',
+  },
+  {
+    nombre: 'Fantoche Blanco',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.BLANCO,
+  },
 
   { nombre: 'Águila Negro', marcaNombre: 'Águila', tipo: AlfajorTipo.NEGRO },
   { nombre: 'Águila Blanco', marcaNombre: 'Águila', tipo: AlfajorTipo.BLANCO },
 
-  { nombre: 'Milka Oreo', marcaNombre: 'Milka', tipo: AlfajorTipo.OTRO, descripcion: 'Alfajor de chocolate Milka con relleno tipo Oreo.' },
+  {
+    nombre: 'Milka Oreo',
+    marcaNombre: 'Milka',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Alfajor de chocolate Milka con relleno tipo Oreo.',
+  },
   { nombre: 'Milka Mousse', marcaNombre: 'Milka', tipo: AlfajorTipo.CHOCOLATE },
 
-  { nombre: 'Block', marcaNombre: 'Cofler', tipo: AlfajorTipo.NEGRO, descripcion: 'Triple capa con doble relleno, baño de chocolate.' },
+  {
+    nombre: 'Block',
+    marcaNombre: 'Cofler',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con doble relleno, baño de chocolate.',
+  },
 
-  { nombre: 'Tofi Chocolate', marcaNombre: 'Tofi', tipo: AlfajorTipo.CHOCOLATE },
+  {
+    nombre: 'Tofi Chocolate',
+    marcaNombre: 'Tofi',
+    tipo: AlfajorTipo.CHOCOLATE,
+  },
   { nombre: 'Tofi Blanco', marcaNombre: 'Tofi', tipo: AlfajorTipo.BLANCO },
 
-  { nombre: 'Terrabusi Clásico', marcaNombre: 'Terrabusi', tipo: AlfajorTipo.NEGRO },
+  {
+    nombre: 'Terrabusi Clásico',
+    marcaNombre: 'Terrabusi',
+    tipo: AlfajorTipo.NEGRO,
+  },
 ];
 
 async function run(): Promise<void> {
@@ -66,7 +157,9 @@ async function run(): Promise<void> {
     for (const data of ALFAJORES) {
       const marca = marcasByNombre.get(data.marcaNombre);
       if (!marca) {
-        console.warn(`  [skip] marca no encontrada: "${data.marcaNombre}" (¿corriste el seed de marcas primero?)`);
+        console.warn(
+          `  [skip] marca no encontrada: "${data.marcaNombre}" (¿corriste el seed de marcas primero?)`,
+        );
         missingMarca++;
         continue;
       }

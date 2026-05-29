@@ -12,7 +12,10 @@ describe('ReviewSearcher', () => {
     const module = await Test.createTestingModule({
       providers: [
         ReviewSearcher,
-        { provide: getRepositoryToken(Review), useValue: { findAndCount: jest.fn() } },
+        {
+          provide: getRepositoryToken(Review),
+          useValue: { findAndCount: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -23,7 +26,12 @@ describe('ReviewSearcher', () => {
   it('filters by alfajorId and userId with pagination', async () => {
     repo.findAndCount.mockResolvedValue([[], 0]);
 
-    await searcher.execute({ alfajorId: 'a1', userId: 'u1', page: 2, limit: 5 });
+    await searcher.execute({
+      alfajorId: 'a1',
+      userId: 'u1',
+      page: 2,
+      limit: 5,
+    });
 
     expect(repo.findAndCount).toHaveBeenCalledWith({
       where: { alfajorId: 'a1', userId: 'u1' },

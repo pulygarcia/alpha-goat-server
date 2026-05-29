@@ -14,7 +14,10 @@ describe('AlfajorSearcher', () => {
     const module = await Test.createTestingModule({
       providers: [
         AlfajorSearcher,
-        { provide: getRepositoryToken(Alfajor), useValue: { findAndCount: jest.fn() } },
+        {
+          provide: getRepositoryToken(Alfajor),
+          useValue: { findAndCount: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -62,7 +65,10 @@ describe('AlfajorSearcher', () => {
   it('omits status when includeAllStatuses and no status given', async () => {
     repo.findAndCount.mockResolvedValue([[], 0]);
 
-    await searcher.execute({ page: 1, limit: 20 }, { includeAllStatuses: true });
+    await searcher.execute(
+      { page: 1, limit: 20 },
+      { includeAllStatuses: true },
+    );
 
     expect(repo.findAndCount).toHaveBeenCalledWith(
       expect.objectContaining({ where: {} }),

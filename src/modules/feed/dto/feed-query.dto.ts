@@ -29,7 +29,9 @@ export class FeedQueryDto {
   sort: FeedSort = FeedSort.RECENT;
 
   // Requerido cuando scope=province. Se compara contra marca.provincia.
-  @ApiPropertyOptional({ description: 'Provincia (requerida si scope=province)' })
+  @ApiPropertyOptional({
+    description: 'Provincia (requerida si scope=province)',
+  })
   @IsOptional()
   @IsString()
   province?: string;

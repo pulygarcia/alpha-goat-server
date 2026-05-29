@@ -34,7 +34,10 @@ describe('MarcaUpdater', () => {
     repo.findOne.mockResolvedValue(null);
     repo.save.mockImplementation(async (m) => m as Marca);
 
-    const result = await updater.execute('m1', { nombre: 'New', provincia: 'BA' });
+    const result = await updater.execute('m1', {
+      nombre: 'New',
+      provincia: 'BA',
+    });
 
     expect(result.nombre).toBe('New');
     expect(result.provincia).toBe('BA');

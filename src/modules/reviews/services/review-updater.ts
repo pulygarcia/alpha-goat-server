@@ -13,7 +13,11 @@ export class ReviewUpdater {
     private readonly finder: ReviewFinder,
   ) {}
 
-  async execute(id: string, dto: UpdateReviewDto, userId: string): Promise<Review> {
+  async execute(
+    id: string,
+    dto: UpdateReviewDto,
+    userId: string,
+  ): Promise<Review> {
     const review = await this.finder.byId(id);
     if (review.userId !== userId) {
       throw new ForbiddenException('only the author can edit this review');

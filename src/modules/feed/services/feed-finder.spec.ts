@@ -10,8 +10,15 @@ import { FeedFinder } from './feed-finder';
 const makeQb = (count: number, rawRows?: unknown[]) => {
   const qb: any = {};
   const chain = [
-    'innerJoin', 'select', 'where', 'andWhere', 'addSelect',
-    'orderBy', 'addOrderBy', 'offset', 'limit',
+    'innerJoin',
+    'select',
+    'where',
+    'andWhere',
+    'addSelect',
+    'orderBy',
+    'addOrderBy',
+    'offset',
+    'limit',
   ];
   for (const m of chain) qb[m] = jest.fn().mockReturnValue(qb);
   qb.getCount = jest.fn().mockResolvedValue(count);
@@ -56,7 +63,10 @@ describe('FeedFinder', () => {
   it('returns an empty page for scope=following when the user follows nobody', async () => {
     follows.followingIds.mockResolvedValue([]);
 
-    const result = await finder.execute(baseDto({ scope: FeedScope.FOLLOWING }), 'u1');
+    const result = await finder.execute(
+      baseDto({ scope: FeedScope.FOLLOWING }),
+      'u1',
+    );
 
     expect(result).toEqual({ rows: [], total: 0, page: 1, limit: 20 });
     expect(reviews.createQueryBuilder).not.toHaveBeenCalled();
@@ -75,7 +85,9 @@ describe('FeedFinder', () => {
     const review = { id: 'r1', comentario: 'rico', ratingGeneral: 8 } as Review;
     reviews.createQueryBuilder
       .mockReturnValueOnce(makeQb(1)) // count
-      .mockReturnValueOnce(makeQb(1, [{ id: 'r1', likesCount: '12', commentsCount: '3' }])); // ranked ids
+      .mockReturnValueOnce(
+        makeQb(1, [{ id: 'r1', likesCount: '12', commentsCount: '3' }]),
+      ); // ranked ids
     reviews.find.mockResolvedValue([review]);
 
     const result = await finder.execute(baseDto(), 'u1');
@@ -98,7 +110,10 @@ describe('FeedFinder', () => {
     // find devuelve en orden arbitrario; el finder debe respetar el rank (r2, r1).
     reviews.find.mockResolvedValue([r1, r2]);
 
-    const result = await finder.execute(baseDto({ sort: FeedSort.LIKES }), 'u1');
+    const result = await finder.execute(
+      baseDto({ sort: FeedSort.LIKES }),
+      'u1',
+    );
 
     expect(result.rows.map((row) => row.review.id)).toEqual(['r2', 'r1']);
   });
@@ -106,8 +121,12 @@ describe('FeedFinder', () => {
   it('filters by the followed ids for scope=following', async () => {
     follows.followingIds.mockResolvedValue(['a', 'b']);
     const countQb = makeQb(1);
-    const rankedQb = makeQb(1, [{ id: 'r1', likesCount: '0', commentsCount: '0' }]);
-    reviews.createQueryBuilder.mockReturnValueOnce(countQb).mockReturnValueOnce(rankedQb);
+    const rankedQb = makeQb(1, [
+      { id: 'r1', likesCount: '0', commentsCount: '0' },
+    ]);
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(countQb)
+      .mockReturnValueOnce(rankedQb);
     reviews.find.mockResolvedValue([{ id: 'r1' } as Review]);
 
     await finder.execute(baseDto({ scope: FeedScope.FOLLOWING }), 'u1');
@@ -120,8 +139,12 @@ describe('FeedFinder', () => {
 
   it('orders by likesCount for sort=likes', async () => {
     const countQb = makeQb(1);
-    const rankedQb = makeQb(1, [{ id: 'r1', likesCount: '5', commentsCount: '1' }]);
-    reviews.createQueryBuilder.mockReturnValueOnce(countQb).mockReturnValueOnce(rankedQb);
+    const rankedQb = makeQb(1, [
+      { id: 'r1', likesCount: '5', commentsCount: '1' },
+    ]);
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(countQb)
+      .mockReturnValueOnce(rankedQb);
     reviews.find.mockResolvedValue([{ id: 'r1' } as Review]);
 
     await finder.execute(baseDto({ sort: FeedSort.LIKES }), 'u1');
@@ -132,7 +155,9 @@ describe('FeedFinder', () => {
   it('applies offset and limit from page/limit', async () => {
     const countQb = makeQb(50);
     const rankedQb = makeQb(50, []);
-    reviews.createQueryBuilder.mockReturnValueOnce(countQb).mockReturnValueOnce(rankedQb);
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(countQb)
+      .mockReturnValueOnce(rankedQb);
     reviews.find.mockResolvedValue([]);
 
     await finder.execute(baseDto({ page: 3, limit: 10 }), 'u1');

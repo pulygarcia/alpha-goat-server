@@ -27,7 +27,10 @@ export class FeedHeroRatingsDto {
 export class FeedHeroStatsDto {
   @ApiProperty() reviewsThisWeek: number;
   @ApiProperty() reviewsLastWeek: number;
-  @ApiProperty({ nullable: true, description: 'null cuando reviewsLastWeek = 0' })
+  @ApiProperty({
+    nullable: true,
+    description: 'null cuando reviewsLastWeek = 0',
+  })
   deltaPct: number | null;
   @ApiProperty() totalReviews: number;
 }

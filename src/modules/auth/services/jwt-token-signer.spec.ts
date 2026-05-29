@@ -27,6 +27,9 @@ describe('JwtTokenSigner', () => {
     const token = await signer.sign(user);
 
     expect(token).toBe('token');
-    expect(jwt.signAsync).toHaveBeenCalledWith({ sub: 'u1', role: UserRole.USER });
+    expect(jwt.signAsync).toHaveBeenCalledWith({
+      sub: 'u1',
+      role: UserRole.USER,
+    });
   });
 });

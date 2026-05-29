@@ -116,6 +116,10 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
   - `FeedFinder` en dos pasos para esquivar un bug de TypeORM (hidratar entidades + order by alias calculado + limit genera SQL inválido): (1) QueryBuilder plano que trae ids ordenados/paginados + conteos de likes/comments por subquery correlacionada; (2) `find({ where: { id: In(ids) }, relations })` repo-API puro y reordenado según el rank. `scope=following` usa `FollowToggler.followingIds`; si no sigue a nadie → feed vacío sin pegarle a la DB.
   - Tests: 10 verdes (8 finder: province sin valor, following vacío, total 0, mapeo de conteos, reorden por rank, filtro following, order by likes, offset/limit; 2 controller: mapeo del item dto, forward de query+userId).
   - Verificado con smoke test real contra Neon: sort recent/rating/likes, scope week/province/following, like/unlike y follow/unfollow end-to-end, 400 de province/auto-follow.
+- Endpoint `GET /feed/stats` (público): conteos para el subnav del feed.
+  - `FeedStatsFinder`: devuelve `{ todayCount, weekCount }`. Las ventanas espejan las de `FeedFinder` (hoy = desde las 00:00 del día local; semana = ventana móvil de 7 días) para que los contadores coincidan con lo que listan `scope=today` / `scope=week`. Solo cuenta reseñas de alfajores APPROVED. `now` inyectable para testear sin tocar el reloj.
+  - Response DTO `FeedStatsDto`. Público (como `/feed/hero`): son conteos globales sin datos del usuario.
+  - Tests: 4 finder (counts, ventana hoy, ventana semana, filtro APPROVED) + 1 controller. Todo verde.
 - Bootstrap loguea `App running on http://localhost:<port>` + `Swagger docs on http://localhost:<port>/docs`.
 
 ### `review-likes`
@@ -135,7 +139,17 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ## Pendiente
 
 ### Próximos módulos
-- `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review.
+- `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review. El front (`alphagoat-client`) usa placeholders cream hasta que esto exponga URLs públicas.
+
+### Endpoints pedidos por el front (`alphagoat-client`)
+Definidos en `alphagoat-client/docs/progress.md` → "Endpoints backend faltantes". No estaban en el roadmap original de `architecture.md`; surgieron al construir el feed. Se implementan **en el orden en que los va necesitando el front**. Contrato esperado por el front:
+
+- ~~`GET /feed/stats`~~ — **listo** (público, `{ todayCount, weekCount }`). Ver entrada en `feed` arriba. Falta conectar en el FE.
+- `GET /ranking/weekly` (público?) — ranking semanal para el rail del feed. Top N alfajores de la semana con `score`, `trend` (▲▼ delta vs semana anterior) y `marca`. Probable módulo nuevo `ranking`.
+- `GET /marcas/featured` (público) — "marcas en foco" del rail. Marcas con `productCount` y `avgScore`. Suma al módulo `marcas` existente.
+- `GET /recommendations` (auth) — "recomendado para vos". Recomendaciones personalizadas por huella del usuario con `matchPct` y `score`. Módulo nuevo `recommendations`.
+
+Flujo de trabajo acordado: al cerrar cada endpoint en el back, actualizar `alphagoat-client/docs/progress.md` marcándolo como "listo en back, falta conectar en FE".
 
 ### Deuda técnica conocida
 - (sin items abiertos)

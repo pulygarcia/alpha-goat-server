@@ -13,7 +13,10 @@ describe('ReviewFinder', () => {
     const module = await Test.createTestingModule({
       providers: [
         ReviewFinder,
-        { provide: getRepositoryToken(Review), useValue: { findOne: jest.fn() } },
+        {
+          provide: getRepositoryToken(Review),
+          useValue: { findOne: jest.fn() },
+        },
       ],
     }).compile();
 

@@ -46,7 +46,10 @@ export class FeedHeroFinder {
   // `now` se inyecta como parámetro para poder testear ventanas de tiempo sin
   // tocar el reloj global. En prod siempre cae al default.
   async execute(now: Date = new Date()): Promise<FeedHeroResult | null> {
-    const thisWeek: TimeWindow = { from: new Date(now.getTime() - WEEK_MS), to: now };
+    const thisWeek: TimeWindow = {
+      from: new Date(now.getTime() - WEEK_MS),
+      to: now,
+    };
     const lastWeek: TimeWindow = {
       from: new Date(thisWeek.from.getTime() - WEEK_MS),
       to: thisWeek.from,
@@ -55,7 +58,8 @@ export class FeedHeroFinder {
     // Pick: ganador de la semana; si no hubo reviews en la semana, fallback al
     // alfajor con más reviews históricas. Si la DB no tiene reviews → null
     // (el controller responde 204).
-    const winnerId = (await this.pickByTimeWindow(thisWeek)) ?? (await this.pickAllTime());
+    const winnerId =
+      (await this.pickByTimeWindow(thisWeek)) ?? (await this.pickAllTime());
     if (!winnerId) return null;
 
     const alfajor = await this.alfajores.findOne({
@@ -64,12 +68,13 @@ export class FeedHeroFinder {
     });
     if (!alfajor) return null;
 
-    const [ratings, reviewsThisWeek, reviewsLastWeek, totalReviews] = await Promise.all([
-      this.averages(winnerId),
-      this.countInTimeWindow(winnerId, thisWeek),
-      this.countInTimeWindow(winnerId, lastWeek),
-      this.reviews.count({ where: { alfajorId: winnerId } }),
-    ]);
+    const [ratings, reviewsThisWeek, reviewsLastWeek, totalReviews] =
+      await Promise.all([
+        this.averages(winnerId),
+        this.countInTimeWindow(winnerId, thisWeek),
+        this.countInTimeWindow(winnerId, lastWeek),
+        this.reviews.count({ where: { alfajorId: winnerId } }),
+      ]);
 
     // deltaPct = null cuando no había base la semana pasada (división por cero).
     // El front interpreta null como "sin comparación" y muestra solo el conteo.
@@ -127,7 +132,9 @@ export class FeedHeroFinder {
   // Promedios de los 6 ejes sobre TODAS las reviews del alfajor (no solo
   // las de la ventana) — el radar muestra la "huella" histórica.
   // AVG sobre numeric devuelve string en pg, por eso el cast manual.
-  private async averages(alfajorId: string): Promise<FeedHeroResult['ratings']> {
+  private async averages(
+    alfajorId: string,
+  ): Promise<FeedHeroResult['ratings']> {
     const row = await this.reviews
       .createQueryBuilder('r')
       .select('AVG(r.ratingGeneral)', 'general')
@@ -154,7 +161,10 @@ export class FeedHeroFinder {
 
   // Cuenta reviews de un alfajor dentro de una ventana de tiempo.
   // Se reusa para "esta semana" y "semana pasada" (cálculo del delta).
-  private countInTimeWindow(alfajorId: string, window: TimeWindow): Promise<number> {
+  private countInTimeWindow(
+    alfajorId: string,
+    window: TimeWindow,
+  ): Promise<number> {
     return this.reviews
       .createQueryBuilder('r')
       .where('r.alfajorId = :alfajorId', { alfajorId })

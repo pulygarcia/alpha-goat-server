@@ -38,7 +38,9 @@ describe('UserFinder', () => {
   it('byEmail lowercases input', async () => {
     repo.findOne.mockResolvedValue(null);
     await finder.byEmail('Foo@Bar.com');
-    expect(repo.findOne).toHaveBeenCalledWith({ where: { email: 'foo@bar.com' } });
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { email: 'foo@bar.com' },
+    });
   });
 
   it('byUsername queries repo', async () => {

@@ -25,7 +25,7 @@ describe('AlfajorUpdater', () => {
       status: AlfajorStatus.PENDING,
       createdById: 'u1',
       ...overrides,
-    } as Alfajor);
+    }) as Alfajor;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -60,10 +60,16 @@ describe('AlfajorUpdater', () => {
   });
 
   it('owner cannot edit once APPROVED', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.APPROVED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.APPROVED }),
+    );
 
     await expect(
-      updater.execute('a1', { nombre: 'New' }, { id: 'u1', role: UserRole.USER }),
+      updater.execute(
+        'a1',
+        { nombre: 'New' },
+        { id: 'u1', role: UserRole.USER },
+      ),
     ).rejects.toThrow(ForbiddenException);
   });
 
@@ -71,12 +77,18 @@ describe('AlfajorUpdater', () => {
     finder.byId.mockResolvedValue(baseAlfajor());
 
     await expect(
-      updater.execute('a1', { nombre: 'New' }, { id: 'other', role: UserRole.USER }),
+      updater.execute(
+        'a1',
+        { nombre: 'New' },
+        { id: 'other', role: UserRole.USER },
+      ),
     ).rejects.toThrow(ForbiddenException);
   });
 
   it('admin can edit any alfajor regardless of status', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.APPROVED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.APPROVED }),
+    );
     repo.findOne.mockResolvedValue(null);
     repo.save.mockImplementation(async (a) => a as Alfajor);
 
@@ -94,7 +106,11 @@ describe('AlfajorUpdater', () => {
     repo.findOne.mockResolvedValue({ id: 'other' } as Alfajor);
 
     await expect(
-      updater.execute('a1', { nombre: 'Taken' }, { id: 'u1', role: UserRole.USER }),
+      updater.execute(
+        'a1',
+        { nombre: 'Taken' },
+        { id: 'u1', role: UserRole.USER },
+      ),
     ).rejects.toThrow(ConflictException);
   });
 
@@ -103,7 +119,11 @@ describe('AlfajorUpdater', () => {
     finder.byId.mockResolvedValue(alf);
     repo.save.mockResolvedValue(alf);
 
-    await updater.execute('a1', { nombre: 'Same' }, { id: 'u1', role: UserRole.USER });
+    await updater.execute(
+      'a1',
+      { nombre: 'Same' },
+      { id: 'u1', role: UserRole.USER },
+    );
 
     expect(repo.findOne).not.toHaveBeenCalled();
   });

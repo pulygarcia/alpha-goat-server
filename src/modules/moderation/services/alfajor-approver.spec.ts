@@ -22,7 +22,7 @@ describe('AlfajorApprover', () => {
       status: AlfajorStatus.PENDING,
       rejectionReason: null,
       ...overrides,
-    } as Alfajor);
+    }) as Alfajor;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -49,13 +49,17 @@ describe('AlfajorApprover', () => {
   });
 
   it('throws BadRequest when alfajor is already APPROVED', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.APPROVED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.APPROVED }),
+    );
     await expect(approver.execute('a1')).rejects.toThrow(BadRequestException);
     expect(repo.save).not.toHaveBeenCalled();
   });
 
   it('throws BadRequest when alfajor is REJECTED', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.REJECTED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.REJECTED }),
+    );
     await expect(approver.execute('a1')).rejects.toThrow(BadRequestException);
   });
 });

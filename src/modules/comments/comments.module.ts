@@ -13,7 +13,11 @@ import { CommentSearcher } from './services/comment-searcher';
 import { CommentUpdater } from './services/comment-updater';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, CommentLike]), AuthModule, ReviewsModule],
+  imports: [
+    TypeOrmModule.forFeature([Comment, CommentLike]),
+    AuthModule,
+    ReviewsModule,
+  ],
   controllers: [CommentsController],
   providers: [
     CommentCreator,

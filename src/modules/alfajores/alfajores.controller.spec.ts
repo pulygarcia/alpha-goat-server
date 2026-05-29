@@ -52,7 +52,12 @@ describe('AlfajoresController', () => {
   });
 
   it('search calls searcher without admin flag for anonymous', async () => {
-    searcher.execute.mockResolvedValue({ items: [alfajor], total: 1, page: 1, limit: 20 });
+    searcher.execute.mockResolvedValue({
+      items: [alfajor],
+      total: 1,
+      page: 1,
+      limit: 20,
+    });
 
     const res = await controller.search({ page: 1, limit: 20 });
 
@@ -64,7 +69,12 @@ describe('AlfajoresController', () => {
   });
 
   it('search passes includeAllStatuses for admin', async () => {
-    searcher.execute.mockResolvedValue({ items: [], total: 0, page: 1, limit: 20 });
+    searcher.execute.mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+    });
 
     await controller.search({ page: 1, limit: 20 }, adminActor);
 

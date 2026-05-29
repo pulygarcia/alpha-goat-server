@@ -16,7 +16,10 @@ describe('ReviewRemover', () => {
     const module = await Test.createTestingModule({
       providers: [
         ReviewRemover,
-        { provide: getRepositoryToken(Review), useValue: { remove: jest.fn() } },
+        {
+          provide: getRepositoryToken(Review),
+          useValue: { remove: jest.fn() },
+        },
         { provide: ReviewFinder, useValue: { byId: jest.fn() } },
       ],
     }).compile();

@@ -16,7 +16,9 @@ describe('RolesGuard', () => {
   let guard: RolesGuard;
 
   beforeEach(() => {
-    reflector = { getAllAndOverride: jest.fn() } as unknown as jest.Mocked<Reflector>;
+    reflector = {
+      getAllAndOverride: jest.fn(),
+    } as unknown as jest.Mocked<Reflector>;
     guard = new RolesGuard(reflector);
   });
 
@@ -39,6 +41,8 @@ describe('RolesGuard', () => {
 
   it('throws ForbiddenException when user is missing', () => {
     reflector.getAllAndOverride.mockReturnValue([UserRole.USER]);
-    expect(() => guard.canActivate(ctxWith(undefined))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctxWith(undefined))).toThrow(
+      ForbiddenException,
+    );
   });
 });

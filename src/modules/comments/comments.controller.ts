@@ -17,7 +17,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
-import { CommentResponseDto, PaginatedCommentsDto } from './dto/comment-response.dto';
+import {
+  CommentResponseDto,
+  PaginatedCommentsDto,
+} from './dto/comment-response.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { SearchCommentsDto } from './dto/search-comments.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -45,12 +48,22 @@ export class CommentsController {
     @Param('reviewId', ParseUUIDPipe) reviewId: string,
     @Query() dto: SearchCommentsDto,
   ): Promise<PaginatedCommentsDto> {
-    const { items, total, page, limit } = await this.searcher.execute(reviewId, dto);
-    return { items: items.map(CommentResponseDto.from), total, page, limit };
+    const { items, total, page, limit } = await this.searcher.execute(
+      reviewId,
+      dto,
+    );
+    return {
+      items: items.map((c) => CommentResponseDto.from(c)),
+      total,
+      page,
+      limit,
+    };
   }
 
   @Get('comments/:id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<CommentResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CommentResponseDto> {
     return CommentResponseDto.from(await this.finder.byId(id));
   }
 
@@ -62,7 +75,9 @@ export class CommentsController {
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: User,
   ): Promise<CommentResponseDto> {
-    return CommentResponseDto.from(await this.creator.execute(reviewId, dto, user.id));
+    return CommentResponseDto.from(
+      await this.creator.execute(reviewId, dto, user.id),
+    );
   }
 
   @ApiBearerAuth()
@@ -73,7 +88,9 @@ export class CommentsController {
     @Body() dto: UpdateCommentDto,
     @CurrentUser() user: User,
   ): Promise<CommentResponseDto> {
-    return CommentResponseDto.from(await this.updater.execute(id, dto, user.id));
+    return CommentResponseDto.from(
+      await this.updater.execute(id, dto, user.id),
+    );
   }
 
   @ApiBearerAuth()

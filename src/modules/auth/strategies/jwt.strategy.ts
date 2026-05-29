@@ -9,15 +9,17 @@ import { ACCESS_TOKEN_COOKIE } from '../auth.cookie';
 import { JwtPayload } from '../services/jwt-token-signer';
 
 function cookieExtractor(req: Request): string | null {
-  const raw: unknown = (req as Request & { cookies?: Record<string, unknown> }).cookies?.[
-    ACCESS_TOKEN_COOKIE
-  ];
+  const raw: unknown = (req as Request & { cookies?: Record<string, unknown> })
+    .cookies?.[ACCESS_TOKEN_COOKIE];
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService, private readonly finder: UserFinder) {
+  constructor(
+    config: ConfigService,
+    private readonly finder: UserFinder,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         cookieExtractor,

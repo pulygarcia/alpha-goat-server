@@ -36,8 +36,8 @@ describe('CommentUpdater', () => {
 
   it('throws ForbiddenException when caller is not the author', async () => {
     finder.byId.mockResolvedValue({ id: 'c1', userId: 'u1' } as Comment);
-    await expect(updater.execute('c1', { contenido: 'x' }, 'u2')).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
+    await expect(
+      updater.execute('c1', { contenido: 'x' }, 'u2'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

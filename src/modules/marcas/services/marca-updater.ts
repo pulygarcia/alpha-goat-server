@@ -20,7 +20,8 @@ export class MarcaUpdater {
       const taken = await this.marcas.findOne({
         where: { nombre: dto.nombre, id: Not(id) },
       });
-      if (taken) throw new ConflictException(`marca "${dto.nombre}" already exists`);
+      if (taken)
+        throw new ConflictException(`marca "${dto.nombre}" already exists`);
       marca.nombre = dto.nombre;
     }
 

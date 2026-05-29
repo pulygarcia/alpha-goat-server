@@ -21,7 +21,9 @@ export class CommentRemover {
   async execute(id: string, actor: ActorContext): Promise<void> {
     const comment = await this.finder.byId(id);
     if (actor.role !== UserRole.ADMIN && comment.userId !== actor.id) {
-      throw new ForbiddenException('only the author or an admin can delete this comment');
+      throw new ForbiddenException(
+        'only the author or an admin can delete this comment',
+      );
     }
     await this.comments.remove(comment);
   }

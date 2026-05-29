@@ -13,7 +13,10 @@ describe('AlfajorFinder', () => {
     const module = await Test.createTestingModule({
       providers: [
         AlfajorFinder,
-        { provide: getRepositoryToken(Alfajor), useValue: { findOne: jest.fn() } },
+        {
+          provide: getRepositoryToken(Alfajor),
+          useValue: { findOne: jest.fn() },
+        },
       ],
     }).compile();
 

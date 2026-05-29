@@ -29,7 +29,9 @@ export class UsersController {
   ) {}
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<UserResponseDto> {
     return UserResponseDto.from(await this.finder.byId(id));
   }
 

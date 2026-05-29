@@ -13,7 +13,11 @@ export class CommentUpdater {
     private readonly finder: CommentFinder,
   ) {}
 
-  async execute(id: string, dto: UpdateCommentDto, userId: string): Promise<Comment> {
+  async execute(
+    id: string,
+    dto: UpdateCommentDto,
+    userId: string,
+  ): Promise<Comment> {
     const comment = await this.finder.byId(id);
     if (comment.userId !== userId) {
       throw new ForbiddenException('only the author can edit this comment');

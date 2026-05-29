@@ -14,7 +14,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import { UserRole } from '../users/domain/user-role.enum';
-import { AlfajorResponseDto, PaginatedAlfajoresDto } from './dto/alfajor-response.dto';
+import {
+  AlfajorResponseDto,
+  PaginatedAlfajoresDto,
+} from './dto/alfajor-response.dto';
 import { CreateAlfajorDto } from './dto/create-alfajor.dto';
 import { SearchAlfajoresDto } from './dto/search-alfajores.dto';
 import { UpdateAlfajorDto } from './dto/update-alfajor.dto';
@@ -42,11 +45,18 @@ export class AlfajoresController {
     const { items, total, page, limit } = await this.searcher.execute(dto, {
       includeAllStatuses,
     });
-    return { items: items.map(AlfajorResponseDto.from), total, page, limit };
+    return {
+      items: items.map((a) => AlfajorResponseDto.from(a)),
+      total,
+      page,
+      limit,
+    };
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<AlfajorResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<AlfajorResponseDto> {
     return AlfajorResponseDto.from(await this.finder.byId(id));
   }
 
@@ -68,7 +78,10 @@ export class AlfajoresController {
     @Body() dto: UpdateAlfajorDto,
     @CurrentUser() user: User,
   ): Promise<AlfajorResponseDto> {
-    const updated = await this.updater.execute(id, dto, { id: user.id, role: user.role });
+    const updated = await this.updater.execute(id, dto, {
+      id: user.id,
+      role: user.role,
+    });
     return AlfajorResponseDto.from(updated);
   }
 }

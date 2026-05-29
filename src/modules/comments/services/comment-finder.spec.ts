@@ -13,7 +13,10 @@ describe('CommentFinder', () => {
     const module = await Test.createTestingModule({
       providers: [
         CommentFinder,
-        { provide: getRepositoryToken(Comment), useValue: { findOne: jest.fn() } },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: { findOne: jest.fn() },
+        },
       ],
     }).compile();
     finder = module.get(CommentFinder);

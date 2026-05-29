@@ -39,7 +39,9 @@ describe('MarcaCreator', () => {
   it('throws ConflictException when nombre is taken', async () => {
     repo.findOne.mockResolvedValue({ id: 'existing' } as Marca);
 
-    await expect(creator.execute({ nombre: 'Havanna' })).rejects.toThrow(ConflictException);
+    await expect(creator.execute({ nombre: 'Havanna' })).rejects.toThrow(
+      ConflictException,
+    );
     expect(repo.save).not.toHaveBeenCalled();
   });
 });

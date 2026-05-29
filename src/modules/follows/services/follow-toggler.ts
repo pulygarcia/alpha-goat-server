@@ -19,7 +19,9 @@ export class FollowToggler {
       throw new BadRequestException('cannot follow yourself');
     }
     await this.users.byId(followingId);
-    const exists = await this.follows.findOne({ where: { followerId, followingId } });
+    const exists = await this.follows.findOne({
+      where: { followerId, followingId },
+    });
     if (exists) return;
     await this.follows.save(this.follows.create({ followerId, followingId }));
   }

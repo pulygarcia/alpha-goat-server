@@ -20,7 +20,10 @@ export class CommentSearcher {
     private readonly reviewFinder: ReviewFinder,
   ) {}
 
-  async execute(reviewId: string, dto: SearchCommentsDto): Promise<PaginatedComments> {
+  async execute(
+    reviewId: string,
+    dto: SearchCommentsDto,
+  ): Promise<PaginatedComments> {
     await this.reviewFinder.byId(reviewId);
     const { page, limit } = dto;
     const [items, total] = await this.comments.findAndCount({

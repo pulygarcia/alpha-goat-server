@@ -314,6 +314,12 @@ GET    /feed                             # auth — scope + sort + page/limit
 GET    /admin/alfajores/pending          # admin
 PATCH  /admin/alfajores/:id/approve      # admin
 PATCH  /admin/alfajores/:id/reject       # admin
+
+# --- Pedidos por el front (alphagoat-client) ---
+GET    /feed/stats                       # público — { todayCount, weekCount } para el subnav  [HECHO]
+GET    /ranking/weekly                   # rail: top N semana con score, trend, marca
+GET    /marcas/featured                  # rail: marcas en foco con productCount y avgScore
+GET    /recommendations                  # auth — recomendaciones (matchPct, score)
 ```
 
 ## Modelo de datos

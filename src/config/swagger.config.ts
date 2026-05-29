@@ -4,7 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Alfajorímetro API')
-    .setDescription('API del Alfajorímetro: catálogo y reviews de alfajores argentinos.')
+    .setDescription(
+      'API del Alfajorímetro: catálogo y reviews de alfajores argentinos.',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

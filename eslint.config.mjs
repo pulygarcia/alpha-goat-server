@@ -31,4 +31,18 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'warn'
     },
   },
+  {
+    // Tests usan mocks tipados como `any` y aserciones sobre referencias a
+    // métodos (`expect(mock.metodo).toHaveBeenCalled()`), patrones que disparan
+    // falsos positivos de las reglas type-aware. Se relajan solo en specs.
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/require-await': 'off',
+    },
+  },
 );

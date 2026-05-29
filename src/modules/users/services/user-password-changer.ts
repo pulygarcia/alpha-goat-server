@@ -18,7 +18,10 @@ export class UserPasswordChanger {
   async execute(userId: string, dto: ChangePasswordDto): Promise<void> {
     const user = await this.finder.byId(userId);
 
-    const ok = await this.hasher.compare(dto.currentPassword, user.passwordHash);
+    const ok = await this.hasher.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
     if (!ok) throw new UnauthorizedException('current password is incorrect');
 
     user.passwordHash = await this.hasher.hash(dto.newPassword);

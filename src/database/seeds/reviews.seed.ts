@@ -76,7 +76,9 @@ async function run(): Promise<void> {
     const alfajorRepo = dataSource.getRepository(Alfajor);
     const reviewRepo = dataSource.getRepository(Review);
 
-    const alfajores = await alfajorRepo.find({ where: { status: AlfajorStatus.APPROVED } });
+    const alfajores = await alfajorRepo.find({
+      where: { status: AlfajorStatus.APPROVED },
+    });
     if (alfajores.length === 0) {
       console.warn('No hay alfajores APPROVED — corré seed:alfajores antes.');
       return;
@@ -121,7 +123,8 @@ async function run(): Promise<void> {
             calidadBano: pickRating(r, baseRating),
             ratioTapaRelleno: pickRating(r, baseRating),
             textura: pickRating(r, baseRating),
-            comentario: COMENTARIOS[Math.floor(r() * COMENTARIOS.length)] ?? null,
+            comentario:
+              COMENTARIOS[Math.floor(r() * COMENTARIOS.length)] ?? null,
             createdAt,
           }),
         );
@@ -152,12 +155,16 @@ async function run(): Promise<void> {
           likesSkipped++;
           continue;
         }
-        await likeRepo.save(likeRepo.create({ reviewId: review.id, userId: user.id }));
+        await likeRepo.save(
+          likeRepo.create({ reviewId: review.id, userId: user.id }),
+        );
         likesCreated++;
       }
     }
 
-    console.log(`Review likes seed done. created=${likesCreated} skipped=${likesSkipped}`);
+    console.log(
+      `Review likes seed done. created=${likesCreated} skipped=${likesSkipped}`,
+    );
     console.log(`Demo users password: ${DEFAULT_PASSWORD}`);
   } finally {
     await dataSource.destroy();

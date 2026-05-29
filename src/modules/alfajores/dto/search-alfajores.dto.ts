@@ -1,6 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
 import { AlfajorStatus } from '../domain/alfajor-status.enum';
 import { AlfajorTipo } from '../domain/alfajor-tipo.enum';
 
@@ -20,7 +28,10 @@ export class SearchAlfajoresDto {
   @IsEnum(AlfajorTipo)
   tipo?: AlfajorTipo;
 
-  @ApiPropertyOptional({ enum: AlfajorStatus, description: 'Solo admin puede filtrar por status' })
+  @ApiPropertyOptional({
+    enum: AlfajorStatus,
+    description: 'Solo admin puede filtrar por status',
+  })
   @IsOptional()
   @IsEnum(AlfajorStatus)
   status?: AlfajorStatus;

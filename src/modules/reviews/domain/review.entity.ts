@@ -15,7 +15,8 @@ import { User } from '../../users/domain/user.entity';
 // TypeORM devuelve numeric como string; transformamos a number en lectura.
 const numericTransformer = {
   to: (value?: number) => value,
-  from: (value?: string | null) => (value === null || value === undefined ? value : Number(value)),
+  from: (value?: string | null) =>
+    value === null || value === undefined ? value : Number(value),
 };
 
 const ratingColumn = () => ({

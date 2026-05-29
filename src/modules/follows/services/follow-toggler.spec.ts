@@ -55,13 +55,18 @@ describe('FollowToggler', () => {
   });
 
   it('rejects following yourself', async () => {
-    await expect(toggler.follow('a', 'a')).rejects.toBeInstanceOf(BadRequestException);
+    await expect(toggler.follow('a', 'a')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
     expect(users.byId).not.toHaveBeenCalled();
   });
 
   it('deletes the follow on unfollow', async () => {
     await toggler.unfollow('a', 'b');
-    expect(repo.delete).toHaveBeenCalledWith({ followerId: 'a', followingId: 'b' });
+    expect(repo.delete).toHaveBeenCalledWith({
+      followerId: 'a',
+      followingId: 'b',
+    });
   });
 
   it('returns the ids the user follows', async () => {

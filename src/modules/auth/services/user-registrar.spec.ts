@@ -58,13 +58,18 @@ describe('UserRegistrar', () => {
   });
 
   it('throws ConflictException when username already exists', async () => {
-    repo.findOne.mockResolvedValue({ email: 'other@x.com', username: 'puly' } as User);
+    repo.findOne.mockResolvedValue({
+      email: 'other@x.com',
+      username: 'puly',
+    } as User);
 
     await expect(registrar.execute(dto)).rejects.toThrow(/username/);
   });
 
   it('rejects with ConflictException type', async () => {
     repo.findOne.mockResolvedValue({ email: 'foo@bar.com' } as User);
-    await expect(registrar.execute(dto)).rejects.toBeInstanceOf(ConflictException);
+    await expect(registrar.execute(dto)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 });

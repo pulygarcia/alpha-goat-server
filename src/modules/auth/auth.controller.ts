@@ -55,7 +55,10 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   logout(@Res({ passthrough: true }) res: Response): void {
-    res.clearCookie(ACCESS_TOKEN_COOKIE, { ...accessTokenCookieOptions(), maxAge: undefined });
+    res.clearCookie(ACCESS_TOKEN_COOKIE, {
+      ...accessTokenCookieOptions(),
+      maxAge: undefined,
+    });
   }
 
   @ApiBearerAuth()
@@ -65,7 +68,10 @@ export class AuthController {
     return UserResponseDto.from(user);
   }
 
-  private async buildResponse(user: User, res: Response): Promise<AuthResponseDto> {
+  private async buildResponse(
+    user: User,
+    res: Response,
+  ): Promise<AuthResponseDto> {
     const accessToken = await this.signer.sign(user);
     res.cookie(ACCESS_TOKEN_COOKIE, accessToken, accessTokenCookieOptions());
     return { user: UserResponseDto.from(user) };

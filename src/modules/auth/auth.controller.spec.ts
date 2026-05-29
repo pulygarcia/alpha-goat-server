@@ -63,7 +63,9 @@ describe('AuthController', () => {
       expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' }),
     );
     expect(body.user.id).toBe('u1');
-    expect((body as unknown as { accessToken?: string }).accessToken).toBeUndefined();
+    expect(
+      (body as unknown as { accessToken?: string }).accessToken,
+    ).toBeUndefined();
   });
 
   it('login sets the access token cookie and returns the user', async () => {
@@ -71,16 +73,26 @@ describe('AuthController', () => {
     signer.sign.mockResolvedValue('token');
     const res = mockRes();
 
-    const body = await controller.login({ email: 'foo@bar.com', password: 'secret123' }, res);
+    const body = await controller.login(
+      { email: 'foo@bar.com', password: 'secret123' },
+      res,
+    );
 
-    expect(res.cookie).toHaveBeenCalledWith('accessToken', 'token', expect.any(Object));
+    expect(res.cookie).toHaveBeenCalledWith(
+      'accessToken',
+      'token',
+      expect.any(Object),
+    );
     expect(body.user.email).toBe('foo@bar.com');
   });
 
   it('logout clears the access token cookie', () => {
     const res = mockRes();
     controller.logout(res);
-    expect(res.clearCookie).toHaveBeenCalledWith('accessToken', expect.any(Object));
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      'accessToken',
+      expect.any(Object),
+    );
   });
 
   it('me returns the current user as response dto', () => {

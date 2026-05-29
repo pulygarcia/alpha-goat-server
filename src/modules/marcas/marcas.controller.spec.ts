@@ -33,7 +33,12 @@ describe('MarcasController', () => {
   });
 
   it('search returns paginated response dtos', async () => {
-    searcher.execute.mockResolvedValue({ items: [marca], total: 1, page: 1, limit: 20 });
+    searcher.execute.mockResolvedValue({
+      items: [marca],
+      total: 1,
+      page: 1,
+      limit: 20,
+    });
 
     const res = await controller.search({ page: 1, limit: 20 });
 

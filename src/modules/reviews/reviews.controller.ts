@@ -18,7 +18,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { PaginatedReviewsDto, ReviewResponseDto } from './dto/review-response.dto';
+import {
+  PaginatedReviewsDto,
+  ReviewResponseDto,
+} from './dto/review-response.dto';
 import { SearchReviewsDto } from './dto/search-reviews.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewCreator } from './services/review-creator';
@@ -43,11 +46,18 @@ export class ReviewsController {
   @Get()
   async search(@Query() dto: SearchReviewsDto): Promise<PaginatedReviewsDto> {
     const { items, total, page, limit } = await this.searcher.execute(dto);
-    return { items: items.map(ReviewResponseDto.from), total, page, limit };
+    return {
+      items: items.map((r) => ReviewResponseDto.from(r)),
+      total,
+      page,
+      limit,
+    };
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ReviewResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ReviewResponseDto> {
     return ReviewResponseDto.from(await this.finder.byId(id));
   }
 

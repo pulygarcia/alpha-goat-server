@@ -13,7 +13,8 @@ export class MarcaCreator {
 
   async execute(dto: CreateMarcaDto): Promise<Marca> {
     const exists = await this.marcas.findOne({ where: { nombre: dto.nombre } });
-    if (exists) throw new ConflictException(`marca "${dto.nombre}" already exists`);
+    if (exists)
+      throw new ConflictException(`marca "${dto.nombre}" already exists`);
 
     const marca = this.marcas.create(dto);
     return this.marcas.save(marca);

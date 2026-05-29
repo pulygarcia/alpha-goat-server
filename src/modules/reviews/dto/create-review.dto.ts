@@ -1,6 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, IsUrl, IsUUID, Max, Min } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
 
 const rating = () => [
   IsNumber({ maxDecimalPlaces: 1 }),
@@ -11,7 +19,8 @@ const rating = () => [
 
 function Rating() {
   const decorators = rating();
-  return (target: object, key: string) => decorators.forEach((d) => d(target, key));
+  return (target: object, key: string) =>
+    decorators.forEach((d) => d(target, key));
 }
 
 export class CreateReviewDto {

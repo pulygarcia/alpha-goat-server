@@ -13,9 +13,17 @@ export class CommentCreator {
     private readonly reviewFinder: ReviewFinder,
   ) {}
 
-  async execute(reviewId: string, dto: CreateCommentDto, userId: string): Promise<Comment> {
+  async execute(
+    reviewId: string,
+    dto: CreateCommentDto,
+    userId: string,
+  ): Promise<Comment> {
     await this.reviewFinder.byId(reviewId);
-    const comment = this.comments.create({ reviewId, userId, contenido: dto.contenido });
+    const comment = this.comments.create({
+      reviewId,
+      userId,
+      contenido: dto.contenido,
+    });
     return this.comments.save(comment);
   }
 }

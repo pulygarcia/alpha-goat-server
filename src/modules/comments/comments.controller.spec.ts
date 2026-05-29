@@ -39,7 +39,10 @@ describe('CommentsController', () => {
         { provide: CommentSearcher, useValue: { execute: jest.fn() } },
         { provide: CommentUpdater, useValue: { execute: jest.fn() } },
         { provide: CommentRemover, useValue: { execute: jest.fn() } },
-        { provide: CommentLikeToggler, useValue: { like: jest.fn(), unlike: jest.fn() } },
+        {
+          provide: CommentLikeToggler,
+          useValue: { like: jest.fn(), unlike: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -53,7 +56,12 @@ describe('CommentsController', () => {
   });
 
   it('search returns paginated dtos', async () => {
-    searcher.execute.mockResolvedValue({ items: [comment], total: 1, page: 1, limit: 20 });
+    searcher.execute.mockResolvedValue({
+      items: [comment],
+      total: 1,
+      page: 1,
+      limit: 20,
+    });
     const res = await controller.search('r1', { page: 1, limit: 20 });
     expect(res.items[0].id).toBe('c1');
     expect(searcher.execute).toHaveBeenCalledWith('r1', { page: 1, limit: 20 });
@@ -68,19 +76,30 @@ describe('CommentsController', () => {
   it('create forwards reviewId, dto and userId', async () => {
     creator.execute.mockResolvedValue(comment);
     await controller.create('r1', { contenido: 'hola' }, user);
-    expect(creator.execute).toHaveBeenCalledWith('r1', { contenido: 'hola' }, 'u1');
+    expect(creator.execute).toHaveBeenCalledWith(
+      'r1',
+      { contenido: 'hola' },
+      'u1',
+    );
   });
 
   it('update forwards id, dto and userId', async () => {
     updater.execute.mockResolvedValue(comment);
     await controller.update('c1', { contenido: 'edit' }, user);
-    expect(updater.execute).toHaveBeenCalledWith('c1', { contenido: 'edit' }, 'u1');
+    expect(updater.execute).toHaveBeenCalledWith(
+      'c1',
+      { contenido: 'edit' },
+      'u1',
+    );
   });
 
   it('remove forwards actor context', async () => {
     remover.execute.mockResolvedValue();
     await controller.remove('c1', user);
-    expect(remover.execute).toHaveBeenCalledWith('c1', { id: 'u1', role: UserRole.USER });
+    expect(remover.execute).toHaveBeenCalledWith('c1', {
+      id: 'u1',
+      role: UserRole.USER,
+    });
   });
 
   it('like forwards id and userId', async () => {

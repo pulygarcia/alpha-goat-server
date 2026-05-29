@@ -40,14 +40,20 @@ describe('UserAuthenticator', () => {
   });
 
   it('throws UnauthorizedException when password is wrong', async () => {
-    finder.byEmail.mockResolvedValue({ passwordHash: 'h', banned: false } as User);
+    finder.byEmail.mockResolvedValue({
+      passwordHash: 'h',
+      banned: false,
+    } as User);
     hasher.compare.mockResolvedValue(false);
 
     await expect(auth.execute(dto)).rejects.toThrow(UnauthorizedException);
   });
 
   it('throws UnauthorizedException when user is banned', async () => {
-    finder.byEmail.mockResolvedValue({ passwordHash: 'h', banned: true } as User);
+    finder.byEmail.mockResolvedValue({
+      passwordHash: 'h',
+      banned: true,
+    } as User);
 
     await expect(auth.execute(dto)).rejects.toThrow(/banned/);
     expect(hasher.compare).not.toHaveBeenCalled();

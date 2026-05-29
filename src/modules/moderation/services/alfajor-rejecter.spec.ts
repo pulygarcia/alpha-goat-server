@@ -22,7 +22,7 @@ describe('AlfajorRejecter', () => {
       status: AlfajorStatus.PENDING,
       rejectionReason: null,
       ...overrides,
-    } as Alfajor);
+    }) as Alfajor;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -42,14 +42,18 @@ describe('AlfajorRejecter', () => {
     finder.byId.mockResolvedValue(baseAlfajor());
     repo.save.mockImplementation(async (a) => a as Alfajor);
 
-    const result = await rejecter.execute('a1', { rejectionReason: 'foto borrosa' });
+    const result = await rejecter.execute('a1', {
+      rejectionReason: 'foto borrosa',
+    });
 
     expect(result.status).toBe(AlfajorStatus.REJECTED);
     expect(result.rejectionReason).toBe('foto borrosa');
   });
 
   it('throws BadRequest when alfajor is already APPROVED', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.APPROVED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.APPROVED }),
+    );
     await expect(
       rejecter.execute('a1', { rejectionReason: 'x' }),
     ).rejects.toThrow(BadRequestException);
@@ -57,7 +61,9 @@ describe('AlfajorRejecter', () => {
   });
 
   it('throws BadRequest when alfajor is already REJECTED', async () => {
-    finder.byId.mockResolvedValue(baseAlfajor({ status: AlfajorStatus.REJECTED }));
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ status: AlfajorStatus.REJECTED }),
+    );
     await expect(
       rejecter.execute('a1', { rejectionReason: 'x' }),
     ).rejects.toThrow(BadRequestException);

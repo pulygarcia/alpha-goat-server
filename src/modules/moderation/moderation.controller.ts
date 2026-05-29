@@ -8,12 +8,20 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AlfajorStatus } from '../alfajores/domain/alfajor-status.enum';
-import { AlfajorResponseDto, PaginatedAlfajoresDto } from '../alfajores/dto/alfajor-response.dto';
+import {
+  AlfajorResponseDto,
+  PaginatedAlfajoresDto,
+} from '../alfajores/dto/alfajor-response.dto';
 import { SearchAlfajoresDto } from '../alfajores/dto/search-alfajores.dto';
 import { AlfajorSearcher } from '../alfajores/services/alfajor-searcher';
 import { UserRole } from '../users/domain/user-role.enum';
@@ -35,18 +43,26 @@ export class ModerationController {
 
   @ApiOperation({
     summary: 'Listar alfajores PENDING',
-    description: 'Listado paginado de alfajores en estado PENDING esperando moderación.',
+    description:
+      'Listado paginado de alfajores en estado PENDING esperando moderación.',
   })
   @ApiResponse({ status: 200, type: PaginatedAlfajoresDto })
   @ApiResponse({ status: 401, description: 'No autenticado.' })
   @ApiResponse({ status: 403, description: 'El usuario no es ADMIN.' })
   @Get('pending')
-  async listPending(@Query() dto: SearchAlfajoresDto): Promise<PaginatedAlfajoresDto> {
+  async listPending(
+    @Query() dto: SearchAlfajoresDto,
+  ): Promise<PaginatedAlfajoresDto> {
     const { items, total, page, limit } = await this.searcher.execute(
       { ...dto, status: AlfajorStatus.PENDING },
       { includeAllStatuses: true },
     );
-    return { items: items.map(AlfajorResponseDto.from), total, page, limit };
+    return {
+      items: items.map((a) => AlfajorResponseDto.from(a)),
+      total,
+      page,
+      limit,
+    };
   }
 
   @ApiOperation({
@@ -60,7 +76,9 @@ export class ModerationController {
   @ApiResponse({ status: 403, description: 'El usuario no es ADMIN.' })
   @ApiResponse({ status: 404, description: 'Alfajor inexistente.' })
   @Patch(':id/approve')
-  async approve(@Param('id', ParseUUIDPipe) id: string): Promise<AlfajorResponseDto> {
+  async approve(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<AlfajorResponseDto> {
     return AlfajorResponseDto.from(await this.approver.execute(id));
   }
 
@@ -70,7 +88,10 @@ export class ModerationController {
       'Cambia el status del alfajor de PENDING a REJECTED y guarda el rejectionReason recibido.',
   })
   @ApiResponse({ status: 200, type: AlfajorResponseDto })
-  @ApiResponse({ status: 400, description: 'El alfajor no está en PENDING o falta rejectionReason.' })
+  @ApiResponse({
+    status: 400,
+    description: 'El alfajor no está en PENDING o falta rejectionReason.',
+  })
   @ApiResponse({ status: 401, description: 'No autenticado.' })
   @ApiResponse({ status: 403, description: 'El usuario no es ADMIN.' })
   @ApiResponse({ status: 404, description: 'Alfajor inexistente.' })

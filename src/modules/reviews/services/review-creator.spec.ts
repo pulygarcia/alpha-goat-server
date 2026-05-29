@@ -41,7 +41,9 @@ describe('ReviewCreator', () => {
   });
 
   it('creates a review when alfajor is approved and no duplicate exists', async () => {
-    finder.byId.mockResolvedValue({ status: AlfajorStatus.APPROVED } as Alfajor);
+    finder.byId.mockResolvedValue({
+      status: AlfajorStatus.APPROVED,
+    } as Alfajor);
     repo.findOne.mockResolvedValue(null);
     const created = { id: 'r1' } as Review;
     repo.create.mockReturnValue(created);
@@ -56,12 +58,16 @@ describe('ReviewCreator', () => {
   it('throws BadRequestException when alfajor is not approved', async () => {
     finder.byId.mockResolvedValue({ status: AlfajorStatus.PENDING } as Alfajor);
 
-    await expect(creator.execute(dto, 'u1')).rejects.toThrow(BadRequestException);
+    await expect(creator.execute(dto, 'u1')).rejects.toThrow(
+      BadRequestException,
+    );
     expect(repo.save).not.toHaveBeenCalled();
   });
 
   it('throws ConflictException when user already reviewed the alfajor', async () => {
-    finder.byId.mockResolvedValue({ status: AlfajorStatus.APPROVED } as Alfajor);
+    finder.byId.mockResolvedValue({
+      status: AlfajorStatus.APPROVED,
+    } as Alfajor);
     repo.findOne.mockResolvedValue({ id: 'existing' } as Review);
 
     await expect(creator.execute(dto, 'u1')).rejects.toThrow(ConflictException);

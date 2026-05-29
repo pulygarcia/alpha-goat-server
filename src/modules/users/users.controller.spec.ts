@@ -44,7 +44,7 @@ describe('UsersController', () => {
   });
 
   it('updateMe forwards userId and dto to updater', async () => {
-    updater.execute.mockResolvedValue({ ...user, username: 'new' } as User);
+    updater.execute.mockResolvedValue({ ...user, username: 'new' });
     const res = await controller.updateMe('u1', { username: 'new' });
     expect(updater.execute).toHaveBeenCalledWith('u1', { username: 'new' });
     expect(res.username).toBe('new');

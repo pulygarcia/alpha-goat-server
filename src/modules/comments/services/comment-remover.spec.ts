@@ -18,8 +18,14 @@ describe('CommentRemover', () => {
     const module = await Test.createTestingModule({
       providers: [
         CommentRemover,
-        { provide: getRepositoryToken(Comment), useValue: { remove: jest.fn() } },
-        { provide: CommentFinder, useValue: { byId: jest.fn().mockResolvedValue(comment) } },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: { remove: jest.fn() },
+        },
+        {
+          provide: CommentFinder,
+          useValue: { byId: jest.fn().mockResolvedValue(comment) },
+        },
       ],
     }).compile();
     remover = module.get(CommentRemover);

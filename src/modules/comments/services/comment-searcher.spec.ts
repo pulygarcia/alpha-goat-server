@@ -15,7 +15,10 @@ describe('CommentSearcher', () => {
     const module = await Test.createTestingModule({
       providers: [
         CommentSearcher,
-        { provide: getRepositoryToken(Comment), useValue: { findAndCount: jest.fn() } },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: { findAndCount: jest.fn() },
+        },
         { provide: ReviewFinder, useValue: { byId: jest.fn() } },
       ],
     }).compile();

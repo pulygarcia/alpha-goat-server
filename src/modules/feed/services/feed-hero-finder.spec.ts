@@ -12,8 +12,17 @@ describe('FeedHeroFinder', () => {
 
   const makeQb = (raw: unknown, count = 0) => {
     const qb: any = {};
-    const chain = ['innerJoin', 'select', 'addSelect', 'where', 'andWhere', 'groupBy',
-      'orderBy', 'addOrderBy', 'limit'];
+    const chain = [
+      'innerJoin',
+      'select',
+      'addSelect',
+      'where',
+      'andWhere',
+      'groupBy',
+      'orderBy',
+      'addOrderBy',
+      'limit',
+    ];
     for (const m of chain) qb[m] = jest.fn().mockReturnValue(qb);
     qb.getRawOne = jest.fn().mockResolvedValue(raw);
     qb.getCount = jest.fn().mockResolvedValue(count);
@@ -60,8 +69,12 @@ describe('FeedHeroFinder', () => {
       .mockReturnValueOnce(makeQb({ alfajorId: 'a1' })) // pickAllTime
       .mockReturnValueOnce(
         makeQb({
-          general: '8.5', dulzor: '7', cantidadDDL: '9',
-          calidadBano: '8', ratioTapaRelleno: '7.5', textura: '8.2',
+          general: '8.5',
+          dulzor: '7',
+          cantidadDDL: '9',
+          calidadBano: '8',
+          ratioTapaRelleno: '7.5',
+          textura: '8.2',
         }),
       ) // averages
       .mockReturnValueOnce(makeQb(undefined, 0)) // countInTimeWindow thisWeek
@@ -90,8 +103,12 @@ describe('FeedHeroFinder', () => {
       .mockReturnValueOnce(makeQb({ alfajorId: 'a1' })) // pickByTimeWindow
       .mockReturnValueOnce(
         makeQb({
-          general: '9', dulzor: '9', cantidadDDL: '9',
-          calidadBano: '9', ratioTapaRelleno: '9', textura: '9',
+          general: '9',
+          dulzor: '9',
+          cantidadDDL: '9',
+          calidadBano: '9',
+          ratioTapaRelleno: '9',
+          textura: '9',
         }),
       )
       .mockReturnValueOnce(makeQb(undefined, 8)) // thisWeek
@@ -123,14 +140,21 @@ describe('FeedHeroFinder', () => {
       .mockReturnValueOnce(qb)
       .mockReturnValueOnce(
         makeQb({
-          general: '5', dulzor: '5', cantidadDDL: '5',
-          calidadBano: '5', ratioTapaRelleno: '5', textura: '5',
+          general: '5',
+          dulzor: '5',
+          cantidadDDL: '5',
+          calidadBano: '5',
+          ratioTapaRelleno: '5',
+          textura: '5',
         }),
       )
       .mockReturnValueOnce(makeQb(undefined, 1))
       .mockReturnValueOnce(makeQb(undefined, 1));
 
-    alfajores.findOne.mockResolvedValue({ id: 'a1', marca: {} } as unknown as Alfajor);
+    alfajores.findOne.mockResolvedValue({
+      id: 'a1',
+      marca: {},
+    } as unknown as Alfajor);
     reviews.count.mockResolvedValue(1);
 
     await finder.execute(now);

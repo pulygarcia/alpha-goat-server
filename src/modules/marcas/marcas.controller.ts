@@ -16,11 +16,18 @@ export class MarcasController {
   @Get()
   async search(@Query() dto: SearchMarcasDto): Promise<PaginatedMarcasDto> {
     const { items, total, page, limit } = await this.searcher.execute(dto);
-    return { items: items.map(MarcaResponseDto.from), total, page, limit };
+    return {
+      items: items.map((m) => MarcaResponseDto.from(m)),
+      total,
+      page,
+      limit,
+    };
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<MarcaResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MarcaResponseDto> {
     return MarcaResponseDto.from(await this.finder.byId(id));
   }
 }

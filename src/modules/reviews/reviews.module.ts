@@ -13,7 +13,11 @@ import { ReviewSearcher } from './services/review-searcher';
 import { ReviewUpdater } from './services/review-updater';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, ReviewLike]), AuthModule, AlfajoresModule],
+  imports: [
+    TypeOrmModule.forFeature([Review, ReviewLike]),
+    AuthModule,
+    AlfajoresModule,
+  ],
   controllers: [ReviewsController],
   providers: [
     ReviewCreator,
