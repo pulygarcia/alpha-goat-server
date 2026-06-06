@@ -5,6 +5,8 @@ export class FeedAuthorDto {
   @ApiProperty() id: string;
   @ApiProperty() username: string;
   @ApiProperty({ nullable: true }) avatarUrl: string | null;
+  @ApiProperty({ description: 'si el usuario actual sigue al autor' })
+  isFollowing: boolean;
 }
 
 export class FeedAlfajorDto {

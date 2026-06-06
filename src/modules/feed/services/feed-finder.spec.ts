@@ -36,11 +36,16 @@ const baseDto = (over: Partial<FeedQueryDto> = {}): FeedQueryDto => ({
 describe('FeedFinder', () => {
   let finder: FeedFinder;
   let reviews: { createQueryBuilder: jest.Mock; find: jest.Mock };
-  let follows: jest.Mocked<Pick<FollowToggler, 'followingIds'>>;
+  let follows: jest.Mocked<
+    Pick<FollowToggler, 'followingIds' | 'followingAmong'>
+  >;
 
   beforeEach(async () => {
     reviews = { createQueryBuilder: jest.fn(), find: jest.fn() };
-    follows = { followingIds: jest.fn() };
+    follows = {
+      followingIds: jest.fn(),
+      followingAmong: jest.fn().mockResolvedValue(new Set()),
+    };
 
     const module = await Test.createTestingModule({
       providers: [
@@ -82,7 +87,12 @@ describe('FeedFinder', () => {
   });
 
   it('maps rows with numeric like and comment counts, preserving rank order', async () => {
-    const review = { id: 'r1', comentario: 'rico', ratingGeneral: 8 } as Review;
+    const review = {
+      id: 'r1',
+      comentario: 'rico',
+      ratingGeneral: 8,
+      user: { id: 'u2' },
+    } as unknown as Review;
     reviews.createQueryBuilder
       .mockReturnValueOnce(makeQb(1)) // count
       .mockReturnValueOnce(
@@ -93,12 +103,14 @@ describe('FeedFinder', () => {
     const result = await finder.execute(baseDto(), 'u1');
 
     expect(result.total).toBe(1);
-    expect(result.rows).toEqual([{ review, likes: 12, commentsCount: 3 }]);
+    expect(result.rows).toEqual([
+      { review, likes: 12, commentsCount: 3, isFollowing: false },
+    ]);
   });
 
   it('reorders the loaded entities to match the ranked ids', async () => {
-    const r1 = { id: 'r1' } as Review;
-    const r2 = { id: 'r2' } as Review;
+    const r1 = { id: 'r1', user: { id: 'u1' } } as unknown as Review;
+    const r2 = { id: 'r2', user: { id: 'u2' } } as unknown as Review;
     reviews.createQueryBuilder
       .mockReturnValueOnce(makeQb(2))
       .mockReturnValueOnce(
@@ -127,7 +139,7 @@ describe('FeedFinder', () => {
     reviews.createQueryBuilder
       .mockReturnValueOnce(countQb)
       .mockReturnValueOnce(rankedQb);
-    reviews.find.mockResolvedValue([{ id: 'r1' } as Review]);
+    reviews.find.mockResolvedValue([{ id: 'r1', user: { id: 'u1' } }]);
 
     await finder.execute(baseDto({ scope: FeedScope.FOLLOWING }), 'u1');
 
@@ -145,7 +157,7 @@ describe('FeedFinder', () => {
     reviews.createQueryBuilder
       .mockReturnValueOnce(countQb)
       .mockReturnValueOnce(rankedQb);
-    reviews.find.mockResolvedValue([{ id: 'r1' } as Review]);
+    reviews.find.mockResolvedValue([{ id: 'r1', user: { id: 'u1' } }]);
 
     await finder.execute(baseDto({ sort: FeedSort.LIKES }), 'u1');
 
@@ -164,5 +176,25 @@ describe('FeedFinder', () => {
 
     expect(rankedQb.offset).toHaveBeenCalledWith(20); // (3-1)*10
     expect(rankedQb.limit).toHaveBeenCalledWith(10);
+  });
+
+  it('marks isFollowing true only for followed authors', async () => {
+    const r1 = { id: 'r1', user: { id: 'a1' } } as unknown as Review;
+    const r2 = { id: 'r2', user: { id: 'a2' } } as unknown as Review;
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(2))
+      .mockReturnValueOnce(
+        makeQb(2, [
+          { id: 'r1', likesCount: '0', commentsCount: '0' },
+          { id: 'r2', likesCount: '0', commentsCount: '0' },
+        ]),
+      );
+    reviews.find.mockResolvedValue([r1, r2]);
+    follows.followingAmong.mockResolvedValue(new Set(['a1']));
+
+    const result = await finder.execute(baseDto(), 'me');
+
+    expect(follows.followingAmong).toHaveBeenCalledWith('me', ['a1', 'a2']);
+    expect(result.rows.map((row) => row.isFollowing)).toEqual([true, false]);
   });
 });

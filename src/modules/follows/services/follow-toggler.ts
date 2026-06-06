@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserFinder } from '../../users/services/user-finder';
 import { UserFollow } from '../domain/user-follow.entity';
 
@@ -38,5 +38,20 @@ export class FollowToggler {
       select: { followingId: true },
     });
     return rows.map((r) => r.followingId);
+  }
+
+  // Subconjunto de `candidateIds` que `followerId` sigue. Acotado: filtra por los
+  // autores visibles en una página del feed en vez de traer todos los seguidos.
+  // Devuelve un Set vacío (sin query) si no hay candidatos.
+  async followingAmong(
+    followerId: string,
+    candidateIds: string[],
+  ): Promise<Set<string>> {
+    if (candidateIds.length === 0) return new Set();
+    const rows = await this.follows.find({
+      where: { followerId, followingId: In(candidateIds) },
+      select: { followingId: true },
+    });
+    return new Set(rows.map((r) => r.followingId));
   }
 }

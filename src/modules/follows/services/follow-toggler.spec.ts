@@ -77,4 +77,20 @@ describe('FollowToggler', () => {
 
     expect(await toggler.followingIds('a')).toEqual(['b', 'c']);
   });
+
+  it('returns the followed subset among candidates', async () => {
+    repo.find.mockResolvedValue([{ followingId: 'b' } as UserFollow]);
+
+    const followed = await toggler.followingAmong('a', ['b', 'c']);
+
+    expect(followed).toEqual(new Set(['b']));
+    expect(repo.find).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns an empty set without querying for no candidates', async () => {
+    const followed = await toggler.followingAmong('a', []);
+
+    expect(followed).toEqual(new Set());
+    expect(repo.find).not.toHaveBeenCalled();
+  });
 });

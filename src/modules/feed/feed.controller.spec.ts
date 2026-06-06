@@ -51,7 +51,7 @@ describe('FeedController', () => {
     } as unknown as Review;
 
     finder.execute.mockResolvedValue({
-      rows: [{ review, likes: 12, commentsCount: 3 }],
+      rows: [{ review, likes: 12, commentsCount: 3, isFollowing: true }],
       total: 1,
       page: 1,
       limit: 20,
@@ -63,7 +63,12 @@ describe('FeedController', () => {
     expect(res.total).toBe(1);
     expect(res.items[0]).toEqual({
       id: 'r1',
-      author: { id: 'u1', username: 'puly', avatarUrl: null },
+      author: {
+        id: 'u1',
+        username: 'puly',
+        avatarUrl: null,
+        isFollowing: true,
+      },
       alfajor: {
         id: 'a1',
         nombre: 'Havannet',

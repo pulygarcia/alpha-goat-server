@@ -256,7 +256,7 @@ Login, registro, generación y validación de JWT. Servicios:
 - `ReviewLikeToggler`: like/unlike de una review. `like` idempotente, `unlike` con delete. Endpoints `PUT/DELETE /reviews/:id/like`.
 
 ### `follows`
-- `FollowToggler`: `follow` (idempotente, rechaza auto-follow con 400, valida que el target exista), `unfollow`, y `followingIds(userId)` que consume el feed. Endpoints `PUT/DELETE /follows/:userId`. Exporta `FollowToggler`.
+- `FollowToggler`: `follow` (idempotente, rechaza auto-follow con 400, valida que el target exista), `unfollow`, `followingIds(userId)` (todos los seguidos, para `scope=following`) y `followingAmong(userId, candidateIds)` (subconjunto seguido, acotado por `IN (...)`, para el `isFollowing` por autor del feed). Endpoints `PUT/DELETE /follows/:userId`. Exporta `FollowToggler`.
 
 ### `feed`
 - `FeedHeroFinder`: pick editorial (alfajor destacado + stats semanales) para `GET /feed/hero` (público).

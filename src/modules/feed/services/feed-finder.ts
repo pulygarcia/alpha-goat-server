@@ -10,6 +10,7 @@ export interface FeedRow {
   review: Review;
   likes: number;
   commentsCount: number;
+  isFollowing: boolean;
 }
 
 export interface FeedResult {
@@ -132,7 +133,17 @@ export class FeedFinder {
       review: byId.get(r.id)!,
       likes: Number(r.likesCount),
       commentsCount: Number(r.commentsCount),
+      isFollowing: false,
     }));
+
+    // Resolvemos el follow del usuario actual acotado a los autores de esta
+    // página (no a todos los que sigue). Las reviews propias no aparecen acá
+    // porque uno no puede seguirse a sí mismo.
+    const authorIds = [...new Set(rows.map((row) => row.review.user!.id))];
+    const followed = await this.follows.followingAmong(userId, authorIds);
+    for (const row of rows) {
+      row.isFollowing = followed.has(row.review.user!.id);
+    }
 
     return { rows, total, page, limit };
   }

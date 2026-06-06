@@ -88,6 +88,7 @@ function toItemDto(row: FeedRow): FeedItemDto {
       id: r.user!.id,
       username: r.user!.username,
       avatarUrl: r.user!.avatarUrl,
+      isFollowing: row.isFollowing,
     },
     alfajor: {
       id: r.alfajor!.id,
