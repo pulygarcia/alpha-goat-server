@@ -1,0 +1,46 @@
+schema: spec-driven
+
+context: |
+  ## Project: alfajorimetro-back
+  Backend for Alfajorimetro: an Untappd-style app for Argentine alfajores. Users
+  review alfajores with an overall rating plus 5 axes (dulzor, cantidadDDL,
+  calidadBano, ratioTapaRelleno, textura). Serves the alphagoat-client frontend.
+
+  ## Tech Stack
+  - Framework: NestJS (modules under src/modules/<feature>/)
+  - Language: TypeScript strict
+  - ORM: TypeORM + PostgreSQL. Migrations in src/database/migrations.
+  - Auth: JWT in HTTP-only cookie; JwtAuthGuard + CurrentUser decorator.
+  - Docs: Swagger (@nestjs/swagger decorators on DTOs/controllers).
+  - Testing: Jest (unit specs co-located as *.spec.ts; e2e under test/).
+
+  ## Module layout (per feature)
+  - <feature>.controller.ts, <feature>.module.ts
+  - dto/ (request + response DTOs, with @ApiProperty)
+  - domain/ (entities, enums)
+  - services/ (one responsibility per service, e.g. finder / toggler / updater)
+
+  ## Conventions
+  - Prefer the TypeORM repository API (find / relations / select). Only use the
+    QueryBuilder when unavoidable, and comment why.
+  - Inject `now: Date = new Date()` style seams so time-based logic is testable.
+  - Response DTOs expose a static `from(entity)` or are mapped in the controller.
+  - Conventional commits, in English. Small atomic commits.
+
+rules:
+  proposal:
+    - State which module under src/modules/ the change touches (or if it is new)
+    - Note whether the change alters an endpoint contract consumed by the frontend
+    - Call out additive vs breaking response-shape changes; include a Non-goals section
+  specs:
+    - Use Given/When/Then for endpoint behavior
+    - Specify auth requirements (public vs JwtAuthGuard) and the shape returned
+    - Be explicit about anonymous / empty / not-found cases
+  design:
+    - Prefer repository API over QueryBuilder; justify any QueryBuilder use
+    - Keep queries bounded (filter by the ids actually needed, avoid loading full sets)
+    - Decide where mapping lives (DTO.from vs controller mapper) consistent with the module
+  tasks:
+    - Co-locate unit specs (*.spec.ts) and mock repositories/services
+    - Include verification with npm run lint and npm run test
+    - Add a migration when the data model changes
