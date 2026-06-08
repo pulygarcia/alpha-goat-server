@@ -145,7 +145,7 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ### Endpoints pedidos por el front (`alphagoat-client`)
 Definidos en `alphagoat-client/docs/progress.md` → "Endpoints backend faltantes". No estaban en el roadmap original de `architecture.md`; surgieron al construir el feed. Se implementan **en el orden en que los va necesitando el front**. Contrato esperado por el front:
 
-- ~~`GET /feed/stats`~~ — **listo** (público, `{ todayCount, weekCount }`). Ver entrada en `feed` arriba. Falta conectar en el FE.
+- ~~`GET /feed/stats`~~ — **listo** (público, `{ todayCount, weekCount }`). Ver entrada en `feed` arriba. Conectado en el FE (subnav del feed vía `useFeedStats`).
 - `GET /ranking/weekly` (público?) — ranking semanal para el rail del feed. Top N alfajores de la semana con `score`, `trend` (▲▼ delta vs semana anterior) y `marca`. Probable módulo nuevo `ranking`.
 - `GET /marcas/featured` (público) — "marcas en foco" del rail. Marcas con `productCount` y `avgScore`. Suma al módulo `marcas` existente.
 - `GET /recommendations` (auth) — "recomendado para vos". Recomendaciones personalizadas por huella del usuario con `matchPct` y `score`. Módulo nuevo `recommendations`.
