@@ -42,4 +42,4 @@
 - [x] 4.3 Update `docs/progress.md` (mark `GET /marcas/featured` done) and
   `alphagoat-client/docs/progress.md` (endpoint listo en back, falta conectar en FE), per the
   agreed cross-repo workflow.
-- [ ] 4.4 Archive the change with `/opsx:archive` once implemented and verified.
+- [x] 4.4 Archive the change with `/opsx:archive` once implemented and verified.
