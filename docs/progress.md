@@ -147,7 +147,7 @@ Definidos en `alphagoat-client/docs/progress.md` → "Endpoints backend faltante
 
 - ~~`GET /feed/stats`~~ — **listo** (público, `{ todayCount, weekCount }`). Ver entrada en `feed` arriba. Conectado en el FE (subnav del feed vía `useFeedStats`).
 - `GET /ranking/weekly` (público?) — ranking semanal para el rail del feed. Top N alfajores de la semana con `score`, `trend` (▲▼ delta vs semana anterior) y `marca`. Probable módulo nuevo `ranking`.
-- `GET /marcas/featured` (público) — "marcas en foco" del rail. Marcas con `productCount` y `avgScore`. Suma al módulo `marcas` existente.
+- ~~`GET /marcas/featured`~~ — **listo** (público). "Marcas en foco" del rail por **controversia**: `MarcaFeaturedFinder` rankea las marcas por dispersión (`STDDEV_SAMP`) del `ratingGeneral` en una ventana de 30 días (sólo reviews de alfajores APPROVED), con piso de 5 reseñas para que el desvío no sea ruido, orden DESC, top 5. Dos pasos (agregación QB para rankear + repo-API para hidratar las marcas) como `feed-finder`. Response `{ id, nombre, provincia, logoUrl, productCount, avgScore }` (productCount/avgScore históricos); la controversia es interna, no se expone. Ruta declarada antes de `:id`. Tests: 11 verdes (finder + controller). Falta conectar en el FE. OpenSpec change `add-marcas-featured`.
 - `GET /recommendations` (auth) — "recomendado para vos". Recomendaciones personalizadas por huella del usuario con `matchPct` y `score`. Módulo nuevo `recommendations`.
 
 Flujo de trabajo acordado: al cerrar cada endpoint en el back, actualizar `alphagoat-client/docs/progress.md` marcándolo como "listo en back, falta conectar en FE".
