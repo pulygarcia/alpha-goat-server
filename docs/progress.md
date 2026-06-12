@@ -130,6 +130,9 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Migration `AddReviewLikes1779736666318` corrida en Neon — crea tabla `review_likes` con su unique + FKs CASCADE.
 - Tests: 3 verdes (create, idempotente, delete).
 
+### `ranking`
+- `GET /ranking/weekly` (público) — top 5 alfajores de la semana para el rail del feed. `WeeklyRankingFinder`: una sola query de agregación sobre las reviews de los últimos 14 días (sólo alfajores APPROVED) con `AVG ... FILTER` por ventana — `score` = promedio de `ratingGeneral` de los últimos 7 días (2 decimales), `prevScore` = el de la semana anterior — piso de 3 reseñas en la semana actual (`HAVING COUNT FILTER`), orden DESC, top 5. Hidratación con `relations: ['marca']` preservando el orden, como `MarcaFeaturedFinder`. `trend` (`up`/`down`/`same`/`new`) se decide en TS comparando los promedios ya redondeados; `new` si no hubo reviews la semana anterior (la ventana previa no exige piso). Response `{ id, nombre, score, trend, marca: { id, nombre, logoUrl } }`; el delta crudo no se expone. Tests: 15 verdes (finder 100%). OpenSpec change `add-ranking-weekly`.
+
 ### `follows`
 - Entidad `UserFollow` (relación dirigida `followerId → followingId`, unique `(followerId, followingId)`, índices en ambas FKs, CASCADE a User). No es simétrica: seguir de vuelta requiere otra fila con roles invertidos.
 - `FollowToggler` — `follow` idempotente (valida que el target exista vía `UserFinder` y rechaza seguirse a uno mismo con 400), `unfollow` con `delete`, y `followingIds(userId)` que devuelve los ids seguidos (lo consume el feed para `scope=following`).
@@ -146,7 +149,7 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 Definidos en `alphagoat-client/docs/progress.md` → "Endpoints backend faltantes". No estaban en el roadmap original de `architecture.md`; surgieron al construir el feed. Se implementan **en el orden en que los va necesitando el front**. Contrato esperado por el front:
 
 - ~~`GET /feed/stats`~~ — **listo** (público, `{ todayCount, weekCount }`). Ver entrada en `feed` arriba. Conectado en el FE (subnav del feed vía `useFeedStats`).
-- `GET /ranking/weekly` (público?) — ranking semanal para el rail del feed. Top N alfajores de la semana con `score`, `trend` (▲▼ delta vs semana anterior) y `marca`. Probable módulo nuevo `ranking`.
+- ~~`GET /ranking/weekly`~~ — **listo** (público). Ver entrada en `ranking` arriba. Falta conectar en el FE.
 - ~~`GET /marcas/featured`~~ — **listo** (público). "Marcas en foco" del rail por **controversia**: `MarcaFeaturedFinder` rankea las marcas por dispersión (`STDDEV_SAMP`) del `ratingGeneral` en una ventana de 30 días (sólo reviews de alfajores APPROVED), con piso de 5 reseñas para que el desvío no sea ruido, orden DESC, top 5. Dos pasos (agregación QB para rankear + repo-API para hidratar las marcas) como `feed-finder`. Response `{ id, nombre, provincia, logoUrl, productCount, avgScore }` (productCount/avgScore históricos); la controversia es interna, no se expone. Ruta declarada antes de `:id`. Tests: 11 verdes (finder + controller). Falta conectar en el FE. OpenSpec change `add-marcas-featured`.
 - `GET /recommendations` (auth) — "recomendado para vos". Recomendaciones personalizadas por huella del usuario con `matchPct` y `score`. Módulo nuevo `recommendations`.
 
