@@ -11,7 +11,10 @@ export class AlfajorFinder {
   ) {}
 
   async byId(id: string): Promise<Alfajor> {
-    const a = await this.alfajores.findOne({ where: { id } });
+    const a = await this.alfajores.findOne({
+      where: { id },
+      relations: { marca: true },
+    });
     if (!a) throw new NotFoundException(`alfajor ${id} not found`);
     return a;
   }
