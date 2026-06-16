@@ -1,0 +1,4 @@
+# Normaliza fines de línea: LF en el repo y en el working tree, en todas las
+# plataformas. Anula core.autocrlf=true en Windows, que metía CRLF en el working
+# tree y ensuciaba prettier --check / git status. Git detecta binarios solo.
+* text=auto eol=lf
