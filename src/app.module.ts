@@ -11,6 +11,7 @@ import { FollowsModule } from './modules/follows/follows.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { RankingModule } from './modules/ranking/ranking.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -33,6 +34,7 @@ import { UsersModule } from './modules/users/users.module';
     FollowsModule,
     FeedModule,
     RankingModule,
+    RecommendationsModule,
   ],
 })
 export class AppModule {}
