@@ -1,9 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Review } from '../domain/review.entity';
 
+class ReviewAuthorDto {
+  @ApiProperty() id: string;
+  @ApiProperty() username: string;
+  @ApiProperty({ nullable: true }) avatarUrl: string | null;
+}
+
 export class ReviewResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() userId: string;
+  /** Autor anidado cuando la relación `user` está cargada; `null` si no se pidió. */
+  @ApiProperty({ type: ReviewAuthorDto, nullable: true })
+  author: ReviewAuthorDto | null;
   @ApiProperty() alfajorId: string;
   @ApiProperty() ratingGeneral: number;
   @ApiProperty() dulzor: number;
@@ -20,6 +29,13 @@ export class ReviewResponseDto {
     const dto = new ReviewResponseDto();
     dto.id = r.id;
     dto.userId = r.userId;
+    dto.author = r.user
+      ? {
+          id: r.user.id,
+          username: r.user.username,
+          avatarUrl: r.user.avatarUrl,
+        }
+      : null;
     dto.alfajorId = r.alfajorId;
     dto.ratingGeneral = r.ratingGeneral;
     dto.dulzor = r.dulzor;

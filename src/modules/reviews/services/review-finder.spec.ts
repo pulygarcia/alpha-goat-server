@@ -24,10 +24,14 @@ describe('ReviewFinder', () => {
     repo = module.get(getRepositoryToken(Review));
   });
 
-  it('returns review when found', async () => {
+  it('returns review when found, loading the user relation', async () => {
     const r = { id: 'r1' } as Review;
     repo.findOne.mockResolvedValue(r);
     await expect(finder.byId('r1')).resolves.toBe(r);
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { id: 'r1' },
+      relations: { user: true },
+    });
   });
 
   it('throws NotFoundException when missing', async () => {
