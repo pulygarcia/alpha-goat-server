@@ -26,6 +26,7 @@ export class ReviewSearcher {
 
     const [items, total] = await this.reviews.findAndCount({
       where,
+      relations: { user: true },
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,

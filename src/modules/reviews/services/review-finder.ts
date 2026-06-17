@@ -11,7 +11,10 @@ export class ReviewFinder {
   ) {}
 
   async byId(id: string): Promise<Review> {
-    const r = await this.reviews.findOne({ where: { id } });
+    const r = await this.reviews.findOne({
+      where: { id },
+      relations: { user: true },
+    });
     if (!r) throw new NotFoundException(`review ${id} not found`);
     return r;
   }

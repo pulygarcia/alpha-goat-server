@@ -35,6 +35,7 @@ describe('ReviewSearcher', () => {
 
     expect(repo.findAndCount).toHaveBeenCalledWith({
       where: { alfajorId: 'a1', userId: 'u1' },
+      relations: { user: true },
       order: { createdAt: 'DESC' },
       skip: 5,
       take: 5,
