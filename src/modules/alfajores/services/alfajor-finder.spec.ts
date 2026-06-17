@@ -24,10 +24,14 @@ describe('AlfajorFinder', () => {
     repo = module.get(getRepositoryToken(Alfajor));
   });
 
-  it('returns alfajor when found', async () => {
+  it('returns alfajor when found, loading the marca relation', async () => {
     const a = { id: 'a1' } as Alfajor;
     repo.findOne.mockResolvedValue(a);
     await expect(finder.byId('a1')).resolves.toBe(a);
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      relations: { marca: true },
+    });
   });
 
   it('throws NotFoundException when missing', async () => {

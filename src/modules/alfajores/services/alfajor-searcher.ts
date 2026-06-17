@@ -39,6 +39,7 @@ export class AlfajorSearcher {
 
     const [items, total] = await this.alfajores.findAndCount({
       where,
+      relations: { marca: true },
       order: { nombre: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,

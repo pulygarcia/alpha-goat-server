@@ -43,6 +43,7 @@ describe('AlfajorSearcher', () => {
         tipo: AlfajorTipo.CHOCOLATE,
         status: AlfajorStatus.APPROVED,
       },
+      relations: { marca: true },
       order: { nombre: 'ASC' },
       skip: 10,
       take: 10,
