@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FollowToggler } from '../../follows/services/follow-toggler';
 import { Review } from '../domain/review.entity';
+import { ReviewLikeToggler } from './review-like-toggler';
 import { ReviewSearcher } from './review-searcher';
 
 // qb chainable que registra llamadas y resuelve getCount / getRawMany.
@@ -29,16 +30,19 @@ describe('ReviewSearcher', () => {
   let searcher: ReviewSearcher;
   let reviews: { createQueryBuilder: jest.Mock; find: jest.Mock };
   let follows: jest.Mocked<Pick<FollowToggler, 'followingAmong'>>;
+  let likes: jest.Mocked<Pick<ReviewLikeToggler, 'likedAmong'>>;
 
   beforeEach(async () => {
     reviews = { createQueryBuilder: jest.fn(), find: jest.fn() };
     follows = { followingAmong: jest.fn().mockResolvedValue(new Set()) };
+    likes = { likedAmong: jest.fn().mockResolvedValue(new Set()) };
 
     const module = await Test.createTestingModule({
       providers: [
         ReviewSearcher,
         { provide: getRepositoryToken(Review), useValue: reviews },
         { provide: FollowToggler, useValue: follows },
+        { provide: ReviewLikeToggler, useValue: likes },
       ],
     }).compile();
 
@@ -67,7 +71,13 @@ describe('ReviewSearcher', () => {
 
     expect(res.total).toBe(1);
     expect(res.items).toEqual([
-      { review, likesCount: 12, commentsCount: 3, isFollowing: false },
+      {
+        review,
+        likesCount: 12,
+        commentsCount: 3,
+        isFollowing: false,
+        isLiked: false,
+      },
     ]);
   });
 
@@ -127,5 +137,38 @@ describe('ReviewSearcher', () => {
     await searcher.execute(dto({ alfajorId: 'a1' }));
 
     expect(follows.followingAmong).not.toHaveBeenCalled();
+  });
+
+  it('resolves isLiked against the current user for the page reviews', async () => {
+    const r1 = { id: 'r1', userId: 'a1' } as Review;
+    const r2 = { id: 'r2', userId: 'a2' } as Review;
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(2))
+      .mockReturnValueOnce(
+        makeQb(2, [
+          { id: 'r1', likesCount: '1', commentsCount: '0' },
+          { id: 'r2', likesCount: '0', commentsCount: '0' },
+        ]),
+      );
+    reviews.find.mockResolvedValue([r1, r2]);
+    likes.likedAmong.mockResolvedValue(new Set(['r1']));
+
+    const res = await searcher.execute(dto({ alfajorId: 'a1' }), 'me');
+
+    expect(likes.likedAmong).toHaveBeenCalledWith('me', ['r1', 'r2']);
+    expect(res.items.map((row) => row.isLiked)).toEqual([true, false]);
+  });
+
+  it('skips the like lookup for anonymous requests', async () => {
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(1))
+      .mockReturnValueOnce(
+        makeQb(1, [{ id: 'r1', likesCount: '0', commentsCount: '0' }]),
+      );
+    reviews.find.mockResolvedValue([{ id: 'r1', userId: 'a1' } as Review]);
+
+    await searcher.execute(dto({ alfajorId: 'a1' }));
+
+    expect(likes.likedAmong).not.toHaveBeenCalled();
   });
 });

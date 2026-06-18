@@ -41,21 +41,24 @@ describe('ReviewResponseDto.from', () => {
     expect(ReviewResponseDto.from(buildReview()).author).toBeNull();
   });
 
-  it('defaults counts to 0 and isFollowing to false without extra', () => {
+  it('defaults counts to 0 and isFollowing/isLiked to false without extra', () => {
     const dto = ReviewResponseDto.from(withUser());
     expect(dto.likesCount).toBe(0);
     expect(dto.commentsCount).toBe(0);
     expect(dto.author?.isFollowing).toBe(false);
+    expect(dto.isLiked).toBe(false);
   });
 
-  it('maps likesCount, commentsCount and author.isFollowing from the extra', () => {
+  it('maps likesCount, commentsCount, author.isFollowing and isLiked from the extra', () => {
     const dto = ReviewResponseDto.from(withUser(), {
       likesCount: 12,
       commentsCount: 3,
       isFollowing: true,
+      isLiked: true,
     });
     expect(dto.likesCount).toBe(12);
     expect(dto.commentsCount).toBe(3);
     expect(dto.author?.isFollowing).toBe(true);
+    expect(dto.isLiked).toBe(true);
   });
 });

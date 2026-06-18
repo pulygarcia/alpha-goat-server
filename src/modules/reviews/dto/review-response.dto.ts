@@ -14,6 +14,7 @@ export interface ReviewResponseExtra {
   likesCount?: number;
   commentsCount?: number;
   isFollowing?: boolean;
+  isLiked?: boolean;
 }
 
 export class ReviewResponseDto {
@@ -33,6 +34,8 @@ export class ReviewResponseDto {
   @ApiProperty({ nullable: true }) fotoUrl: string | null;
   @ApiProperty() likesCount: number;
   @ApiProperty() commentsCount: number;
+  /** Si el usuario actual ya likeó esta reseña (false para anónimos / sin sesión). */
+  @ApiProperty() isLiked: boolean;
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
 
@@ -50,6 +53,7 @@ export class ReviewResponseDto {
       : null;
     dto.likesCount = extra.likesCount ?? 0;
     dto.commentsCount = extra.commentsCount ?? 0;
+    dto.isLiked = extra.isLiked ?? false;
     dto.alfajorId = r.alfajorId;
     dto.ratingGeneral = r.ratingGeneral;
     dto.dulzor = r.dulzor;
