@@ -5,11 +5,13 @@ import { Review } from '../../reviews/domain/review.entity';
 import { ReviewFinder } from '../../reviews/services/review-finder';
 import { Comment } from '../domain/comment.entity';
 import { CommentCreator } from './comment-creator';
+import { CommentFinder } from './comment-finder';
 
 describe('CommentCreator', () => {
   let creator: CommentCreator;
   let repo: jest.Mocked<Repository<Comment>>;
   let reviewFinder: jest.Mocked<ReviewFinder>;
+  let finder: jest.Mocked<CommentFinder>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -20,15 +22,17 @@ describe('CommentCreator', () => {
           useValue: { create: jest.fn(), save: jest.fn() },
         },
         { provide: ReviewFinder, useValue: { byId: jest.fn() } },
+        { provide: CommentFinder, useValue: { byId: jest.fn() } },
       ],
     }).compile();
 
     creator = module.get(CommentCreator);
     repo = module.get(getRepositoryToken(Comment));
     reviewFinder = module.get(ReviewFinder);
+    finder = module.get(CommentFinder);
   });
 
-  it('creates a comment after verifying the review exists', async () => {
+  it('creates a comment then returns it rehydrated with its author', async () => {
     reviewFinder.byId.mockResolvedValue({ id: 'r1' } as Review);
     const entity = {
       id: 'c1',
@@ -36,8 +40,10 @@ describe('CommentCreator', () => {
       userId: 'u1',
       contenido: 'hola',
     } as Comment;
+    const hydrated = { ...entity, user: { id: 'u1' } } as Comment;
     repo.create.mockReturnValue(entity);
     repo.save.mockResolvedValue(entity);
+    finder.byId.mockResolvedValue(hydrated);
 
     const result = await creator.execute('r1', { contenido: 'hola' }, 'u1');
 
@@ -47,7 +53,8 @@ describe('CommentCreator', () => {
       userId: 'u1',
       contenido: 'hola',
     });
-    expect(result).toBe(entity);
+    expect(finder.byId).toHaveBeenCalledWith('c1');
+    expect(result).toBe(hydrated);
   });
 
   it('propagates NotFound when review does not exist', async () => {

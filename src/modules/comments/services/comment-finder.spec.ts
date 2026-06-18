@@ -23,10 +23,14 @@ describe('CommentFinder', () => {
     repo = module.get(getRepositoryToken(Comment));
   });
 
-  it('returns the comment when it exists', async () => {
+  it('returns the comment when it exists, loading its author', async () => {
     const c = { id: 'c1' } as Comment;
     repo.findOne.mockResolvedValue(c);
     await expect(finder.byId('c1')).resolves.toBe(c);
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { id: 'c1' },
+      relations: { user: true },
+    });
   });
 
   it('throws NotFoundException when missing', async () => {
