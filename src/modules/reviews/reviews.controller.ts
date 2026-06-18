@@ -16,6 +16,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import {
@@ -44,10 +45,23 @@ export class ReviewsController {
   ) {}
 
   @Get()
-  async search(@Query() dto: SearchReviewsDto): Promise<PaginatedReviewsDto> {
-    const { items, total, page, limit } = await this.searcher.execute(dto);
+  @UseGuards(OptionalJwtAuthGuard)
+  async search(
+    @Query() dto: SearchReviewsDto,
+    @CurrentUser() user?: User,
+  ): Promise<PaginatedReviewsDto> {
+    const { items, total, page, limit } = await this.searcher.execute(
+      dto,
+      user?.id,
+    );
     return {
-      items: items.map((r) => ReviewResponseDto.from(r)),
+      items: items.map((row) =>
+        ReviewResponseDto.from(row.review, {
+          likesCount: row.likesCount,
+          commentsCount: row.commentsCount,
+          isFollowing: row.isFollowing,
+        }),
+      ),
       total,
       page,
       limit,

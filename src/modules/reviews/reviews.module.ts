@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlfajoresModule } from '../alfajores/alfajores.module';
 import { AuthModule } from '../auth/auth.module';
+import { FollowsModule } from '../follows/follows.module';
 import { ReviewLike } from './domain/review-like.entity';
 import { Review } from './domain/review.entity';
 import { ReviewsController } from './reviews.controller';
@@ -17,6 +18,7 @@ import { ReviewUpdater } from './services/review-updater';
     TypeOrmModule.forFeature([Review, ReviewLike]),
     AuthModule,
     AlfajoresModule,
+    FollowsModule,
   ],
   controllers: [ReviewsController],
   providers: [

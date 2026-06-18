@@ -20,20 +20,42 @@ function buildReview(over: Partial<Review> = {}): Review {
   };
 }
 
-describe('ReviewResponseDto.from', () => {
-  it('maps the nested author when the user relation is loaded', () => {
-    const r = buildReview({
-      user: { id: 'u1', username: 'pepe', avatarUrl: null },
-    } as Partial<Review>);
+function withUser(over: Partial<Review> = {}): Review {
+  return buildReview({
+    user: { id: 'u1', username: 'pepe', avatarUrl: null },
+    ...over,
+  } as Partial<Review>);
+}
 
-    expect(ReviewResponseDto.from(r).author).toEqual({
+describe('ReviewResponseDto.from', () => {
+  it('maps the nested author (isFollowing false by default) when loaded', () => {
+    expect(ReviewResponseDto.from(withUser()).author).toEqual({
       id: 'u1',
       username: 'pepe',
       avatarUrl: null,
+      isFollowing: false,
     });
   });
 
   it('leaves author null when the user relation is not loaded', () => {
     expect(ReviewResponseDto.from(buildReview()).author).toBeNull();
+  });
+
+  it('defaults counts to 0 and isFollowing to false without extra', () => {
+    const dto = ReviewResponseDto.from(withUser());
+    expect(dto.likesCount).toBe(0);
+    expect(dto.commentsCount).toBe(0);
+    expect(dto.author?.isFollowing).toBe(false);
+  });
+
+  it('maps likesCount, commentsCount and author.isFollowing from the extra', () => {
+    const dto = ReviewResponseDto.from(withUser(), {
+      likesCount: 12,
+      commentsCount: 3,
+      isFollowing: true,
+    });
+    expect(dto.likesCount).toBe(12);
+    expect(dto.commentsCount).toBe(3);
+    expect(dto.author?.isFollowing).toBe(true);
   });
 });
