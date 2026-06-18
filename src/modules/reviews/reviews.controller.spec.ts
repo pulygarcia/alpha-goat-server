@@ -62,15 +62,17 @@ describe('ReviewsController', () => {
     likes = module.get(ReviewLikeToggler);
   });
 
-  it('search returns paginated dtos', async () => {
+  it('search returns paginated dtos with the row extras', async () => {
     searcher.execute.mockResolvedValue({
-      items: [review],
+      items: [{ review, likesCount: 12, commentsCount: 3, isFollowing: true }],
       total: 1,
       page: 1,
       limit: 20,
     });
     const res = await controller.search({ page: 1, limit: 20 });
     expect(res.items[0].id).toBe('r1');
+    expect(res.items[0].likesCount).toBe(12);
+    expect(res.items[0].commentsCount).toBe(3);
   });
 
   it('findOne returns response dto', async () => {

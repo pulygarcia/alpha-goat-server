@@ -5,6 +5,15 @@ class ReviewAuthorDto {
   @ApiProperty() id: string;
   @ApiProperty() username: string;
   @ApiProperty({ nullable: true }) avatarUrl: string | null;
+  /** Si el usuario actual sigue al autor (false para anónimos / sin sesión). */
+  @ApiProperty() isFollowing: boolean;
+}
+
+/** Datos calculados que no viven en la entidad (los aporta el searcher). */
+export interface ReviewResponseExtra {
+  likesCount?: number;
+  commentsCount?: number;
+  isFollowing?: boolean;
 }
 
 export class ReviewResponseDto {
@@ -22,10 +31,12 @@ export class ReviewResponseDto {
   @ApiProperty() textura: number;
   @ApiProperty({ nullable: true }) comentario: string | null;
   @ApiProperty({ nullable: true }) fotoUrl: string | null;
+  @ApiProperty() likesCount: number;
+  @ApiProperty() commentsCount: number;
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
 
-  static from(r: Review): ReviewResponseDto {
+  static from(r: Review, extra: ReviewResponseExtra = {}): ReviewResponseDto {
     const dto = new ReviewResponseDto();
     dto.id = r.id;
     dto.userId = r.userId;
@@ -34,8 +45,11 @@ export class ReviewResponseDto {
           id: r.user.id,
           username: r.user.username,
           avatarUrl: r.user.avatarUrl,
+          isFollowing: extra.isFollowing ?? false,
         }
       : null;
+    dto.likesCount = extra.likesCount ?? 0;
+    dto.commentsCount = extra.commentsCount ?? 0;
     dto.alfajorId = r.alfajorId;
     dto.ratingGeneral = r.ratingGeneral;
     dto.dulzor = r.dulzor;
