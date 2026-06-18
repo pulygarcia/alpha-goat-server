@@ -1,32 +1,45 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
 import { Alfajor } from '../domain/alfajor.entity';
 import { AlfajorStatus } from '../domain/alfajor-status.enum';
 import { AlfajorTipo } from '../domain/alfajor-tipo.enum';
 import { AlfajorSearcher } from './alfajor-searcher';
 
+const makeQb = (items: unknown[], total: number) => {
+  const qb: any = {};
+  for (const m of [
+    'leftJoinAndSelect',
+    'andWhere',
+    'orderBy',
+    'skip',
+    'take',
+  ]) {
+    qb[m] = jest.fn().mockReturnValue(qb);
+  }
+  qb.getManyAndCount = jest.fn().mockResolvedValue([items, total]);
+  return qb;
+};
+
 describe('AlfajorSearcher', () => {
   let searcher: AlfajorSearcher;
-  let repo: jest.Mocked<Repository<Alfajor>>;
+  let repo: { createQueryBuilder: jest.Mock };
 
   beforeEach(async () => {
+    repo = { createQueryBuilder: jest.fn() };
+
     const module = await Test.createTestingModule({
       providers: [
         AlfajorSearcher,
-        {
-          provide: getRepositoryToken(Alfajor),
-          useValue: { findAndCount: jest.fn() },
-        },
+        { provide: getRepositoryToken(Alfajor), useValue: repo },
       ],
     }).compile();
 
     searcher = module.get(AlfajorSearcher);
-    repo = module.get(getRepositoryToken(Alfajor));
   });
 
-  it('forces status APPROVED for non-admin and applies q + filters', async () => {
-    repo.findAndCount.mockResolvedValue([[], 0]);
+  it('filters by unaccented name, status APPROVED, marca and tipo (non-admin)', async () => {
+    const qb = makeQb([], 0);
+    repo.createQueryBuilder.mockReturnValue(qb);
 
     await searcher.execute({
       q: 'jorg',
@@ -36,49 +49,56 @@ describe('AlfajorSearcher', () => {
       limit: 10,
     });
 
-    expect(repo.findAndCount).toHaveBeenCalledWith({
-      where: {
-        nombre: ILike('%jorg%'),
-        marcaId: 'm1',
-        tipo: AlfajorTipo.CHOCOLATE,
-        status: AlfajorStatus.APPROVED,
-      },
-      relations: { marca: true },
-      order: { nombre: 'ASC' },
-      skip: 10,
-      take: 10,
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      'unaccent(a.nombre) ILIKE unaccent(:q)',
+      { q: '%jorg%' },
+    );
+    expect(qb.andWhere).toHaveBeenCalledWith('a.marcaId = :marcaId', {
+      marcaId: 'm1',
     });
+    expect(qb.andWhere).toHaveBeenCalledWith('a.tipo = :tipo', {
+      tipo: AlfajorTipo.CHOCOLATE,
+    });
+    expect(qb.andWhere).toHaveBeenCalledWith('a.status = :status', {
+      status: AlfajorStatus.APPROVED,
+    });
+    expect(qb.skip).toHaveBeenCalledWith(10); // (2-1)*10
+    expect(qb.take).toHaveBeenCalledWith(10);
   });
 
-  it('respects status filter when includeAllStatuses', async () => {
-    repo.findAndCount.mockResolvedValue([[], 0]);
+  it('respects the status filter when includeAllStatuses', async () => {
+    const qb = makeQb([], 0);
+    repo.createQueryBuilder.mockReturnValue(qb);
 
     await searcher.execute(
       { status: AlfajorStatus.PENDING, page: 1, limit: 20 },
       { includeAllStatuses: true },
     );
 
-    expect(repo.findAndCount).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: AlfajorStatus.PENDING } }),
-    );
+    expect(qb.andWhere).toHaveBeenCalledWith('a.status = :status', {
+      status: AlfajorStatus.PENDING,
+    });
   });
 
-  it('omits status when includeAllStatuses and no status given', async () => {
-    repo.findAndCount.mockResolvedValue([[], 0]);
+  it('omits the status filter when includeAllStatuses and no status given', async () => {
+    const qb = makeQb([], 0);
+    repo.createQueryBuilder.mockReturnValue(qb);
 
     await searcher.execute(
       { page: 1, limit: 20 },
       { includeAllStatuses: true },
     );
 
-    expect(repo.findAndCount).toHaveBeenCalledWith(
-      expect.objectContaining({ where: {} }),
+    const statusCall = qb.andWhere.mock.calls.find(
+      (c: unknown[]) => typeof c[0] === 'string' && c[0].includes('status'),
     );
+    expect(statusCall).toBeUndefined();
   });
 
-  it('returns paginated result', async () => {
+  it('returns the paginated result', async () => {
     const items = [{ id: 'a1' } as Alfajor];
-    repo.findAndCount.mockResolvedValue([items, 1]);
+    const qb = makeQb(items, 1);
+    repo.createQueryBuilder.mockReturnValue(qb);
 
     const res = await searcher.execute({ page: 1, limit: 20 });
 
