@@ -28,6 +28,7 @@ export class CommentSearcher {
     const { page, limit } = dto;
     const [items, total] = await this.comments.findAndCount({
       where: { reviewId },
+      relations: { user: true },
       order: { createdAt: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,

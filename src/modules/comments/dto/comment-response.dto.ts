@@ -1,10 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Comment } from '../domain/comment.entity';
 
+class CommentAuthorDto {
+  @ApiProperty() id: string;
+  @ApiProperty() username: string;
+  @ApiProperty({ nullable: true }) avatarUrl: string | null;
+}
+
 export class CommentResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() reviewId: string;
   @ApiProperty() userId: string;
+  /** Autor anidado cuando la relación `user` está cargada; `null` si no se pidió. */
+  @ApiProperty({ type: CommentAuthorDto, nullable: true })
+  author: CommentAuthorDto | null;
   @ApiProperty() contenido: string;
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
@@ -14,6 +23,13 @@ export class CommentResponseDto {
       id: c.id,
       reviewId: c.reviewId,
       userId: c.userId,
+      author: c.user
+        ? {
+            id: c.user.id,
+            username: c.user.username,
+            avatarUrl: c.user.avatarUrl,
+          }
+        : null,
       contenido: c.contenido,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,

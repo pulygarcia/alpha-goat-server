@@ -37,6 +37,7 @@ describe('CommentSearcher', () => {
     expect(reviewFinder.byId).toHaveBeenCalledWith('r1');
     expect(repo.findAndCount).toHaveBeenCalledWith({
       where: { reviewId: 'r1' },
+      relations: { user: true },
       order: { createdAt: 'ASC' },
       skip: 10,
       take: 10,

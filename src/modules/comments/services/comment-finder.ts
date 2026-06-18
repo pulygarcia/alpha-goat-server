@@ -11,7 +11,10 @@ export class CommentFinder {
   ) {}
 
   async byId(id: string): Promise<Comment> {
-    const c = await this.comments.findOne({ where: { id } });
+    const c = await this.comments.findOne({
+      where: { id },
+      relations: { user: true },
+    });
     if (!c) throw new NotFoundException(`comment ${id} not found`);
     return c;
   }
