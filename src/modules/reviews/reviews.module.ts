@@ -29,6 +29,6 @@ import { ReviewUpdater } from './services/review-updater';
     ReviewRemover,
     ReviewLikeToggler,
   ],
-  exports: [ReviewFinder],
+  exports: [ReviewFinder, ReviewLikeToggler],
 })
 export class ReviewsModule {}

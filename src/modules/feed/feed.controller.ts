@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import { FeedHeroResponseDto } from './dto/feed-hero-response.dto';
 import { FeedQueryDto } from './dto/feed-query.dto';
@@ -63,18 +63,19 @@ export class FeedController {
 
   @Get()
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({
-    summary: 'Lista paginada de reseñas del feed (scope + sort)',
+    summary:
+      'Lista paginada de reseñas del feed (scope + sort). Pública: anónimo ve el feed con isFollowing/isLiked en false; scope=following requiere sesión.',
   })
   @ApiResponse({ status: 200, type: FeedListDto })
   async list(
     @Query() dto: FeedQueryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user?: User,
   ): Promise<FeedListDto> {
     const { rows, total, page, limit } = await this.finder.execute(
       dto,
-      user.id,
+      user?.id,
     );
     return { items: rows.map(toItemDto), total, page, limit };
   }
@@ -113,6 +114,7 @@ function toItemDto(row: FeedRow): FeedItemDto {
     },
     likes: row.likes,
     commentsCount: row.commentsCount,
+    isLiked: row.isLiked,
     createdAt: r.createdAt,
   };
 }

@@ -4,6 +4,7 @@ import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { AlfajorStatus } from '../../alfajores/domain/alfajor-status.enum';
 import { FollowToggler } from '../../follows/services/follow-toggler';
 import { Review } from '../../reviews/domain/review.entity';
+import { ReviewLikeToggler } from '../../reviews/services/review-like-toggler';
 import { FeedQueryDto, FeedScope, FeedSort } from '../dto/feed-query.dto';
 
 export interface FeedRow {
@@ -11,6 +12,7 @@ export interface FeedRow {
   likes: number;
   commentsCount: number;
   isFollowing: boolean;
+  isLiked: boolean;
 }
 
 export interface FeedResult {
@@ -28,12 +30,14 @@ export class FeedFinder {
     @InjectRepository(Review)
     private readonly reviews: Repository<Review>,
     private readonly follows: FollowToggler,
+    private readonly likes: ReviewLikeToggler,
   ) {}
 
-  // `now` se inyecta para poder testear las ventanas today/week sin tocar el reloj.
+  // `userId` opcional: el feed es público (anónimo lo ve con isFollowing/isLiked
+  // en false). `now` se inyecta para testear las ventanas today/week sin tocar el reloj.
   async execute(
     dto: FeedQueryDto,
-    userId: string,
+    userId?: string,
     now: Date = new Date(),
   ): Promise<FeedResult> {
     const { scope, sort, province, page, limit } = dto;
@@ -42,11 +46,16 @@ export class FeedFinder {
       throw new BadRequestException('province is required when scope=province');
     }
 
+    // scope=following es personal: sin sesión no tiene sentido.
+    if (scope === FeedScope.FOLLOWING && !userId) {
+      throw new BadRequestException('following feed requires authentication');
+    }
+
     // scope=following sin seguidos → feed vacío. Cortamos antes de armar la query
     // porque `IN (:...[])` con lista vacía genera SQL inválido.
     let followingIds: string[] | null = null;
     if (scope === FeedScope.FOLLOWING) {
-      followingIds = await this.follows.followingIds(userId);
+      followingIds = await this.follows.followingIds(userId!);
       if (followingIds.length === 0) return { rows: [], total: 0, page, limit };
     }
 
@@ -134,15 +143,22 @@ export class FeedFinder {
       likes: Number(r.likesCount),
       commentsCount: Number(r.commentsCount),
       isFollowing: false,
+      isLiked: false,
     }));
 
-    // Resolvemos el follow del usuario actual acotado a los autores de esta
-    // página (no a todos los que sigue). Las reviews propias no aparecen acá
-    // porque uno no puede seguirse a sí mismo.
-    const authorIds = [...new Set(rows.map((row) => row.review.user!.id))];
-    const followed = await this.follows.followingAmong(userId, authorIds);
-    for (const row of rows) {
-      row.isFollowing = followed.has(row.review.user!.id);
+    // Flags personales solo con sesión (anónimo => false). Acotados a esta página:
+    // los autores para el follow, las reseñas para el like.
+    if (userId) {
+      const authorIds = [...new Set(rows.map((row) => row.review.user!.id))];
+      const followed = await this.follows.followingAmong(userId, authorIds);
+      const liked = await this.likes.likedAmong(
+        userId,
+        rows.map((row) => row.review.id),
+      );
+      for (const row of rows) {
+        row.isFollowing = followed.has(row.review.user!.id);
+        row.isLiked = liked.has(row.review.id);
+      }
     }
 
     return { rows, total, page, limit };

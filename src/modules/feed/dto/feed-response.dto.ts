@@ -42,6 +42,8 @@ export class FeedItemDto {
   @ApiProperty({ type: FeedAxesDto }) axes: FeedAxesDto;
   @ApiProperty() likes: number;
   @ApiProperty() commentsCount: number;
+  @ApiProperty({ description: 'si el usuario actual ya likeó esta reseña' })
+  isLiked: boolean;
   @ApiProperty() createdAt: Date;
 }
 
