@@ -67,6 +67,47 @@ const MARCAS: Array<Pick<Marca, 'nombre' | 'provincia' | 'descripcion'>> = [
     provincia: 'Buenos Aires',
     descripcion: 'Marca histórica de galletitas y alfajores de Mondelez.',
   },
+  {
+    nombre: 'Jorgelín',
+    provincia: 'Buenos Aires',
+    descripcion: 'Marca popular de góndola, conocida por su alfajor triple.',
+  },
+  {
+    nombre: 'Tatín',
+    provincia: 'Córdoba',
+    descripcion: 'Línea de alfajores de Arcor, económica y clásica de kiosco.',
+  },
+  {
+    nombre: 'Bagley',
+    provincia: 'Buenos Aires',
+    descripcion: 'Histórica fábrica de galletitas, hogar de la Chocotorta.',
+  },
+  {
+    nombre: 'Bon o Bon',
+    provincia: 'Córdoba',
+    descripcion:
+      'Marca de Arcor famosa por su bombón de maní y dulce de leche.',
+  },
+  {
+    nombre: 'Pepitos',
+    provincia: 'Buenos Aires',
+    descripcion: 'Marca de galletitas con chips de chocolate de Mondelez.',
+  },
+  {
+    nombre: 'Shot',
+    provincia: 'Córdoba',
+    descripcion: 'Marca de Arcor de chocolate con maní.',
+  },
+  {
+    nombre: 'Rasta',
+    provincia: 'Córdoba',
+    descripcion: 'Marca de Arcor, chocolate con cereal y maní.',
+  },
+  {
+    nombre: 'Fulbito de Maní',
+    provincia: 'Córdoba',
+    descripcion: 'Golosina de maní, clásica del kiosco argentino.',
+  },
 ];
 
 async function run(): Promise<void> {

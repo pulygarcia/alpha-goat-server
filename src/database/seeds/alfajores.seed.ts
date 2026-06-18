@@ -138,6 +138,154 @@ const ALFAJORES: SeedAlfajor[] = [
     marcaNombre: 'Terrabusi',
     tipo: AlfajorTipo.NEGRO,
   },
+
+  {
+    nombre: 'Jorgito Fruta',
+    marcaNombre: 'Jorgito',
+    tipo: AlfajorTipo.FRUTAL,
+    descripcion: 'Relleno frutal bañado en chocolate.',
+  },
+
+  {
+    nombre: 'Jorgelín Triple',
+    marcaNombre: 'Jorgelín',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con doble relleno de dulce de leche.',
+  },
+
+  {
+    nombre: 'Fantoche Triple Negro',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa bañado en chocolate negro.',
+  },
+  {
+    nombre: 'Fantoche Triple Blanco',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.BLANCO,
+    descripcion: 'Triple capa bañado en chocolate blanco.',
+  },
+  {
+    nombre: 'Fantoche Night',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Variante bañada en chocolate negro.',
+  },
+  {
+    nombre: 'Fantoche Day',
+    marcaNombre: 'Fantoche',
+    tipo: AlfajorTipo.BLANCO,
+    descripcion: 'Variante bañada en chocolate blanco.',
+  },
+
+  { nombre: 'Tatín Negro', marcaNombre: 'Tatín', tipo: AlfajorTipo.NEGRO },
+  { nombre: 'Tatín Blanco', marcaNombre: 'Tatín', tipo: AlfajorTipo.BLANCO },
+
+  {
+    nombre: 'Bon o Bon',
+    marcaNombre: 'Bon o Bon',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Alfajor con relleno de bombón de maní y dulce de leche.',
+  },
+
+  {
+    nombre: 'Pepitos',
+    marcaNombre: 'Pepitos',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Alfajor con galletita Pepitos y chips de chocolate.',
+  },
+
+  {
+    nombre: 'Milka Triple Dulce de Leche',
+    marcaNombre: 'Milka',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con doble relleno de dulce de leche.',
+  },
+
+  {
+    nombre: 'Shot Triple',
+    marcaNombre: 'Shot',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con maní y dulce de leche.',
+  },
+
+  {
+    nombre: 'Rasta',
+    marcaNombre: 'Rasta',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Alfajor con cereal y maní bañado en chocolate.',
+  },
+
+  {
+    nombre: 'Fulbito de Maní',
+    marcaNombre: 'Fulbito de Maní',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Alfajor a base de maní, clásico del kiosco.',
+  },
+
+  {
+    nombre: 'Guaymallén Negro',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.NEGRO,
+  },
+  {
+    nombre: 'Guaymallén Blanco',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.BLANCO,
+  },
+  {
+    nombre: 'Guaymallén Triple Negro',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa bañado en chocolate negro.',
+  },
+  {
+    nombre: 'Guaymallén Triple Blanco',
+    marcaNombre: 'Guaymallén',
+    tipo: AlfajorTipo.BLANCO,
+    descripcion: 'Triple capa bañado en chocolate blanco.',
+  },
+
+  { nombre: 'Tofi Negro', marcaNombre: 'Tofi', tipo: AlfajorTipo.NEGRO },
+  {
+    nombre: 'Tofi Triple',
+    marcaNombre: 'Tofi',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa con doble relleno de dulce de leche.',
+  },
+  {
+    nombre: 'Tofi Dulce de Leche',
+    marcaNombre: 'Tofi',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Relleno extra de dulce de leche bañado en chocolate.',
+  },
+
+  {
+    nombre: 'Águila Clásico',
+    marcaNombre: 'Águila',
+    tipo: AlfajorTipo.NEGRO,
+    descripcion: 'Triple capa bañado en chocolate negro.',
+  },
+  {
+    nombre: 'Águila Brownie',
+    marcaNombre: 'Águila',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Triple capa con relleno sabor brownie.',
+  },
+  {
+    nombre: 'Águila Coco',
+    marcaNombre: 'Águila',
+    tipo: AlfajorTipo.OTRO,
+    descripcion: 'Triple capa con coco rallado.',
+  },
+
+  {
+    nombre: 'Chocotorta Bagley',
+    marcaNombre: 'Bagley',
+    tipo: AlfajorTipo.OTRO,
+    descripcion:
+      'Alfajor inspirado en la chocotorta, con sabor a galletita y queso crema.',
+  },
 ];
 
 async function run(): Promise<void> {
