@@ -51,7 +51,15 @@ describe('FeedController', () => {
     } as unknown as Review;
 
     finder.execute.mockResolvedValue({
-      rows: [{ review, likes: 12, commentsCount: 3, isFollowing: true }],
+      rows: [
+        {
+          review,
+          likes: 12,
+          commentsCount: 3,
+          isFollowing: true,
+          isLiked: true,
+        },
+      ],
       total: 1,
       page: 1,
       limit: 20,
@@ -88,6 +96,7 @@ describe('FeedController', () => {
       },
       likes: 12,
       commentsCount: 3,
+      isLiked: true,
       createdAt: review.createdAt,
     });
   });
@@ -104,6 +113,20 @@ describe('FeedController', () => {
     await controller.list(dto, { id: 'u9' } as User);
 
     expect(finder.execute).toHaveBeenCalledWith(dto, 'u9');
+  });
+
+  it('forwards undefined to the finder for anonymous requests', async () => {
+    finder.execute.mockResolvedValue({
+      rows: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+    });
+    const dto: FeedQueryDto = { sort: FeedSort.RECENT, page: 1, limit: 20 };
+
+    await controller.list(dto, undefined);
+
+    expect(finder.execute).toHaveBeenCalledWith(dto, undefined);
   });
 
   it('returns the subnav stats from the finder', async () => {

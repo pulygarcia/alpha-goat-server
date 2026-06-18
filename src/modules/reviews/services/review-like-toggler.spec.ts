@@ -19,6 +19,7 @@ describe('ReviewLikeToggler', () => {
           provide: getRepositoryToken(ReviewLike),
           useValue: {
             findOne: jest.fn(),
+            find: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
             delete: jest.fn(),
@@ -55,5 +56,20 @@ describe('ReviewLikeToggler', () => {
   it('deletes the like on unlike', async () => {
     await toggler.unlike('r1', 'u1');
     expect(repo.delete).toHaveBeenCalledWith({ reviewId: 'r1', userId: 'u1' });
+  });
+
+  it('returns the subset of reviewIds the user liked', async () => {
+    repo.find.mockResolvedValue([{ reviewId: 'r1' }] as ReviewLike[]);
+
+    const liked = await toggler.likedAmong('u1', ['r1', 'r2']);
+
+    expect(liked).toEqual(new Set(['r1']));
+  });
+
+  it('returns an empty set without querying when there are no candidates', async () => {
+    const liked = await toggler.likedAmong('u1', []);
+
+    expect(liked).toEqual(new Set());
+    expect(repo.find).not.toHaveBeenCalled();
   });
 });

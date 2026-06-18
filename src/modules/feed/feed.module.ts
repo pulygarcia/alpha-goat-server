@@ -4,6 +4,7 @@ import { Alfajor } from '../alfajores/domain/alfajor.entity';
 import { AuthModule } from '../auth/auth.module';
 import { FollowsModule } from '../follows/follows.module';
 import { Review } from '../reviews/domain/review.entity';
+import { ReviewsModule } from '../reviews/reviews.module';
 import { FeedController } from './feed.controller';
 import { FeedFinder } from './services/feed-finder';
 import { FeedHeroFinder } from './services/feed-hero-finder';
@@ -14,6 +15,7 @@ import { FeedStatsFinder } from './services/feed-stats-finder';
     TypeOrmModule.forFeature([Review, Alfajor]),
     AuthModule,
     FollowsModule,
+    ReviewsModule,
   ],
   controllers: [FeedController],
   providers: [FeedHeroFinder, FeedFinder, FeedStatsFinder],

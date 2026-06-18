@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FollowToggler } from '../../follows/services/follow-toggler';
 import { Review } from '../../reviews/domain/review.entity';
+import { ReviewLikeToggler } from '../../reviews/services/review-like-toggler';
 import { FeedQueryDto, FeedScope, FeedSort } from '../dto/feed-query.dto';
 import { FeedFinder } from './feed-finder';
 
@@ -39,6 +40,7 @@ describe('FeedFinder', () => {
   let follows: jest.Mocked<
     Pick<FollowToggler, 'followingIds' | 'followingAmong'>
   >;
+  let likes: jest.Mocked<Pick<ReviewLikeToggler, 'likedAmong'>>;
 
   beforeEach(async () => {
     reviews = { createQueryBuilder: jest.fn(), find: jest.fn() };
@@ -46,12 +48,14 @@ describe('FeedFinder', () => {
       followingIds: jest.fn(),
       followingAmong: jest.fn().mockResolvedValue(new Set()),
     };
+    likes = { likedAmong: jest.fn().mockResolvedValue(new Set()) };
 
     const module = await Test.createTestingModule({
       providers: [
         FeedFinder,
         { provide: getRepositoryToken(Review), useValue: reviews },
         { provide: FollowToggler, useValue: follows },
+        { provide: ReviewLikeToggler, useValue: likes },
       ],
     }).compile();
 
@@ -104,7 +108,13 @@ describe('FeedFinder', () => {
 
     expect(result.total).toBe(1);
     expect(result.rows).toEqual([
-      { review, likes: 12, commentsCount: 3, isFollowing: false },
+      {
+        review,
+        likes: 12,
+        commentsCount: 3,
+        isFollowing: false,
+        isLiked: false,
+      },
     ]);
   });
 
@@ -196,5 +206,49 @@ describe('FeedFinder', () => {
 
     expect(follows.followingAmong).toHaveBeenCalledWith('me', ['a1', 'a2']);
     expect(result.rows.map((row) => row.isFollowing)).toEqual([true, false]);
+  });
+
+  it('marks isLiked true only for reviews the current user liked', async () => {
+    const r1 = { id: 'r1', user: { id: 'a1' } } as unknown as Review;
+    const r2 = { id: 'r2', user: { id: 'a2' } } as unknown as Review;
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(2))
+      .mockReturnValueOnce(
+        makeQb(2, [
+          { id: 'r1', likesCount: '1', commentsCount: '0' },
+          { id: 'r2', likesCount: '0', commentsCount: '0' },
+        ]),
+      );
+    reviews.find.mockResolvedValue([r1, r2]);
+    likes.likedAmong.mockResolvedValue(new Set(['r1']));
+
+    const result = await finder.execute(baseDto(), 'me');
+
+    expect(likes.likedAmong).toHaveBeenCalledWith('me', ['r1', 'r2']);
+    expect(result.rows.map((row) => row.isLiked)).toEqual([true, false]);
+  });
+
+  it('skips follow/like lookups for anonymous requests (false flags)', async () => {
+    const r1 = { id: 'r1', user: { id: 'a1' } } as unknown as Review;
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(1))
+      .mockReturnValueOnce(
+        makeQb(1, [{ id: 'r1', likesCount: '0', commentsCount: '0' }]),
+      );
+    reviews.find.mockResolvedValue([r1]);
+
+    const result = await finder.execute(baseDto());
+
+    expect(follows.followingAmong).not.toHaveBeenCalled();
+    expect(likes.likedAmong).not.toHaveBeenCalled();
+    expect(result.rows[0].isFollowing).toBe(false);
+    expect(result.rows[0].isLiked).toBe(false);
+  });
+
+  it('rejects scope=following for anonymous requests', async () => {
+    await expect(
+      finder.execute(baseDto({ scope: FeedScope.FOLLOWING })),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(reviews.createQueryBuilder).not.toHaveBeenCalled();
   });
 });

@@ -60,6 +60,7 @@ export class ReviewsController {
           likesCount: row.likesCount,
           commentsCount: row.commentsCount,
           isFollowing: row.isFollowing,
+          isLiked: row.isLiked,
         }),
       ),
       total,

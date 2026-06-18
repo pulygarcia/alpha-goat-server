@@ -4,12 +4,14 @@ import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { FollowToggler } from '../../follows/services/follow-toggler';
 import { Review } from '../domain/review.entity';
 import { SearchReviewsDto } from '../dto/search-reviews.dto';
+import { ReviewLikeToggler } from './review-like-toggler';
 
 export interface ReviewRow {
   review: Review;
   likesCount: number;
   commentsCount: number;
   isFollowing: boolean;
+  isLiked: boolean;
 }
 
 export interface PaginatedReviewRows {
@@ -25,9 +27,10 @@ export class ReviewSearcher {
     @InjectRepository(Review)
     private readonly reviews: Repository<Review>,
     private readonly follows: FollowToggler,
+    private readonly likes: ReviewLikeToggler,
   ) {}
 
-  // `currentUserId` (opcional) resuelve `isFollowing`; anónimo => siempre false.
+  // `currentUserId` (opcional) resuelve `isFollowing`/`isLiked`; anónimo => false.
   async execute(
     dto: SearchReviewsDto,
     currentUserId?: string,
@@ -76,6 +79,7 @@ export class ReviewSearcher {
       likesCount: Number(r.likesCount),
       commentsCount: Number(r.commentsCount),
       isFollowing: false,
+      isLiked: false,
     }));
 
     if (currentUserId) {
@@ -84,8 +88,13 @@ export class ReviewSearcher {
         currentUserId,
         authorIds,
       );
+      const liked = await this.likes.likedAmong(
+        currentUserId,
+        rows.map((row) => row.review.id),
+      );
       for (const row of rows) {
         row.isFollowing = followed.has(row.review.userId);
+        row.isLiked = liked.has(row.review.id);
       }
     }
 
