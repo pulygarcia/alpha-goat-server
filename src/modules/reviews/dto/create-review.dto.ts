@@ -7,6 +7,7 @@ import {
   IsUrl,
   IsUUID,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 
@@ -52,9 +53,10 @@ export class CreateReviewDto {
   @Rating()
   textura: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ maxLength: 280 })
   @IsOptional()
   @IsString()
+  @MaxLength(280)
   comentario?: string;
 
   @ApiPropertyOptional()
