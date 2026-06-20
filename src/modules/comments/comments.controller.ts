@@ -16,6 +16,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import {
   CommentResponseDto,
@@ -44,16 +45,24 @@ export class CommentsController {
   ) {}
 
   @Get('reviews/:reviewId/comments')
+  @UseGuards(OptionalJwtAuthGuard)
   async search(
     @Param('reviewId', ParseUUIDPipe) reviewId: string,
     @Query() dto: SearchCommentsDto,
+    @CurrentUser() user?: User,
   ): Promise<PaginatedCommentsDto> {
     const { items, total, page, limit } = await this.searcher.execute(
       reviewId,
       dto,
+      user?.id,
     );
     return {
-      items: items.map((c) => CommentResponseDto.from(c)),
+      items: items.map((row) =>
+        CommentResponseDto.from(row.comment, {
+          likesCount: row.likesCount,
+          isLiked: row.isLiked,
+        }),
+      ),
       total,
       page,
       limit,
