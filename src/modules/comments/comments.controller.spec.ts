@@ -55,16 +55,37 @@ describe('CommentsController', () => {
     likes = module.get(CommentLikeToggler);
   });
 
-  it('search returns paginated dtos', async () => {
+  it('search returns paginated dtos with like data and forwards the current user', async () => {
     searcher.execute.mockResolvedValue({
-      items: [comment],
+      items: [{ comment, likesCount: 4, isLiked: true }],
       total: 1,
       page: 1,
       limit: 20,
     });
-    const res = await controller.search('r1', { page: 1, limit: 20 });
+    const res = await controller.search('r1', { page: 1, limit: 20 }, user);
     expect(res.items[0].id).toBe('c1');
-    expect(searcher.execute).toHaveBeenCalledWith('r1', { page: 1, limit: 20 });
+    expect(res.items[0].likesCount).toBe(4);
+    expect(res.items[0].isLiked).toBe(true);
+    expect(searcher.execute).toHaveBeenCalledWith(
+      'r1',
+      { page: 1, limit: 20 },
+      'u1',
+    );
+  });
+
+  it('search works for anonymous users (no current user)', async () => {
+    searcher.execute.mockResolvedValue({
+      items: [{ comment, likesCount: 0, isLiked: false }],
+      total: 1,
+      page: 1,
+      limit: 20,
+    });
+    await controller.search('r1', { page: 1, limit: 20 }, undefined);
+    expect(searcher.execute).toHaveBeenCalledWith(
+      'r1',
+      { page: 1, limit: 20 },
+      undefined,
+    );
   });
 
   it('findOne returns response dto', async () => {

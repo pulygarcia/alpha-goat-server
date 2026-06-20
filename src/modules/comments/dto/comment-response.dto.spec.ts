@@ -37,4 +37,16 @@ describe('CommentResponseDto', () => {
       contenido: 'hola',
     });
   });
+
+  it('carries likesCount and isLiked from the extra data', () => {
+    const dto = CommentResponseDto.from(base, { likesCount: 4, isLiked: true });
+    expect(dto.likesCount).toBe(4);
+    expect(dto.isLiked).toBe(true);
+  });
+
+  it('defaults likesCount to 0 and isLiked to false', () => {
+    const dto = CommentResponseDto.from(base);
+    expect(dto.likesCount).toBe(0);
+    expect(dto.isLiked).toBe(false);
+  });
 });

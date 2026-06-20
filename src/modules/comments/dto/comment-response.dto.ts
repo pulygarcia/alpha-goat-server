@@ -7,6 +7,12 @@ class CommentAuthorDto {
   @ApiProperty({ nullable: true }) avatarUrl: string | null;
 }
 
+/** Datos calculados que no viven en la entidad (los aporta el searcher). */
+export interface CommentResponseExtra {
+  likesCount?: number;
+  isLiked?: boolean;
+}
+
 export class CommentResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() reviewId: string;
@@ -15,10 +21,16 @@ export class CommentResponseDto {
   @ApiProperty({ type: CommentAuthorDto, nullable: true })
   author: CommentAuthorDto | null;
   @ApiProperty() contenido: string;
+  @ApiProperty() likesCount: number;
+  /** Si el usuario actual ya likeó este comentario (false para anónimos / sin sesión). */
+  @ApiProperty() isLiked: boolean;
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
 
-  static from(c: Comment): CommentResponseDto {
+  static from(
+    c: Comment,
+    extra: CommentResponseExtra = {},
+  ): CommentResponseDto {
     return {
       id: c.id,
       reviewId: c.reviewId,
@@ -31,6 +43,8 @@ export class CommentResponseDto {
           }
         : null,
       contenido: c.contenido,
+      likesCount: extra.likesCount ?? 0,
+      isLiked: extra.isLiked ?? false,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
     };
