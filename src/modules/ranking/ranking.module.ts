@@ -3,11 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Alfajor } from '../alfajores/domain/alfajor.entity';
 import { Review } from '../reviews/domain/review.entity';
 import { RankingController } from './ranking.controller';
+import { GlobalRankingFinder } from './services/global-ranking-finder';
 import { WeeklyRankingFinder } from './services/weekly-ranking-finder';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Review, Alfajor])],
   controllers: [RankingController],
-  providers: [WeeklyRankingFinder],
+  providers: [WeeklyRankingFinder, GlobalRankingFinder],
 })
 export class RankingModule {}
