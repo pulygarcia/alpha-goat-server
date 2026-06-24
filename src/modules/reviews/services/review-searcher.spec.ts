@@ -81,6 +81,23 @@ describe('ReviewSearcher', () => {
     ]);
   });
 
+  it('loads the user and the alfajor (with its marca) relations', async () => {
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(1))
+      .mockReturnValueOnce(
+        makeQb(1, [{ id: 'r1', likesCount: '0', commentsCount: '0' }]),
+      );
+    reviews.find.mockResolvedValue([{ id: 'r1', userId: 'a1' } as Review]);
+
+    await searcher.execute(dto({ alfajorId: 'a1' }));
+
+    expect(reviews.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        relations: { user: true, alfajor: { marca: true } },
+      }),
+    );
+  });
+
   it('filters by alfajorId on the count query', async () => {
     const countQb = makeQb(0);
     reviews.createQueryBuilder.mockReturnValueOnce(countQb);
