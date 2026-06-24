@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { UserRole } from './domain/user-role.enum';
 import { User } from './domain/user.entity';
+import { ProfileResponseDto } from './dto/profile-response.dto';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
+import { UserProfileAssembler } from './services/user-profile-assembler';
 import { UserUpdater } from './services/user-updater';
 import { UsersController } from './users.controller';
 
@@ -11,6 +13,7 @@ describe('UsersController', () => {
   let finder: jest.Mocked<UserFinder>;
   let updater: jest.Mocked<UserUpdater>;
   let changer: jest.Mocked<UserPasswordChanger>;
+  let profiles: jest.Mocked<UserProfileAssembler>;
 
   const user = {
     id: 'u1',
@@ -28,6 +31,10 @@ describe('UsersController', () => {
         { provide: UserFinder, useValue: { byId: jest.fn() } },
         { provide: UserUpdater, useValue: { execute: jest.fn() } },
         { provide: UserPasswordChanger, useValue: { execute: jest.fn() } },
+        {
+          provide: UserProfileAssembler,
+          useValue: { byUsername: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -35,6 +42,7 @@ describe('UsersController', () => {
     finder = module.get(UserFinder);
     updater = module.get(UserUpdater);
     changer = module.get(UserPasswordChanger);
+    profiles = module.get(UserProfileAssembler);
   });
 
   it('findOne returns user response', async () => {
@@ -60,5 +68,23 @@ describe('UsersController', () => {
       currentPassword: 'old',
       newPassword: 'newpass1',
     });
+  });
+
+  it('profileByUsername forwards the viewer id when authenticated', async () => {
+    const dto = { username: 'puly' } as ProfileResponseDto;
+    profiles.byUsername.mockResolvedValue(dto);
+
+    const res = await controller.profileByUsername('puly', user);
+
+    expect(profiles.byUsername).toHaveBeenCalledWith('puly', 'u1');
+    expect(res).toBe(dto);
+  });
+
+  it('profileByUsername passes undefined viewer for anonymous requests', async () => {
+    profiles.byUsername.mockResolvedValue({} as ProfileResponseDto);
+
+    await controller.profileByUsername('puly', undefined);
+
+    expect(profiles.byUsername).toHaveBeenCalledWith('puly', undefined);
   });
 });

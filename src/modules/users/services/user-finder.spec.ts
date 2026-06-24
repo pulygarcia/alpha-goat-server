@@ -48,4 +48,17 @@ describe('UserFinder', () => {
     repo.findOne.mockResolvedValue(user);
     await expect(finder.byUsername('puly')).resolves.toBe(user);
   });
+
+  it('byUsernameOrFail returns user when found', async () => {
+    const user = { username: 'puly' } as User;
+    repo.findOne.mockResolvedValue(user);
+    await expect(finder.byUsernameOrFail('puly')).resolves.toBe(user);
+  });
+
+  it('byUsernameOrFail throws NotFoundException when missing', async () => {
+    repo.findOne.mockResolvedValue(null);
+    await expect(finder.byUsernameOrFail('ghost')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
 });
