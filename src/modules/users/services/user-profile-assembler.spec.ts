@@ -2,12 +2,27 @@ import { NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test } from '@nestjs/testing';
 import { Repository } from 'typeorm';
+import { Alfajor } from '../../alfajores/domain/alfajor.entity';
+import { AlfajorStatus } from '../../alfajores/domain/alfajor-status.enum';
+import { Comment } from '../../comments/domain/comment.entity';
 import { FollowToggler } from '../../follows/services/follow-toggler';
 import { Review } from '../../reviews/domain/review.entity';
+import { ReviewLike } from '../../reviews/domain/review-like.entity';
 import { UserRole } from '../domain/user-role.enum';
 import { User } from '../domain/user.entity';
 import { UserFinder } from './user-finder';
 import { UserProfileAssembler } from './user-profile-assembler';
+
+// qb chainable que resuelve getCount / getRawOne.
+const makeQb = (result: { count?: number; raw?: unknown }) => {
+  const qb: any = {};
+  for (const m of ['select', 'innerJoin', 'where']) {
+    qb[m] = jest.fn().mockReturnValue(qb);
+  }
+  qb.getCount = jest.fn().mockResolvedValue(result.count ?? 0);
+  qb.getRawOne = jest.fn().mockResolvedValue(result.raw);
+  return qb;
+};
 
 const profile = {
   id: 'u1',
@@ -23,6 +38,9 @@ describe('UserProfileAssembler', () => {
   let users: jest.Mocked<UserFinder>;
   let follows: jest.Mocked<FollowToggler>;
   let reviews: jest.Mocked<Repository<Review>>;
+  let reviewLikes: jest.Mocked<Repository<ReviewLike>>;
+  let comments: jest.Mocked<Repository<Comment>>;
+  let alfajores: jest.Mocked<Repository<Alfajor>>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -42,7 +60,26 @@ describe('UserProfileAssembler', () => {
         },
         {
           provide: getRepositoryToken(Review),
-          useValue: { count: jest.fn().mockResolvedValue(5) },
+          useValue: {
+            count: jest.fn().mockResolvedValue(5),
+            createQueryBuilder: jest
+              .fn()
+              .mockReturnValue(makeQb({ raw: { avg: '8.42' } })),
+          },
+        },
+        {
+          provide: getRepositoryToken(ReviewLike),
+          useValue: {
+            createQueryBuilder: jest.fn().mockReturnValue(makeQb({ count: 9 })),
+          },
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: { count: jest.fn().mockResolvedValue(7) },
+        },
+        {
+          provide: getRepositoryToken(Alfajor),
+          useValue: { count: jest.fn().mockResolvedValue(1) },
         },
       ],
     }).compile();
@@ -51,6 +88,9 @@ describe('UserProfileAssembler', () => {
     users = module.get(UserFinder);
     follows = module.get(FollowToggler);
     reviews = module.get(getRepositoryToken(Review));
+    reviewLikes = module.get(getRepositoryToken(ReviewLike));
+    comments = module.get(getRepositoryToken(Comment));
+    alfajores = module.get(getRepositoryToken(Alfajor));
     users.byUsernameOrFail.mockResolvedValue(profile);
   });
 
@@ -74,6 +114,38 @@ describe('UserProfileAssembler', () => {
     });
     expect(dto.email).toBeUndefined();
     expect(reviews.count).toHaveBeenCalledWith({ where: { userId: 'u1' } });
+  });
+
+  it('assembles the community-contribution aggregates', async () => {
+    const dto = await assembler.byUsername('puly');
+
+    expect(dto).toMatchObject({
+      commentsCount: 7,
+      alfajoresAddedCount: 1,
+      likesReceivedCount: 9,
+      avgScore: 8.4,
+    });
+    expect(comments.count).toHaveBeenCalledWith({ where: { userId: 'u1' } });
+    expect(alfajores.count).toHaveBeenCalledWith({
+      where: { createdById: 'u1', status: AlfajorStatus.APPROVED },
+    });
+    expect(reviewLikes.createQueryBuilder).toHaveBeenCalled();
+  });
+
+  it('returns a null avgScore when the user has no reviews', async () => {
+    (reviews.createQueryBuilder as jest.Mock).mockReturnValue(
+      makeQb({ raw: { avg: null } }),
+    );
+    const dto = await assembler.byUsername('puly');
+    expect(dto.avgScore).toBeNull();
+  });
+
+  it('rounds avgScore to one decimal', async () => {
+    (reviews.createQueryBuilder as jest.Mock).mockReturnValue(
+      makeQb({ raw: { avg: '7.0500000000000000' } }),
+    );
+    const dto = await assembler.byUsername('puly');
+    expect(dto.avgScore).toBe(7.1);
   });
 
   it('reports isFollowing true when the viewer follows the profile', async () => {

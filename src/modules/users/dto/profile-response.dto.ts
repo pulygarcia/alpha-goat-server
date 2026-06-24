@@ -10,6 +10,12 @@ export interface ProfileExtra {
   isFollowing: boolean | null;
   // El email solo se expone cuando el perfil es el del usuario autenticado.
   includeEmail: boolean;
+  // Aportes a la comunidad (panel del perfil).
+  commentsCount: number;
+  alfajoresAddedCount: number;
+  likesReceivedCount: number;
+  // Promedio del rating general de sus reseñas; null si todavía no reseñó.
+  avgScore: number | null;
 }
 
 export class ProfileResponseDto {
@@ -21,6 +27,10 @@ export class ProfileResponseDto {
   @ApiProperty() followersCount: number;
   @ApiProperty() followingCount: number;
   @ApiProperty() reviewsCount: number;
+  @ApiProperty() commentsCount: number;
+  @ApiProperty() alfajoresAddedCount: number;
+  @ApiProperty() likesReceivedCount: number;
+  @ApiProperty({ nullable: true, type: Number }) avgScore: number | null;
   @ApiProperty({ nullable: true, type: Boolean }) isFollowing: boolean | null;
   @ApiPropertyOptional() email?: string;
 
@@ -34,6 +44,10 @@ export class ProfileResponseDto {
     dto.followersCount = extra.followersCount;
     dto.followingCount = extra.followingCount;
     dto.reviewsCount = extra.reviewsCount;
+    dto.commentsCount = extra.commentsCount;
+    dto.alfajoresAddedCount = extra.alfajoresAddedCount;
+    dto.likesReceivedCount = extra.likesReceivedCount;
+    dto.avgScore = extra.avgScore;
     dto.isFollowing = extra.isFollowing;
     if (extra.includeEmail) dto.email = user.email;
     return dto;
