@@ -24,6 +24,7 @@ describe('FollowToggler', () => {
             save: jest.fn(),
             delete: jest.fn(),
             find: jest.fn(),
+            count: jest.fn(),
           },
         },
         { provide: UserFinder, useValue: { byId: jest.fn() } },
@@ -92,5 +93,26 @@ describe('FollowToggler', () => {
 
     expect(followed).toEqual(new Set());
     expect(repo.find).not.toHaveBeenCalled();
+  });
+
+  it('counts followers (users following the given user)', async () => {
+    repo.count.mockResolvedValue(3);
+
+    expect(await toggler.countFollowers('u1')).toBe(3);
+    expect(repo.count).toHaveBeenCalledWith({ where: { followingId: 'u1' } });
+  });
+
+  it('counts following (users the given user follows)', async () => {
+    repo.count.mockResolvedValue(2);
+
+    expect(await toggler.countFollowing('u1')).toBe(2);
+    expect(repo.count).toHaveBeenCalledWith({ where: { followerId: 'u1' } });
+  });
+
+  it('returns 0 counts for a user with no social activity', async () => {
+    repo.count.mockResolvedValue(0);
+
+    expect(await toggler.countFollowers('u1')).toBe(0);
+    expect(await toggler.countFollowing('u1')).toBe(0);
   });
 });

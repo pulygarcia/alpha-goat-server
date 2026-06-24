@@ -40,6 +40,16 @@ export class FollowToggler {
     return rows.map((r) => r.followingId);
   }
 
+  // Cantidad de usuarios que siguen a `userId` (sus seguidores).
+  async countFollowers(userId: string): Promise<number> {
+    return this.follows.count({ where: { followingId: userId } });
+  }
+
+  // Cantidad de usuarios que `userId` sigue.
+  async countFollowing(userId: string): Promise<number> {
+    return this.follows.count({ where: { followerId: userId } });
+  }
+
   // Subconjunto de `candidateIds` que `followerId` sigue. Acotado: filtra por los
   // autores visibles en una página del feed en vez de traer todos los seguidos.
   // Devuelve un Set vacío (sin query) si no hay candidatos.

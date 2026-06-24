@@ -23,4 +23,10 @@ export class UserFinder {
   async byUsername(username: string): Promise<User | null> {
     return this.users.findOne({ where: { username } });
   }
+
+  async byUsernameOrFail(username: string): Promise<User> {
+    const user = await this.byUsername(username);
+    if (!user) throw new NotFoundException(`User @${username} not found`);
+    return user;
+  }
 }
