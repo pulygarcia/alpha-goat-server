@@ -9,6 +9,17 @@ class ReviewAuthorDto {
   @ApiProperty() isFollowing: boolean;
 }
 
+class ReviewAlfajorDto {
+  @ApiProperty() id: string;
+  @ApiProperty() nombre: string;
+  @ApiProperty() tipo: string;
+}
+
+class ReviewMarcaDto {
+  @ApiProperty() nombre: string;
+  @ApiProperty({ nullable: true }) provincia: string | null;
+}
+
 /** Datos calculados que no viven en la entidad (los aporta el searcher). */
 export interface ReviewResponseExtra {
   likesCount?: number;
@@ -24,6 +35,12 @@ export class ReviewResponseDto {
   @ApiProperty({ type: ReviewAuthorDto, nullable: true })
   author: ReviewAuthorDto | null;
   @ApiProperty() alfajorId: string;
+  /** Alfajor anidado cuando la relación `alfajor` está cargada; `null` si no se pidió. */
+  @ApiProperty({ type: ReviewAlfajorDto, nullable: true })
+  alfajor: ReviewAlfajorDto | null;
+  /** Marca del alfajor cuando la relación `alfajor.marca` está cargada; `null` si no. */
+  @ApiProperty({ type: ReviewMarcaDto, nullable: true })
+  marca: ReviewMarcaDto | null;
   @ApiProperty() ratingGeneral: number;
   @ApiProperty() dulzor: number;
   @ApiProperty() cantidadDDL: number;
@@ -55,6 +72,15 @@ export class ReviewResponseDto {
     dto.commentsCount = extra.commentsCount ?? 0;
     dto.isLiked = extra.isLiked ?? false;
     dto.alfajorId = r.alfajorId;
+    dto.alfajor = r.alfajor
+      ? { id: r.alfajor.id, nombre: r.alfajor.nombre, tipo: r.alfajor.tipo }
+      : null;
+    dto.marca = r.alfajor?.marca
+      ? {
+          nombre: r.alfajor.marca.nombre,
+          provincia: r.alfajor.marca.provincia,
+        }
+      : null;
     dto.ratingGeneral = r.ratingGeneral;
     dto.dulzor = r.dulzor;
     dto.cantidadDDL = r.cantidadDDL;

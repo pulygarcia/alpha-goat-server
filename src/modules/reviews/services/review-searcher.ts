@@ -70,7 +70,7 @@ export class ReviewSearcher {
     const ids = rawRows.map((r) => r.id);
     const entities = await this.reviews.find({
       where: { id: In(ids) },
-      relations: { user: true },
+      relations: { user: true, alfajor: { marca: true } },
     });
     const byId = new Map(entities.map((e) => [e.id, e]));
 
