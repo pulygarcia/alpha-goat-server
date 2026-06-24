@@ -9,7 +9,7 @@ import { FollowToggler } from './services/follow-toggler';
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserFollow]),
-    AuthModule,
+    forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
   ],
   controllers: [FollowsController],
