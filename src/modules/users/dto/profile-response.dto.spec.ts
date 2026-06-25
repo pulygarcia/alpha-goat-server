@@ -15,6 +15,10 @@ const baseExtra: ProfileExtra = {
   followersCount: 3,
   followingCount: 2,
   reviewsCount: 5,
+  commentsCount: 7,
+  alfajoresAddedCount: 1,
+  likesReceivedCount: 9,
+  avgScore: 8.4,
   isFollowing: false,
   includeEmail: false,
 };
@@ -32,6 +36,21 @@ describe('ProfileResponseDto', () => {
       followingCount: 2,
       reviewsCount: 5,
     });
+  });
+
+  it('maps the community-contribution aggregates', () => {
+    const dto = ProfileResponseDto.from(user, baseExtra);
+    expect(dto).toMatchObject({
+      commentsCount: 7,
+      alfajoresAddedCount: 1,
+      likesReceivedCount: 9,
+      avgScore: 8.4,
+    });
+  });
+
+  it('carries a null avgScore through (user without reviews)', () => {
+    const dto = ProfileResponseDto.from(user, { ...baseExtra, avgScore: null });
+    expect(dto.avgScore).toBeNull();
   });
 
   it('omits email when not the owner', () => {
