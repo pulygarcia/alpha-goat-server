@@ -16,8 +16,8 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ### `users`
 - Entidad `User` (con `email`/`username` únicos, `role`, `banned`, timestamps).
 - DTOs: `UpdateProfileDto`, `ChangePasswordDto`, `UserResponseDto`.
-- Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`. Todos con `.spec.ts`.
-- Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`.
+- Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`, `AvatarUpdater`. Todos con `.spec.ts`.
+- Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`, `POST /users/me/avatar`.
 
 ### `reviews`
 - Entidad `Review` con FKs CASCADE (`userId`, `alfajorId`), unique `(userId, alfajorId)`.
@@ -143,10 +143,19 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - Migration `AddUserFollows1779914186581` corrida en Neon — tabla `user_follows` con unique + 2 índices + 2 FKs CASCADE.
 - Tests: 7 verdes (follow create/idempotente/self-reject, unfollow, followingIds, controller follow/unfollow).
 
+### `uploads`
+- Infra de imágenes sobre Cloudinary. Sin entidad ni tabla: `UploadsModule` provee y exporta los services atómicos.
+- `config/cloudinary.config.ts`: `cloudinaryProvider` (token `CLOUDINARY`) configura el SDK desde `ConfigService` y se inyecta/mockea en tests. Envs `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` validadas (obligatorias) en `env.validation.ts` + `.env.example`.
+- `ImageUploader.upload(buffer, { folder, publicId })` → `{ url, publicId }` vía `upload_stream` (memory storage → buffer → Cloudinary), `overwrite: true`, usa `secure_url`.
+- `ImageRemover.remove(publicId)` — `destroy` del asset (para consumidores futuros con publicId no determinístico).
+- `ImageFilePipe` en `common/pipes/`: valida tipo (`jpeg`/`png`/`webp` → 415) y tamaño (≤5 MB → 400, ausente → 400). Reutilizable.
+- **Avatar** (consumidor en `users`): `AvatarUpdater` sube con `folder:'avatars'`, `publicId:user.id`, persiste `avatarUrl`. Endpoint `POST /users/me/avatar` (`JwtAuthGuard` + `FileInterceptor('file')` + `ImageFilePipe`, `@ApiConsumes('multipart/form-data')`). `publicId` determinístico + overwrite → re-subir pisa el avatar sin huérfanos.
+- Tests: 20 verdes (uploader, remover, pipe, avatar-updater, controller). Decisiones no obvias en `docs/decisions.md`. OpenSpec change `add-uploads`.
+
 ## Pendiente
 
 ### Próximos módulos
-- `uploads` (Cloudinary) — avatar, foto de alfajor, foto de review. El front (`alphagoat-client`) usa placeholders cream hasta que esto exponga URLs públicas.
+- `uploads` (Cloudinary) — **avatar listo** (ver abajo). Falta foto de alfajor y foto de review (mismos services, tareas posteriores).
 
 ### Endpoints pedidos por el front (`alphagoat-client`)
 Definidos en `alphagoat-client/docs/progress.md` → "Endpoints backend faltantes". No estaban en el roadmap original de `architecture.md`; surgieron al construir el feed. Se implementan **en el orden en que los va necesitando el front**. Contrato esperado por el front:
