@@ -6,7 +6,9 @@ import { Comment } from '../comments/domain/comment.entity';
 import { FollowsModule } from '../follows/follows.module';
 import { Review } from '../reviews/domain/review.entity';
 import { ReviewLike } from '../reviews/domain/review-like.entity';
+import { UploadsModule } from '../uploads/uploads.module';
 import { User } from './domain/user.entity';
+import { AvatarUpdater } from './services/avatar-updater';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
 import { UserProfileAssembler } from './services/user-profile-assembler';
@@ -18,6 +20,7 @@ import { UsersController } from './users.controller';
     TypeOrmModule.forFeature([User, Review, ReviewLike, Comment, Alfajor]),
     forwardRef(() => AuthModule),
     forwardRef(() => FollowsModule),
+    UploadsModule,
   ],
   controllers: [UsersController],
   providers: [
@@ -25,6 +28,7 @@ import { UsersController } from './users.controller';
     UserUpdater,
     UserPasswordChanger,
     UserProfileAssembler,
+    AvatarUpdater,
   ],
   exports: [UserFinder, UserUpdater, TypeOrmModule],
 })

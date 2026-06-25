@@ -7,10 +7,15 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { ImageFilePipe } from '../../common/pipes/image-file.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -18,6 +23,7 @@ import { ProfileResponseDto } from './dto/profile-response.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './domain/user.entity';
+import { AvatarUpdater } from './services/avatar-updater';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
 import { UserProfileAssembler } from './services/user-profile-assembler';
@@ -31,6 +37,7 @@ export class UsersController {
     private readonly updater: UserUpdater,
     private readonly passwordChanger: UserPasswordChanger,
     private readonly profiles: UserProfileAssembler,
+    private readonly avatarUpdater: AvatarUpdater,
   ) {}
 
   // Público con auth opcional: anónimo lo ve (isFollowing false, sin email);
@@ -59,6 +66,27 @@ export class UsersController {
     @Body() dto: UpdateProfileDto,
   ): Promise<UserResponseDto> {
     return UserResponseDto.from(await this.updater.execute(userId, dto));
+  }
+
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+      required: ['file'],
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('me/avatar')
+  async uploadAvatar(
+    @CurrentUser('id') userId: string,
+    @UploadedFile(ImageFilePipe) file: Express.Multer.File,
+  ): Promise<UserResponseDto> {
+    return UserResponseDto.from(
+      await this.avatarUpdater.execute(userId, file.buffer),
+    );
   }
 
   @ApiBearerAuth()
