@@ -5,6 +5,7 @@ import { Review } from './domain/review.entity';
 import { ReviewsController } from './reviews.controller';
 import { ReviewCreator } from './services/review-creator';
 import { ReviewFinder } from './services/review-finder';
+import { ReviewImageUpdater } from './services/review-image-updater';
 import { ReviewLikeToggler } from './services/review-like-toggler';
 import { ReviewRemover } from './services/review-remover';
 import { ReviewSearcher } from './services/review-searcher';
@@ -18,6 +19,7 @@ describe('ReviewsController', () => {
   let updater: jest.Mocked<ReviewUpdater>;
   let remover: jest.Mocked<ReviewRemover>;
   let likes: jest.Mocked<ReviewLikeToggler>;
+  let imageUpdater: jest.Mocked<ReviewImageUpdater>;
 
   const review = {
     id: 'r1',
@@ -50,6 +52,7 @@ describe('ReviewsController', () => {
           provide: ReviewLikeToggler,
           useValue: { like: jest.fn(), unlike: jest.fn() },
         },
+        { provide: ReviewImageUpdater, useValue: { execute: jest.fn() } },
       ],
     }).compile();
 
@@ -60,6 +63,7 @@ describe('ReviewsController', () => {
     updater = module.get(ReviewUpdater);
     remover = module.get(ReviewRemover);
     likes = module.get(ReviewLikeToggler);
+    imageUpdater = module.get(ReviewImageUpdater);
   });
 
   it('search returns paginated dtos with the row extras', async () => {
@@ -130,5 +134,18 @@ describe('ReviewsController', () => {
     likes.unlike.mockResolvedValue();
     await controller.unlike('r1', user);
     expect(likes.unlike).toHaveBeenCalledWith('r1', 'u1');
+  });
+
+  it('uploadFoto forwards buffer and userId', async () => {
+    imageUpdater.execute.mockResolvedValue({
+      ...review,
+      fotoUrl: 'https://cdn/reviews/r1.png',
+    });
+    const file = { buffer: Buffer.from('img') } as Express.Multer.File;
+
+    const res = await controller.uploadFoto('r1', file, user);
+
+    expect(imageUpdater.execute).toHaveBeenCalledWith('r1', file.buffer, 'u1');
+    expect(res.fotoUrl).toBe('https://cdn/reviews/r1.png');
   });
 });

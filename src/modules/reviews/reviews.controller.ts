@@ -11,10 +11,14 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { ImageFilePipe } from '../../common/pipes/image-file.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
@@ -27,6 +31,7 @@ import { SearchReviewsDto } from './dto/search-reviews.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewCreator } from './services/review-creator';
 import { ReviewFinder } from './services/review-finder';
+import { ReviewImageUpdater } from './services/review-image-updater';
 import { ReviewLikeToggler } from './services/review-like-toggler';
 import { ReviewRemover } from './services/review-remover';
 import { ReviewSearcher } from './services/review-searcher';
@@ -42,6 +47,7 @@ export class ReviewsController {
     private readonly updater: ReviewUpdater,
     private readonly remover: ReviewRemover,
     private readonly likes: ReviewLikeToggler,
+    private readonly imageUpdater: ReviewImageUpdater,
   ) {}
 
   @Get()
@@ -128,5 +134,27 @@ export class ReviewsController {
     @CurrentUser() user: User,
   ): Promise<void> {
     await this.likes.unlike(id, user.id);
+  }
+
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+      required: ['file'],
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post(':id/foto')
+  async uploadFoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile(ImageFilePipe) file: Express.Multer.File,
+    @CurrentUser() user: User,
+  ): Promise<ReviewResponseDto> {
+    return ReviewResponseDto.from(
+      await this.imageUpdater.execute(id, file.buffer, user.id),
+    );
   }
 }
