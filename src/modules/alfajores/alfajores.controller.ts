@@ -7,10 +7,14 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { ImageFilePipe } from '../../common/pipes/image-file.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/domain/user.entity';
 import { UserRole } from '../users/domain/user-role.enum';
@@ -23,6 +27,7 @@ import { SearchAlfajoresDto } from './dto/search-alfajores.dto';
 import { UpdateAlfajorDto } from './dto/update-alfajor.dto';
 import { AlfajorCreator } from './services/alfajor-creator';
 import { AlfajorFinder } from './services/alfajor-finder';
+import { AlfajorImageUpdater } from './services/alfajor-image-updater';
 import { AlfajorSearcher } from './services/alfajor-searcher';
 import { AlfajorUpdater } from './services/alfajor-updater';
 
@@ -34,6 +39,7 @@ export class AlfajoresController {
     private readonly finder: AlfajorFinder,
     private readonly searcher: AlfajorSearcher,
     private readonly updater: AlfajorUpdater,
+    private readonly imageUpdater: AlfajorImageUpdater,
   ) {}
 
   @Get()
@@ -79,6 +85,30 @@ export class AlfajoresController {
     @CurrentUser() user: User,
   ): Promise<AlfajorResponseDto> {
     const updated = await this.updater.execute(id, dto, {
+      id: user.id,
+      role: user.role,
+    });
+    return AlfajorResponseDto.from(updated);
+  }
+
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+      required: ['file'],
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post(':id/imagen')
+  async uploadImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile(ImageFilePipe) file: Express.Multer.File,
+    @CurrentUser() user: User,
+  ): Promise<AlfajorResponseDto> {
+    const updated = await this.imageUpdater.execute(id, file.buffer, {
       id: user.id,
       role: user.role,
     });

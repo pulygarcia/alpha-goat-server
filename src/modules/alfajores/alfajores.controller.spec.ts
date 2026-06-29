@@ -7,6 +7,7 @@ import { AlfajorStatus } from './domain/alfajor-status.enum';
 import { AlfajorTipo } from './domain/alfajor-tipo.enum';
 import { AlfajorCreator } from './services/alfajor-creator';
 import { AlfajorFinder } from './services/alfajor-finder';
+import { AlfajorImageUpdater } from './services/alfajor-image-updater';
 import { AlfajorSearcher } from './services/alfajor-searcher';
 import { AlfajorUpdater } from './services/alfajor-updater';
 
@@ -16,6 +17,7 @@ describe('AlfajoresController', () => {
   let finder: jest.Mocked<AlfajorFinder>;
   let searcher: jest.Mocked<AlfajorSearcher>;
   let updater: jest.Mocked<AlfajorUpdater>;
+  let imageUpdater: jest.Mocked<AlfajorImageUpdater>;
 
   const alfajor = {
     id: 'a1',
@@ -41,6 +43,7 @@ describe('AlfajoresController', () => {
         { provide: AlfajorFinder, useValue: { byId: jest.fn() } },
         { provide: AlfajorSearcher, useValue: { execute: jest.fn() } },
         { provide: AlfajorUpdater, useValue: { execute: jest.fn() } },
+        { provide: AlfajorImageUpdater, useValue: { execute: jest.fn() } },
       ],
     }).compile();
 
@@ -49,6 +52,7 @@ describe('AlfajoresController', () => {
     finder = module.get(AlfajorFinder);
     searcher = module.get(AlfajorSearcher);
     updater = module.get(AlfajorUpdater);
+    imageUpdater = module.get(AlfajorImageUpdater);
   });
 
   it('search calls searcher without admin flag for anonymous', async () => {
@@ -113,5 +117,21 @@ describe('AlfajoresController', () => {
       { nombre: 'New' },
       { id: 'u1', role: UserRole.USER },
     );
+  });
+
+  it('uploadImage forwards buffer and actor context', async () => {
+    imageUpdater.execute.mockResolvedValue({
+      ...alfajor,
+      imagenUrl: 'https://cdn/alfajores/a1.png',
+    });
+    const file = { buffer: Buffer.from('img') } as Express.Multer.File;
+
+    const res = await controller.uploadImage('a1', file, userActor);
+
+    expect(imageUpdater.execute).toHaveBeenCalledWith('a1', file.buffer, {
+      id: 'u1',
+      role: UserRole.USER,
+    });
+    expect(res.imagenUrl).toBe('https://cdn/alfajores/a1.png');
   });
 });
