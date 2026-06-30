@@ -13,6 +13,7 @@ class ReviewAlfajorDto {
   @ApiProperty() id: string;
   @ApiProperty() nombre: string;
   @ApiProperty() tipo: string;
+  @ApiProperty({ nullable: true }) imagenUrl: string | null;
 }
 
 class ReviewMarcaDto {
@@ -73,7 +74,12 @@ export class ReviewResponseDto {
     dto.isLiked = extra.isLiked ?? false;
     dto.alfajorId = r.alfajorId;
     dto.alfajor = r.alfajor
-      ? { id: r.alfajor.id, nombre: r.alfajor.nombre, tipo: r.alfajor.tipo }
+      ? {
+          id: r.alfajor.id,
+          nombre: r.alfajor.nombre,
+          tipo: r.alfajor.tipo,
+          imagenUrl: r.alfajor.imagenUrl,
+        }
       : null;
     dto.marca = r.alfajor?.marca
       ? {

@@ -62,12 +62,13 @@ describe('ReviewResponseDto.from', () => {
     expect(dto.isLiked).toBe(true);
   });
 
-  it('maps the nested alfajor and marca when the alfajor relation is loaded', () => {
+  it('maps the nested alfajor (with imagenUrl) and marca when the alfajor relation is loaded', () => {
     const review = buildReview({
       alfajor: {
         id: 'a1',
         nombre: 'Jorgito',
         tipo: 'CHOCOLATE',
+        imagenUrl: 'https://cdn/alfajores/a1.png',
         marca: { nombre: 'Jorgito', provincia: 'Buenos Aires' },
       },
     } as Partial<Review>);
@@ -76,6 +77,7 @@ describe('ReviewResponseDto.from', () => {
       id: 'a1',
       nombre: 'Jorgito',
       tipo: 'CHOCOLATE',
+      imagenUrl: 'https://cdn/alfajores/a1.png',
     });
     expect(dto.marca).toEqual({ nombre: 'Jorgito', provincia: 'Buenos Aires' });
   });
@@ -88,13 +90,19 @@ describe('ReviewResponseDto.from', () => {
 
   it('leaves marca null when the alfajor is loaded without its marca', () => {
     const review = buildReview({
-      alfajor: { id: 'a1', nombre: 'Jorgito', tipo: 'CHOCOLATE' },
+      alfajor: {
+        id: 'a1',
+        nombre: 'Jorgito',
+        tipo: 'CHOCOLATE',
+        imagenUrl: null,
+      },
     } as Partial<Review>);
     const dto = ReviewResponseDto.from(review);
     expect(dto.alfajor).toEqual({
       id: 'a1',
       nombre: 'Jorgito',
       tipo: 'CHOCOLATE',
+      imagenUrl: null,
     });
     expect(dto.marca).toBeNull();
   });
