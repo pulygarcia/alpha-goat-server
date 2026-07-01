@@ -9,8 +9,10 @@ const makeQb = (items: unknown[], total: number) => {
   const qb: any = {};
   for (const m of [
     'leftJoinAndSelect',
+    'addSelect',
     'andWhere',
     'orderBy',
+    'addOrderBy',
     'skip',
     'take',
   ]) {
@@ -93,6 +95,20 @@ describe('AlfajorSearcher', () => {
       (c: unknown[]) => typeof c[0] === 'string' && c[0].includes('status'),
     );
     expect(statusCall).toBeUndefined();
+  });
+
+  it('orders by reviews count desc, then by name asc as tiebreaker', async () => {
+    const qb = makeQb([], 0);
+    repo.createQueryBuilder.mockReturnValue(qb);
+
+    await searcher.execute({ page: 1, limit: 20 });
+
+    expect(qb.addSelect).toHaveBeenCalledWith(
+      '(SELECT COUNT(*) FROM reviews WHERE reviews.alfajor_id = a.id)',
+      'reviewscount',
+    );
+    expect(qb.orderBy).toHaveBeenCalledWith('reviewscount', 'DESC');
+    expect(qb.addOrderBy).toHaveBeenCalledWith('a.nombre', 'ASC');
   });
 
   it('returns the paginated result', async () => {
