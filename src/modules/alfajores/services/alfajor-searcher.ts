@@ -28,7 +28,11 @@ export class AlfajorSearcher {
 
     const qb = this.alfajores
       .createQueryBuilder('a')
-      .leftJoinAndSelect('a.marca', 'm');
+      .leftJoinAndSelect('a.marca', 'm')
+      .addSelect(
+        '(SELECT COUNT(*) FROM reviews WHERE reviews.alfajor_id = a.id)',
+        'reviewscount',
+      );
 
     if (q) {
       // Insensible a mayúsculas (ILIKE) y a acentos (unaccent): "aguila" → "Águila".
@@ -43,7 +47,8 @@ export class AlfajorSearcher {
       qb.andWhere('a.status = :status', { status: AlfajorStatus.APPROVED });
     }
 
-    qb.orderBy('a.nombre', 'ASC')
+    qb.orderBy('reviewscount', 'DESC')
+      .addOrderBy('a.nombre', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
