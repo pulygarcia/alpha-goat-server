@@ -133,6 +133,35 @@ describe('FeedHeroFinder', () => {
     expect(result).toBeNull();
   });
 
+  it('orders pickByTimeWindow by avgRating before reviewsCount', async () => {
+    const qb = makeQb({ alfajorId: 'a1' });
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(qb)
+      .mockReturnValueOnce(
+        makeQb({
+          general: '5',
+          dulzor: '5',
+          cantidadDDL: '5',
+          calidadBano: '5',
+          ratioTapaRelleno: '5',
+          textura: '5',
+        }),
+      )
+      .mockReturnValueOnce(makeQb(undefined, 1))
+      .mockReturnValueOnce(makeQb(undefined, 1));
+
+    alfajores.findOne.mockResolvedValue({
+      id: 'a1',
+      marca: {},
+    } as unknown as Alfajor);
+    reviews.count.mockResolvedValue(1);
+
+    await finder.execute(new Date('2026-05-25T12:00:00Z'));
+
+    expect(qb.orderBy).toHaveBeenCalledWith('"avgRating"', 'DESC');
+    expect(qb.addOrderBy).toHaveBeenCalledWith('"reviewsCount"', 'DESC');
+  });
+
   it('uses a 7-day window ending at the given `now`', async () => {
     const now = new Date('2026-05-25T12:00:00Z');
     const qb = makeQb({ alfajorId: 'a1' });
