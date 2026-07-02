@@ -91,8 +91,8 @@ export class FeedHeroFinder {
     };
   }
 
-  // Top 1 alfajor APPROVED por #reviews dentro de la ventana de tiempo.
-  // Desempate por promedio de ratingGeneral (mejor puntuado gana).
+  // Top 1 alfajor APPROVED por promedio de ratingGeneral dentro de la ventana
+  // de tiempo. Desempate por #reviews (más respaldo gana entre empatados).
   // Las comillas dobles en `orderBy` son necesarias porque Postgres baja a
   // lowercase los identificadores sin comillar, y los aliases son camelCase.
   private async pickByTimeWindow(window: TimeWindow): Promise<string | null> {
@@ -105,8 +105,8 @@ export class FeedHeroFinder {
       .where('a.status = :status', { status: AlfajorStatus.APPROVED })
       .andWhere('r.createdAt >= :from AND r.createdAt < :to', window)
       .groupBy('r.alfajorId')
-      .orderBy('"reviewsCount"', 'DESC')
-      .addOrderBy('"avgRating"', 'DESC')
+      .orderBy('"avgRating"', 'DESC')
+      .addOrderBy('"reviewsCount"', 'DESC')
       .limit(1)
       .getRawOne<{ alfajorId: string }>();
     return row?.alfajorId ?? null;
@@ -122,8 +122,8 @@ export class FeedHeroFinder {
       .addSelect('AVG(r.ratingGeneral)', 'avgRating')
       .where('a.status = :status', { status: AlfajorStatus.APPROVED })
       .groupBy('r.alfajorId')
-      .orderBy('"reviewsCount"', 'DESC')
-      .addOrderBy('"avgRating"', 'DESC')
+      .orderBy('"avgRating"', 'DESC')
+      .addOrderBy('"reviewsCount"', 'DESC')
       .limit(1)
       .getRawOne<{ alfajorId: string }>();
     return row?.alfajorId ?? null;
