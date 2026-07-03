@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { Marca } from '../domain/marca.entity';
 import { SearchMarcasDto } from '../dto/search-marcas.dto';
 
@@ -20,7 +20,14 @@ export class MarcaSearcher {
 
   async execute(dto: SearchMarcasDto): Promise<PaginatedMarcas> {
     const { q, page, limit } = dto;
-    const where = q ? { nombre: ILike(`%${q}%`) } : {};
+    // Insensible a mayúsculas (ILIKE) y a acentos (unaccent): "aguila" → "Águila".
+    const where = q
+      ? {
+          nombre: Raw((alias) => `unaccent(${alias}) ILIKE unaccent(:q)`, {
+            q: `%${q}%`,
+          }),
+        }
+      : {};
 
     const [items, total] = await this.marcas.findAndCount({
       where,
