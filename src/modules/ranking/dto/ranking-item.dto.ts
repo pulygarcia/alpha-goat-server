@@ -34,6 +34,23 @@ export class RankingItemDto {
   }
 }
 
+/**
+ * El peor votado (`GET /ranking/worst`): espejo de `RankingItemDto` +
+ * `imagenUrl` (la card "escándalo" del feed muestra la foto del alfajor).
+ */
+export class WorstRankingItemDto extends RankingItemDto {
+  @ApiProperty({ nullable: true }) imagenUrl: string | null;
+
+  static from(row: GlobalRankingRow): WorstRankingItemDto {
+    const dto = Object.assign(
+      new WorstRankingItemDto(),
+      RankingItemDto.from(row),
+    );
+    dto.imagenUrl = row.alfajor.imagenUrl ?? null;
+    return dto;
+  }
+}
+
 export class PaginatedRankingDto {
   @ApiProperty({ type: [RankingItemDto] }) items: RankingItemDto[];
   @ApiProperty() total: number;
