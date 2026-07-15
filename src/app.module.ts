@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { validateEnv } from './config/env.validation';
 import { typeOrmConfig } from './config/typeorm.config';
+import { AlbumModule } from './modules/album/album.module';
 import { AlfajoresModule } from './modules/alfajores/alfajores.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -35,6 +36,7 @@ import { UsersModule } from './modules/users/users.module';
     FeedModule,
     RankingModule,
     RecommendationsModule,
+    AlbumModule,
   ],
 })
 export class AppModule {}
