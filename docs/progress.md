@@ -152,6 +152,13 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - **Avatar** (consumidor en `users`): `AvatarUpdater` sube con `folder:'avatars'`, `publicId:user.id`, persiste `avatarUrl`. Endpoint `POST /users/me/avatar` (`JwtAuthGuard` + `FileInterceptor('file')` + `ImageFilePipe`, `@ApiConsumes('multipart/form-data')`). `publicId` determinístico + overwrite → re-subir pisa el avatar sin huérfanos.
 - Tests: 20 verdes (uploader, remover, pipe, avatar-updater, controller). Decisiones no obvias en `docs/decisions.md`. OpenSpec change `add-uploads`.
 
+### `album`
+- `GET /users/by-username/:username/album` (público, 404 si el username no existe) — álbum de figuritas del usuario: todo el catálogo APPROVED en hojas por marca; figurita `collected` = el **dueño** del álbum la reseñó (reseñar = pegar, no hay acción de coleccionar; las reviews del visitante no influyen).
+- `AlbumFinder`: dueño vía `UserFinder.byUsernameOrFail` (export ya existente de `UsersModule`); catálogo con `avgRating` por subquery correlacionada (`AVG(rating_general)`, alias `avgrating` todo minúsculas — lección PR #24) para conservar alfajores sin reviews (`avgRating: null`); reviews del dueño y marcas por repo-API acotado; merge en TS (orden y stats testeables). Sin paginación: el álbum se consume entero y el catálogo es chico.
+- Orden: hojas alfabéticas por marca (`localeCompare('es')`); dentro de cada hoja `avgRating` desc con nulls al final y `nombre` asc de desempate. Stats `{ collected, total, pct }` por hoja y globales, `pct` 2 decimales (0 si total 0).
+- Response `{ owner {id, username, avatarUrl}, stats, hojas: [{ marca {id, nombre, logoUrl, provincia}, stats, alfajores: [{ id, nombre, tipo, imagenUrl, avgRating, collected, myRating, reviewId }] }] }`. `myRating` = ratingGeneral del dueño; `reviewId` para linkear a la reseña.
+- Tests: 11 verdes (10 finder + 1 controller), módulo 100% líneas. OpenSpec change `add-user-album`.
+
 ## Pendiente
 
 ### Próximos módulos
