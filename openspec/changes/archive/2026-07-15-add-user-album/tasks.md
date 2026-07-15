@@ -29,6 +29,6 @@
 
 - [x] 4.1 Run `npm run lint`, `npm run build`, `npm run test:cov` (>= 85%) and fix anything
       that fails
-- [ ] 4.2 Update `docs/progress.md` (back), `alphagoat-client/docs/progress.md` ("listo en
+- [x] 4.2 Update `docs/progress.md` (back), `alphagoat-client/docs/progress.md` ("listo en
       back, falta conectar en FE") and the Obsidian board
 
