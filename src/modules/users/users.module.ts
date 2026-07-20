@@ -12,6 +12,7 @@ import { AvatarUpdater } from './services/avatar-updater';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
 import { UserProfileAssembler } from './services/user-profile-assembler';
+import { UserSearcher } from './services/user-searcher';
 import { UserUpdater } from './services/user-updater';
 import { UsersController } from './users.controller';
 
@@ -29,6 +30,7 @@ import { UsersController } from './users.controller';
     UserPasswordChanger,
     UserProfileAssembler,
     AvatarUpdater,
+    UserSearcher,
   ],
   exports: [UserFinder, UserUpdater, TypeOrmModule],
 })

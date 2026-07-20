@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -20,10 +21,13 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { PaginatedUserSearchDto } from './dto/user-search-result.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './domain/user.entity';
 import { AvatarUpdater } from './services/avatar-updater';
+import { UserSearcher } from './services/user-searcher';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
 import { UserProfileAssembler } from './services/user-profile-assembler';
@@ -38,7 +42,19 @@ export class UsersController {
     private readonly passwordChanger: UserPasswordChanger,
     private readonly profiles: UserProfileAssembler,
     private readonly avatarUpdater: AvatarUpdater,
+    private readonly searcher: UserSearcher,
   ) {}
+
+  // Requiere auth (no opcional) porque el shape incluye isFollowing por resultado.
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async search(
+    @Query() dto: SearchUsersDto,
+    @CurrentUser('id') viewerId: string,
+  ): Promise<PaginatedUserSearchDto> {
+    return this.searcher.execute(dto, viewerId);
+  }
 
   // Público con auth opcional: anónimo lo ve (isFollowing false, sin email);
   // autenticado obtiene isFollowing real y, en su propio perfil, el email.
