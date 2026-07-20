@@ -16,8 +16,9 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 ### `users`
 - Entidad `User` (con `email`/`username` únicos, `role`, `banned`, timestamps).
 - DTOs: `UpdateProfileDto`, `ChangePasswordDto`, `UserResponseDto`.
-- Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`, `AvatarUpdater`. Todos con `.spec.ts`.
-- Controller: `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`, `POST /users/me/avatar`.
+- Services: `UserFinder` (byId / byEmail / byUsername), `UserUpdater`, `UserPasswordChanger`, `AvatarUpdater`, `UserSearcher`. Todos con `.spec.ts`.
+- Controller: `GET /users` (buscador), `GET /users/:id`, `PATCH /users/me`, `PATCH /users/me/password`, `POST /users/me/avatar`.
+- **Buscador de usuarios** (`GET /users?q=&page=&limit=`, `JwtAuthGuard` — auth requerida, no opcional, porque el shape incluye `isFollowing` por resultado): `UserSearcher` calca `MarcaSearcher` (`Raw(unaccent ILIKE unaccent)` sobre `username`, paginado `findAndCount`), excluye `banned=true` y al propio viewer (`Not(viewerId)`), y resuelve `isFollowing` en batch reusando `FollowToggler.followingAmong` (mismo patrón que `UserProfileAssembler`, sin N+1). Sin `displayName` en la respuesta: no existe ese campo en `User` (la card del board lo mencionaba, se ajustó). Response paginado `{ items: [{id, username, avatarUrl, isFollowing}], total, page, limit }`, consistente con `MarcaSearcher`/`AlfajorSearcher` (no el array plano que sugería la card). Sin OpenSpec (endpoint chico, calca un patrón existente). Tests: 8 nuevos (4 searcher + 1 controller + specs actualizados). Desbloquea el buscador de usuarios del front (Cmd+K, en In progress).
 
 ### `reviews`
 - Entidad `Review` con FKs CASCADE (`userId`, `alfajorId`), unique `(userId, alfajorId)`.

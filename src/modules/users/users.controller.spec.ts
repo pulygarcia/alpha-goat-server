@@ -6,6 +6,7 @@ import { AvatarUpdater } from './services/avatar-updater';
 import { UserFinder } from './services/user-finder';
 import { UserPasswordChanger } from './services/user-password-changer';
 import { UserProfileAssembler } from './services/user-profile-assembler';
+import { UserSearcher } from './services/user-searcher';
 import { UserUpdater } from './services/user-updater';
 import { UsersController } from './users.controller';
 
@@ -16,6 +17,7 @@ describe('UsersController', () => {
   let changer: jest.Mocked<UserPasswordChanger>;
   let profiles: jest.Mocked<UserProfileAssembler>;
   let avatarUpdater: jest.Mocked<AvatarUpdater>;
+  let searcher: jest.Mocked<UserSearcher>;
 
   const user = {
     id: 'u1',
@@ -38,6 +40,7 @@ describe('UsersController', () => {
           useValue: { byUsername: jest.fn() },
         },
         { provide: AvatarUpdater, useValue: { execute: jest.fn() } },
+        { provide: UserSearcher, useValue: { execute: jest.fn() } },
       ],
     }).compile();
 
@@ -47,6 +50,7 @@ describe('UsersController', () => {
     changer = module.get(UserPasswordChanger);
     profiles = module.get(UserProfileAssembler);
     avatarUpdater = module.get(AvatarUpdater);
+    searcher = module.get(UserSearcher);
   });
 
   it('findOne returns user response', async () => {
@@ -105,5 +109,25 @@ describe('UsersController', () => {
     await controller.profileByUsername('puly', undefined);
 
     expect(profiles.byUsername).toHaveBeenCalledWith('puly', undefined);
+  });
+
+  it('search forwards the query dto and viewer id to the searcher', async () => {
+    const result = {
+      items: [
+        { id: 'u2', username: 'bea', avatarUrl: null, isFollowing: false },
+      ],
+      total: 1,
+      page: 1,
+      limit: 20,
+    };
+    searcher.execute.mockResolvedValue(result);
+
+    const res = await controller.search({ q: 'be', page: 1, limit: 20 }, 'u1');
+
+    expect(searcher.execute).toHaveBeenCalledWith(
+      { q: 'be', page: 1, limit: 20 },
+      'u1',
+    );
+    expect(res).toBe(result);
   });
 });
