@@ -14,6 +14,7 @@ import { ModerationModule } from './modules/moderation/moderation.module';
 import { RankingModule } from './modules/ranking/ranking.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { StatsModule } from './modules/stats/stats.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { UsersModule } from './modules/users/users.module';
     RankingModule,
     RecommendationsModule,
     AlbumModule,
+    StatsModule,
   ],
 })
 export class AppModule {}
