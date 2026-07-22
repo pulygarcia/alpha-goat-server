@@ -24,8 +24,9 @@ export class AlfajorResponseDto {
   @ApiProperty({ nullable: true }) rejectionReason: string | null;
   @ApiProperty({ nullable: true }) createdById: string | null;
   @ApiProperty() createdAt: Date;
+  @ApiProperty({ nullable: true }) avgRating: number | null;
 
-  static from(a: Alfajor): AlfajorResponseDto {
+  static from(a: Alfajor, avgRating: number | null = null): AlfajorResponseDto {
     const dto = new AlfajorResponseDto();
     dto.id = a.id;
     dto.nombre = a.nombre;
@@ -45,6 +46,7 @@ export class AlfajorResponseDto {
     dto.rejectionReason = a.rejectionReason;
     dto.createdById = a.createdById;
     dto.createdAt = a.createdAt;
+    dto.avgRating = avgRating;
     return dto;
   }
 }

@@ -37,10 +37,10 @@ Estado de los módulos del backend. Se actualiza al cerrar cada feature.
 - DTOs: `CreateAlfajorDto`, `UpdateAlfajorDto` (sin `marcaId`), `SearchAlfajoresDto`, `AlfajorResponseDto`, `PaginatedAlfajoresDto`.
 - Services + specs:
   - `AlfajorCreator` — crea como `PENDING`, valida marca y unicidad `(nombre, marcaId)`.
-  - `AlfajorFinder` — byId con 404.
+  - `AlfajorFinder` — `byId` con 404; `byIdWithAvgRating` (solo para el detalle) agrega `avgRating` vía subquery correlacionada `AVG(rating_general)` (alias `avgrating` en minúsculas, mismo patrón que `AlbumFinder`), 2 decimales, `null` sin reviews, sin piso mínimo. `byId` queda intacto para no romper sus otros 6 consumidores (updater, image-updater, moderation approve/reject, review-creator).
   - `AlfajorSearcher` — paginado + filtros (`q`, `marcaId`, `tipo`); fuerza `APPROVED` salvo `includeAllStatuses` (admin).
   - `AlfajorUpdater` — admin edita siempre; creador solo mientras `PENDING`.
-- Controller `AlfajoresController` con `GET /alfajores`, `GET /alfajores/:id`, `POST /alfajores` (auth), `PATCH /alfajores/:id` (auth, dueño-pending o admin).
+- Controller `AlfajoresController` con `GET /alfajores`, `GET /alfajores/:id`, `POST /alfajores` (auth), `PATCH /alfajores/:id` (auth, dueño-pending o admin). `AlfajorResponseDto.from` gana segundo parámetro opcional `avgRating` (default `null`); solo `GET /alfajores/:id` lo pasa, el resto de endpoints queda igual. Verificado end-to-end contra Neon dev.
 - `MarcaFinder` se reutiliza desde `MarcasModule` (export ya estaba listo).
 
 ### `marcas`

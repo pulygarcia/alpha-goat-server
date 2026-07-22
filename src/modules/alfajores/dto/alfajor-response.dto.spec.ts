@@ -41,4 +41,12 @@ describe('AlfajorResponseDto.from', () => {
   it('leaves marca null when the relation is not loaded', () => {
     expect(AlfajorResponseDto.from(buildAlfajor()).marca).toBeNull();
   });
+
+  it('sets avgRating when passed', () => {
+    expect(AlfajorResponseDto.from(buildAlfajor(), 4.33).avgRating).toBe(4.33);
+  });
+
+  it('defaults avgRating to null when not passed', () => {
+    expect(AlfajorResponseDto.from(buildAlfajor()).avgRating).toBeNull();
+  });
 });

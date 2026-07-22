@@ -40,7 +40,10 @@ describe('AlfajoresController', () => {
       controllers: [AlfajoresController],
       providers: [
         { provide: AlfajorCreator, useValue: { execute: jest.fn() } },
-        { provide: AlfajorFinder, useValue: { byId: jest.fn() } },
+        {
+          provide: AlfajorFinder,
+          useValue: { byId: jest.fn(), byIdWithAvgRating: jest.fn() },
+        },
         { provide: AlfajorSearcher, useValue: { execute: jest.fn() } },
         { provide: AlfajorUpdater, useValue: { execute: jest.fn() } },
         { provide: AlfajorImageUpdater, useValue: { execute: jest.fn() } },
@@ -88,10 +91,15 @@ describe('AlfajoresController', () => {
     );
   });
 
-  it('findOne returns response dto', async () => {
-    finder.byId.mockResolvedValue(alfajor);
+  it('findOne returns response dto with avgRating', async () => {
+    finder.byIdWithAvgRating.mockResolvedValue({
+      alfajor,
+      avgRating: 4.33,
+    });
     const res = await controller.findOne('a1');
     expect(res.id).toBe('a1');
+    expect(res.avgRating).toBe(4.33);
+    expect(finder.byIdWithAvgRating).toHaveBeenCalledWith('a1');
   });
 
   it('create forwards dto and userId', async () => {
