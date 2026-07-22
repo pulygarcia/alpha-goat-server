@@ -1,4 +1,4 @@
-# Backend Architecture - Alfajorímetro
+# Backend Architecture - Alphagoat
 
 Este documento describe la arquitectura del backend en detalle. Léelo completo antes de crear o modificar módulos.
 
@@ -434,10 +434,9 @@ Excluimos módulos, DTOs y entities porque son declarativos (no tienen lógica p
 
 ## Reglas que Claude Code debe seguir
 
-1. **Antes de crear un módulo nuevo**, leer este archivo y `progress.md`.
+1. **Antes de crear un módulo nuevo**, leer este archivo.
 2. **Cada service atómico va en su propio archivo** con su `.spec.ts` al lado.
 3. **Nunca lógica de negocio en controllers**. Si pasa, es un bug de arquitectura.
 4. **Nunca exponer entidades directamente**: siempre mappear a un Response DTO.
 5. **Tests en la misma sesión** que el código, nunca después.
-6. **Después de terminar un módulo**, actualizar `progress.md`.
-7. Si algo no encaja en esta arquitectura, **detenerse y preguntar** antes de inventar.
+6. Si algo no encaja en esta arquitectura, **detenerse y preguntar** antes de inventar.
