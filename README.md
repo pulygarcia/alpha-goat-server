@@ -105,7 +105,7 @@ Reglas resumidas:
 - **Naming**: archivos `kebab-case`, clases `PascalCase`, vars/funcs `camelCase`.
 - **Tests** al lado de cada service (`*.spec.ts`), mockeando dependencias. Sin tocar la DB en unit tests.
 
-Detalle completo en [`docs/architecture.md`](docs/architecture.md). Modelo de datos en [`docs/data-model.md`](docs/data-model.md). Estado de avance en [`docs/progress.md`](docs/progress.md).
+Detalle completo en [`docs/architecture.md`](docs/architecture.md). Modelo de datos en [`docs/data-model.md`](docs/data-model.md).
 
 ### Modelo de negocio (resumen)
 
@@ -174,7 +174,6 @@ Este repo está pensado para que Claude Code colabore bien con el equipo. Si lo 
 
 - [`docs/architecture.md`](docs/architecture.md) — servicios atómicos, ejemplos, reglas duras.
 - [`docs/data-model.md`](docs/data-model.md) — entidades y relaciones.
-- [`docs/progress.md`](docs/progress.md) — qué módulos están terminados.
 
 ---
 

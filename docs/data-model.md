@@ -1,4 +1,4 @@
-# Modelo de datos - Alfajorímetro
+# Modelo de datos - Alphagoat
 
 Detalle de las entidades del backend. Complementa a `architecture.md`.
 

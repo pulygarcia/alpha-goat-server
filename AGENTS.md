@@ -1,6 +1,6 @@
-# Alfajorímetro - Backend
+# Alphagoat - Backend
 
-Backend del Alfajorímetro: una app tipo Untappd pero para alfajores argentinos. Los usuarios reseñan alfajores con rating general + 5 ejes (dulzor, cantidadDDL, calidadBaño, ratioTapaRelleno, textura), y el sistema genera radar charts, rankings y recomendaciones.
+Backend del Alphagoat: una app tipo Untappd pero para alfajores argentinos. Los usuarios reseñan alfajores con rating general + 5 ejes (dulzor, cantidadDDL, calidadBaño, ratioTapaRelleno, textura), y el sistema genera radar charts, rankings y recomendaciones.
 
 ## Stack
 
@@ -91,12 +91,10 @@ Detalle completo en `docs/architecture.md`.
 
 - **Arquitectura detallada (servicios atómicos, ejemplos)**: `docs/architecture.md`
 - **Modelo de datos (entidades, relaciones)**: `docs/data-model.md` (se crea cuando arrancamos)
-- **Progreso del proyecto (qué módulos están terminados)**: `docs/progress.md` (se actualiza después de cada feature)
 
 ## Flujo de trabajo
 
 - Antes de generar código de un módulo nuevo, **leé `docs/architecture.md`**.
 - Trabajamos **un módulo a la vez**. No generes "toda la app" de una.
 - **Tests siempre en la misma sesión** que el código. No los dejes para después.
-- Después de terminar un módulo, **actualizá `docs/progress.md`** con qué quedó hecho.
 - Si tenés dudas sobre el dominio (alfajores, ejes de review, etc), **preguntá**, no inventes.
