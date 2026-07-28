@@ -41,7 +41,26 @@ describe('AlfajorFinder', () => {
     });
   });
 
-  describe('byIdWithAvgRating', () => {
+  describe('byIdWithAverages', () => {
+    // AVG sobre numeric vuelve como string desde pg; el raw del mock imita eso.
+    const rawWithReviews = {
+      avgrating: '4.3333333333',
+      avgdulzor: '7.6666666666',
+      avgcantidadddl: '8.25',
+      avgcalidadbano: '5.04',
+      avgratiotaparelleno: '6.95',
+      avgtextura: '9',
+    };
+
+    const rawWithoutReviews = {
+      avgrating: null,
+      avgdulzor: null,
+      avgcantidadddl: null,
+      avgcalidadbano: null,
+      avgratiotaparelleno: null,
+      avgtextura: null,
+    };
+
     function mockQb(entities: Alfajor[], raw: unknown[]) {
       const qb = {
         leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -55,27 +74,64 @@ describe('AlfajorFinder', () => {
 
     it('returns the alfajor with avgRating rounded to 2 decimals', async () => {
       const a = { id: 'a1' } as Alfajor;
-      const qb = mockQb([a], [{ avgrating: '4.3333333333' }]);
+      const qb = mockQb([a], [rawWithReviews]);
 
-      const result = await finder.byIdWithAvgRating('a1');
+      const result = await finder.byIdWithAverages('a1');
 
-      expect(result).toEqual({ alfajor: a, avgRating: 4.33 });
+      expect(result.alfajor).toBe(a);
+      expect(result.avgRating).toBe(4.33);
       expect(qb.where).toHaveBeenCalledWith('a.id = :id', { id: 'a1' });
     });
 
-    it('returns avgRating null when the alfajor has no reviews', async () => {
+    it('returns the five ejes averages rounded to 1 decimal', async () => {
       const a = { id: 'a1' } as Alfajor;
-      mockQb([a], [{ avgrating: null }]);
+      mockQb([a], [rawWithReviews]);
 
-      const result = await finder.byIdWithAvgRating('a1');
+      const result = await finder.byIdWithAverages('a1');
 
-      expect(result).toEqual({ alfajor: a, avgRating: null });
+      expect(result.avgEjes).toEqual({
+        dulzor: 7.7,
+        cantidadDDL: 8.3,
+        calidadBano: 5,
+        ratioTapaRelleno: 7,
+        textura: 9,
+      });
+    });
+
+    it('returns avgRating and avgEjes null when the alfajor has no reviews', async () => {
+      const a = { id: 'a1' } as Alfajor;
+      mockQb([a], [rawWithoutReviews]);
+
+      const result = await finder.byIdWithAverages('a1');
+
+      expect(result).toEqual({ alfajor: a, avgRating: null, avgEjes: null });
+    });
+
+    // Postgres foldea identificadores sin comillas a minúsculas: un alias
+    // mixed-case rompe en runtime aunque el mock del qb no se entere.
+    it('aliases every average in lowercase', async () => {
+      const a = { id: 'a1' } as Alfajor;
+      const qb = mockQb([a], [rawWithReviews]);
+
+      await finder.byIdWithAverages('a1');
+
+      const aliases = (qb.addSelect as jest.Mock).mock.calls.map(
+        (call: [string, string]) => call[1],
+      );
+      expect(aliases).toEqual([
+        'avgrating',
+        'avgdulzor',
+        'avgcantidadddl',
+        'avgcalidadbano',
+        'avgratiotaparelleno',
+        'avgtextura',
+      ]);
     });
 
     it('throws NotFoundException when missing', async () => {
-      mockQb([], [{ avgrating: null }]);
+      mockQb([], [rawWithoutReviews]);
 
-      await expect(finder.byIdWithAvgRating('missing')).rejects.toThrow(
+      await expect(finder.byIdWithAverages('missing')).rejects.toThrow(
         NotFoundException,
       );
     });

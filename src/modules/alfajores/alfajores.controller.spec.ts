@@ -42,7 +42,7 @@ describe('AlfajoresController', () => {
         { provide: AlfajorCreator, useValue: { execute: jest.fn() } },
         {
           provide: AlfajorFinder,
-          useValue: { byId: jest.fn(), byIdWithAvgRating: jest.fn() },
+          useValue: { byId: jest.fn(), byIdWithAverages: jest.fn() },
         },
         { provide: AlfajorSearcher, useValue: { execute: jest.fn() } },
         { provide: AlfajorUpdater, useValue: { execute: jest.fn() } },
@@ -91,15 +91,35 @@ describe('AlfajoresController', () => {
     );
   });
 
-  it('findOne returns response dto with avgRating', async () => {
-    finder.byIdWithAvgRating.mockResolvedValue({
+  it('findOne returns response dto with avgRating and avgEjes', async () => {
+    const avgEjes = {
+      dulzor: 7.7,
+      cantidadDDL: 8.3,
+      calidadBano: 5,
+      ratioTapaRelleno: 7,
+      textura: 9,
+    };
+    finder.byIdWithAverages.mockResolvedValue({
       alfajor,
       avgRating: 4.33,
+      avgEjes,
     });
     const res = await controller.findOne('a1');
     expect(res.id).toBe('a1');
     expect(res.avgRating).toBe(4.33);
-    expect(finder.byIdWithAvgRating).toHaveBeenCalledWith('a1');
+    expect(res.avgEjes).toEqual(avgEjes);
+    expect(finder.byIdWithAverages).toHaveBeenCalledWith('a1');
+  });
+
+  it('findOne passes through null averages when there are no reviews', async () => {
+    finder.byIdWithAverages.mockResolvedValue({
+      alfajor,
+      avgRating: null,
+      avgEjes: null,
+    });
+    const res = await controller.findOne('a1');
+    expect(res.avgRating).toBeNull();
+    expect(res.avgEjes).toBeNull();
   });
 
   it('create forwards dto and userId', async () => {
