@@ -22,6 +22,6 @@ import { MarcaUpdater } from './services/marca-updater';
     MarcaUpdater,
     MarcaFeaturedFinder,
   ],
-  exports: [MarcaFinder],
+  exports: [MarcaFinder, MarcaCreator],
 })
 export class MarcasModule {}

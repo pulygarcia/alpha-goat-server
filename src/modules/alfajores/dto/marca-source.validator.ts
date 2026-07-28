@@ -31,7 +31,8 @@ export function IsValidMarcaSource(options?: ValidationOptions) {
         validate(value: unknown, args: ValidationArguments): boolean {
           const { marcaId } = args.object as MarcaSource;
 
-          if (value === undefined || value === null) return marcaId !== undefined;
+          if (value === undefined || value === null)
+            return marcaId !== undefined;
           if (marcaId !== undefined) return false;
 
           return (

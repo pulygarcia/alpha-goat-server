@@ -25,7 +25,9 @@ describe('AlfajorDuplicateChecker', () => {
   it('passes when no alfajor has that nombre for that marca', async () => {
     repo.findOne.mockResolvedValue(null);
 
-    await expect(checker.assertUnique('Jorgito', 'm1')).resolves.toBeUndefined();
+    await expect(
+      checker.assertUnique('Jorgito', 'm1'),
+    ).resolves.toBeUndefined();
     expect(repo.findOne).toHaveBeenCalledWith({
       where: { nombre: 'Jorgito', marcaId: 'm1' },
     });

@@ -26,7 +26,8 @@ export class RankingItemDto {
     dto.score = row.score;
     dto.reviewsCount = row.reviewsCount;
     dto.marca = {
-      id: row.alfajor.marca?.id ?? row.alfajor.marcaId,
+      // El ranking solo trae alfajores APPROVED, que siempre tienen marca.
+      id: row.alfajor.marca?.id ?? row.alfajor.marcaId ?? '',
       nombre: row.alfajor.marca?.nombre ?? '',
       logoUrl: row.alfajor.marca?.logoUrl ?? null,
     };

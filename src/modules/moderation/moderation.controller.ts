@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,6 +26,7 @@ import {
 import { SearchAlfajoresDto } from '../alfajores/dto/search-alfajores.dto';
 import { AlfajorSearcher } from '../alfajores/services/alfajor-searcher';
 import { UserRole } from '../users/domain/user-role.enum';
+import { ApproveAlfajorDto } from './dto/approve-alfajor.dto';
 import { RejectAlfajorDto } from './dto/reject-alfajor.dto';
 import { AlfajorApprover } from './services/alfajor-approver';
 import { AlfajorRejecter } from './services/alfajor-rejecter';
@@ -68,18 +70,29 @@ export class ModerationController {
   @ApiOperation({
     summary: 'Aprobar un alfajor',
     description:
-      'Cambia el status del alfajor de PENDING a APPROVED y limpia el rejectionReason.',
+      'Cambia el status del alfajor de PENDING a APPROVED y limpia el rejectionReason. ' +
+      'Si la propuesta vino con marca en texto libre, acá se resuelve la marca: ' +
+      'con `marcaId` se mapea a una existente, y sin body se crea (o se reusa) la del nombre propuesto.',
   })
+  @ApiBody({ type: ApproveAlfajorDto, required: false })
   @ApiResponse({ status: 200, type: AlfajorResponseDto })
-  @ApiResponse({ status: 400, description: 'El alfajor no está en PENDING.' })
+  @ApiResponse({
+    status: 400,
+    description: 'El alfajor no está en PENDING o no hay marca que resolver.',
+  })
   @ApiResponse({ status: 401, description: 'No autenticado.' })
   @ApiResponse({ status: 403, description: 'El usuario no es ADMIN.' })
-  @ApiResponse({ status: 404, description: 'Alfajor inexistente.' })
+  @ApiResponse({ status: 404, description: 'Alfajor o marca inexistente.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Ya existe ese alfajor para la marca resuelta.',
+  })
   @Patch(':id/approve')
   async approve(
     @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ApproveAlfajorDto,
   ): Promise<AlfajorResponseDto> {
-    return AlfajorResponseDto.from(await this.approver.execute(id));
+    return AlfajorResponseDto.from(await this.approver.execute(id, dto));
   }
 
   @ApiOperation({

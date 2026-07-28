@@ -49,7 +49,7 @@ describe('AlfajorResponseDto.from', () => {
         marcaId: null,
         marcaNombrePropuesto: 'Alfajores Doña Pepa',
         status: AlfajorStatus.PENDING,
-      } as Partial<Alfajor>),
+      }),
     );
 
     expect(dto.marcaId).toBeNull();

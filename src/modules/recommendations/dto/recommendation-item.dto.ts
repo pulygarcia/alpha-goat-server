@@ -27,7 +27,8 @@ export class RecommendationItemDto {
     dto.matchPct = row.matchPct;
     dto.score = row.score;
     dto.marca = {
-      id: row.alfajor.marca?.id ?? row.alfajor.marcaId,
+      // Las recomendaciones solo traen alfajores APPROVED, con marca resuelta.
+      id: row.alfajor.marca?.id ?? row.alfajor.marcaId ?? '',
       nombre: row.alfajor.marca?.nombre ?? '',
       logoUrl: row.alfajor.marca?.logoUrl ?? null,
     };

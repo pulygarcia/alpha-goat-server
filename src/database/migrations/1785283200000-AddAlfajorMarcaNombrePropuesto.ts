@@ -12,9 +12,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * propuestas con marca libre sin moderar. Hay que borrarlas (o resolverlas)
  * antes de revertir.
  */
-export class AddAlfajorMarcaNombrePropuesto1785283200000
-  implements MigrationInterface
-{
+export class AddAlfajorMarcaNombrePropuesto1785283200000 implements MigrationInterface {
   name = 'AddAlfajorMarcaNombrePropuesto1785283200000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
