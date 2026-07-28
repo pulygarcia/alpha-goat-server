@@ -25,7 +25,10 @@ export type AvgEjes = AvgEjesDto;
 export class AlfajorResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() nombre: string;
-  @ApiProperty() marcaId: string;
+  /** `null` solo en propuestas PENDING con marca libre. */
+  @ApiProperty({ nullable: true }) marcaId: string | null;
+  /** Marca pedida en texto libre; `null` en cuanto la marca está resuelta. */
+  @ApiProperty({ nullable: true }) marcaNombrePropuesto: string | null;
   /** Marca anidada cuando la relación está cargada; `null` si no se pidió. */
   @ApiProperty({ type: AlfajorMarcaDto, nullable: true })
   marca: AlfajorMarcaDto | null;
@@ -50,6 +53,7 @@ export class AlfajorResponseDto {
     dto.id = a.id;
     dto.nombre = a.nombre;
     dto.marcaId = a.marcaId;
+    dto.marcaNombrePropuesto = a.marcaNombrePropuesto;
     dto.marca = a.marca
       ? {
           id: a.marca.id,

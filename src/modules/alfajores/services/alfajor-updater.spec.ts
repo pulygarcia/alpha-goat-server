@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException } from '@nestjs/common';
+﻿import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { UserRole } from '../../users/domain/user-role.enum';
 import { Alfajor } from '../domain/alfajor.entity';
 import { AlfajorStatus } from '../domain/alfajor-status.enum';
 import { AlfajorTipo } from '../domain/alfajor-tipo.enum';
+import { AlfajorDuplicateChecker } from './alfajor-duplicate-checker';
 import { AlfajorFinder } from './alfajor-finder';
 import { AlfajorUpdater } from './alfajor-updater';
 
@@ -13,6 +14,7 @@ describe('AlfajorUpdater', () => {
   let updater: AlfajorUpdater;
   let repo: jest.Mocked<Repository<Alfajor>>;
   let finder: jest.Mocked<AlfajorFinder>;
+  let duplicateChecker: jest.Mocked<AlfajorDuplicateChecker>;
 
   const baseAlfajor = (overrides: Partial<Alfajor> = {}): Alfajor =>
     ({
@@ -24,6 +26,7 @@ describe('AlfajorUpdater', () => {
       imagenUrl: null,
       status: AlfajorStatus.PENDING,
       createdById: 'u1',
+      marcaNombrePropuesto: null,
       ...overrides,
     }) as Alfajor;
 
@@ -36,17 +39,21 @@ describe('AlfajorUpdater', () => {
           useValue: { findOne: jest.fn(), save: jest.fn() },
         },
         { provide: AlfajorFinder, useValue: { byId: jest.fn() } },
+        {
+          provide: AlfajorDuplicateChecker,
+          useValue: { assertUnique: jest.fn() },
+        },
       ],
     }).compile();
 
     updater = module.get(AlfajorUpdater);
     repo = module.get(getRepositoryToken(Alfajor));
     finder = module.get(AlfajorFinder);
+    duplicateChecker = module.get(AlfajorDuplicateChecker);
   });
 
   it('owner can edit while PENDING', async () => {
     finder.byId.mockResolvedValue(baseAlfajor());
-    repo.findOne.mockResolvedValue(null);
     repo.save.mockImplementation(async (a) => a as Alfajor);
 
     const result = await updater.execute(
@@ -57,6 +64,11 @@ describe('AlfajorUpdater', () => {
 
     expect(result.nombre).toBe('New');
     expect(result.descripcion).toBe('d');
+    expect(duplicateChecker.assertUnique).toHaveBeenCalledWith(
+      'New',
+      'm1',
+      'a1',
+    );
   });
 
   it('owner cannot edit once APPROVED', async () => {
@@ -89,7 +101,6 @@ describe('AlfajorUpdater', () => {
     finder.byId.mockResolvedValue(
       baseAlfajor({ status: AlfajorStatus.APPROVED }),
     );
-    repo.findOne.mockResolvedValue(null);
     repo.save.mockImplementation(async (a) => a as Alfajor);
 
     const result = await updater.execute(
@@ -101,9 +112,9 @@ describe('AlfajorUpdater', () => {
     expect(result.nombre).toBe('New');
   });
 
-  it('throws ConflictException on duplicate (nombre, marcaId)', async () => {
+  it('propagates ConflictException on duplicate (nombre, marcaId)', async () => {
     finder.byId.mockResolvedValue(baseAlfajor());
-    repo.findOne.mockResolvedValue({ id: 'other' } as Alfajor);
+    duplicateChecker.assertUnique.mockRejectedValue(new ConflictException());
 
     await expect(
       updater.execute(
@@ -125,7 +136,25 @@ describe('AlfajorUpdater', () => {
       { id: 'u1', role: UserRole.USER },
     );
 
-    expect(repo.findOne).not.toHaveBeenCalled();
+    expect(duplicateChecker.assertUnique).not.toHaveBeenCalled();
+  });
+
+  it('skips uniqueness check on a proposal with no marca resolved', async () => {
+    const alf = baseAlfajor({
+      marcaId: null,
+      marcaNombrePropuesto: 'Doña Pepa',
+    });
+    finder.byId.mockResolvedValue(alf);
+    repo.save.mockImplementation(async (a) => a as Alfajor);
+
+    const result = await updater.execute(
+      'a1',
+      { nombre: 'New' },
+      { id: 'u1', role: UserRole.USER },
+    );
+
+    expect(duplicateChecker.assertUnique).not.toHaveBeenCalled();
+    expect(result.nombre).toBe('New');
   });
 
   it('saves untouched alfajor when dto is empty', async () => {

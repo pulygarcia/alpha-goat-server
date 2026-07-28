@@ -23,13 +23,20 @@ export class Alfajor {
   @Column({ type: 'varchar', length: 150 })
   nombre: string;
 
+  // Nullable solo para propuestas PENDING con marca libre: un alfajor
+  // APPROVED siempre tiene marca (la resuelve el admin al aprobar).
   @Index()
-  @Column({ type: 'uuid' })
-  marcaId: string;
+  @Column({ type: 'uuid', nullable: true })
+  marcaId: string | null;
 
-  @ManyToOne(() => Marca, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Marca, { onDelete: 'RESTRICT', nullable: true })
   @JoinColumn({ name: 'marca_id' })
-  marca?: Marca;
+  marca?: Marca | null;
+
+  // Marca pedida en texto libre por el usuario cuando no estaba en el
+  // catálogo. Dato transitorio de la propuesta: se limpia al aprobar.
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  marcaNombrePropuesto: string | null;
 
   @Column({ type: 'enum', enum: AlfajorTipo })
   tipo: AlfajorTipo;

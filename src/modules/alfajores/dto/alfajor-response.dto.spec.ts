@@ -14,6 +14,7 @@ function buildAlfajor(over: Partial<Alfajor> = {}): Alfajor {
     status: AlfajorStatus.APPROVED,
     rejectionReason: null,
     createdById: null,
+    marcaNombrePropuesto: null,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     ...over,
   } as unknown as Alfajor;
@@ -40,6 +41,26 @@ describe('AlfajorResponseDto.from', () => {
 
   it('leaves marca null when the relation is not loaded', () => {
     expect(AlfajorResponseDto.from(buildAlfajor()).marca).toBeNull();
+  });
+
+  it('maps a free-marca proposal with no marca resolved yet', () => {
+    const dto = AlfajorResponseDto.from(
+      buildAlfajor({
+        marcaId: null,
+        marcaNombrePropuesto: 'Alfajores Doña Pepa',
+        status: AlfajorStatus.PENDING,
+      } as Partial<Alfajor>),
+    );
+
+    expect(dto.marcaId).toBeNull();
+    expect(dto.marca).toBeNull();
+    expect(dto.marcaNombrePropuesto).toBe('Alfajores Doña Pepa');
+  });
+
+  it('leaves marcaNombrePropuesto null once the marca is resolved', () => {
+    expect(
+      AlfajorResponseDto.from(buildAlfajor()).marcaNombrePropuesto,
+    ).toBeNull();
   });
 
   it('sets avgRating when passed', () => {
