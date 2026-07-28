@@ -10,6 +10,13 @@ export interface PaginatedAlfajores {
   total: number;
   page: number;
   limit: number;
+  /** Promedio de ratingGeneral por alfajor de la página; null sin reseñas. */
+  avgRatingById: Map<string, number | null>;
+}
+
+interface AvgRatingRaw {
+  id: string;
+  avgrating: string | null;
 }
 
 @Injectable()
@@ -53,6 +60,37 @@ export class AlfajorSearcher {
       .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
-    return { items, total, page, limit };
+    const avgRatingById = await this.loadAvgRatings(items.map((a) => a.id));
+    return { items, total, page, limit, avgRatingById };
+  }
+
+  // Consulta aparte por los ids de la página en vez de un addSelect: con joins
+  // + skip/take TypeORM parte el SELECT en dos y el raw no alinea con las
+  // entidades. Subquery correlacionada (no JOIN) para conservar los alfajores
+  // sin reseñas; alias en minúsculas — lección PR server #24.
+  private async loadAvgRatings(
+    ids: string[],
+  ): Promise<Map<string, number | null>> {
+    if (ids.length === 0) return new Map();
+
+    const rows = await this.alfajores
+      .createQueryBuilder('a')
+      .select('a.id', 'id')
+      .addSelect(
+        '(SELECT AVG(r.rating_general) FROM reviews r WHERE r.alfajor_id = a.id)',
+        'avgrating',
+      )
+      .where('a.id IN (:...ids)', { ids })
+      .getRawMany<AvgRatingRaw>();
+
+    return new Map(
+      rows.map((r) => [
+        r.id,
+        r.avgrating === null ? null : round2(r.avgrating),
+      ]),
+    );
   }
 }
+
+// AVG sobre numeric devuelve string en pg.
+const round2 = (value: string): number => Number(Number(value).toFixed(2));

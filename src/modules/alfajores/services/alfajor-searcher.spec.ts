@@ -9,8 +9,10 @@ const makeQb = (items: unknown[], total: number) => {
   const qb: any = {};
   for (const m of [
     'leftJoinAndSelect',
+    'select',
     'addSelect',
     'andWhere',
+    'where',
     'orderBy',
     'addOrderBy',
     'skip',
@@ -19,6 +21,15 @@ const makeQb = (items: unknown[], total: number) => {
     qb[m] = jest.fn().mockReturnValue(qb);
   }
   qb.getManyAndCount = jest.fn().mockResolvedValue([items, total]);
+  return qb;
+};
+
+const makeAvgQb = (rows: unknown[]) => {
+  const qb: any = {};
+  for (const m of ['select', 'addSelect', 'where']) {
+    qb[m] = jest.fn().mockReturnValue(qb);
+  }
+  qb.getRawMany = jest.fn().mockResolvedValue(rows);
   return qb;
 };
 
@@ -111,13 +122,45 @@ describe('AlfajorSearcher', () => {
     expect(qb.addOrderBy).toHaveBeenCalledWith('a.nombre', 'ASC');
   });
 
-  it('returns the paginated result', async () => {
-    const items = [{ id: 'a1' } as Alfajor];
-    const qb = makeQb(items, 1);
-    repo.createQueryBuilder.mockReturnValue(qb);
+  it('returns the paginated result with the avg rating of each item', async () => {
+    const items = [{ id: 'a1' } as Alfajor, { id: 'a2' } as Alfajor];
+    const qb = makeQb(items, 2);
+    const avgQb = makeAvgQb([
+      { id: 'a1', avgrating: '7.456' },
+      { id: 'a2', avgrating: null },
+    ]);
+    repo.createQueryBuilder.mockReturnValueOnce(qb).mockReturnValueOnce(avgQb);
 
     const res = await searcher.execute({ page: 1, limit: 20 });
 
-    expect(res).toEqual({ items, total: 1, page: 1, limit: 20 });
+    expect(res).toEqual({
+      items,
+      total: 2,
+      page: 1,
+      limit: 20,
+      avgRatingById: new Map([
+        ['a1', 7.46],
+        ['a2', null],
+      ]),
+    });
+    // Solo los ids de la página: la query paginada no puede traer el promedio
+    // en el mismo SELECT (TypeORM parte la query cuando hay joins + skip/take).
+    expect(avgQb.where).toHaveBeenCalledWith('a.id IN (:...ids)', {
+      ids: ['a1', 'a2'],
+    });
+    expect(avgQb.addSelect).toHaveBeenCalledWith(
+      '(SELECT AVG(r.rating_general) FROM reviews r WHERE r.alfajor_id = a.id)',
+      'avgrating',
+    );
+  });
+
+  it('skips the averages query when the page is empty', async () => {
+    const qb = makeQb([], 0);
+    repo.createQueryBuilder.mockReturnValue(qb);
+
+    const res = await searcher.execute({ page: 5, limit: 20 });
+
+    expect(repo.createQueryBuilder).toHaveBeenCalledTimes(1);
+    expect(res.avgRatingById.size).toBe(0);
   });
 });
