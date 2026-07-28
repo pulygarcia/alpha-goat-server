@@ -64,6 +64,7 @@ describe('AlfajoresController', () => {
       total: 1,
       page: 1,
       limit: 20,
+      avgRatingById: new Map(),
     });
 
     const res = await controller.search({ page: 1, limit: 20 });
@@ -75,12 +76,32 @@ describe('AlfajoresController', () => {
     expect(res.items[0].id).toBe('a1');
   });
 
+  it('search maps the avg rating of each item, null when missing', async () => {
+    const other = { ...alfajor, id: 'a2' };
+    searcher.execute.mockResolvedValue({
+      items: [alfajor, other],
+      total: 2,
+      page: 1,
+      limit: 20,
+      avgRatingById: new Map<string, number | null>([
+        ['a1', 8.25],
+        ['a2', null],
+      ]),
+    });
+
+    const res = await controller.search({ page: 1, limit: 20 });
+
+    expect(res.items[0].avgRating).toBe(8.25);
+    expect(res.items[1].avgRating).toBeNull();
+  });
+
   it('search passes includeAllStatuses for admin', async () => {
     searcher.execute.mockResolvedValue({
       items: [],
       total: 0,
       page: 1,
       limit: 20,
+      avgRatingById: new Map(),
     });
 
     await controller.search({ page: 1, limit: 20 }, adminActor);

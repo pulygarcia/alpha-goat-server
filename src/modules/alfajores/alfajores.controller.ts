@@ -48,11 +48,12 @@ export class AlfajoresController {
     @CurrentUser() user?: User,
   ): Promise<PaginatedAlfajoresDto> {
     const includeAllStatuses = user?.role === UserRole.ADMIN;
-    const { items, total, page, limit } = await this.searcher.execute(dto, {
-      includeAllStatuses,
-    });
+    const { items, total, page, limit, avgRatingById } =
+      await this.searcher.execute(dto, { includeAllStatuses });
     return {
-      items: items.map((a) => AlfajorResponseDto.from(a)),
+      items: items.map((a) =>
+        AlfajorResponseDto.from(a, avgRatingById.get(a.id) ?? null),
+      ),
       total,
       page,
       limit,
