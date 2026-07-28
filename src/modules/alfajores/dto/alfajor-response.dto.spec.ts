@@ -49,4 +49,22 @@ describe('AlfajorResponseDto.from', () => {
   it('defaults avgRating to null when not passed', () => {
     expect(AlfajorResponseDto.from(buildAlfajor()).avgRating).toBeNull();
   });
+
+  it('sets avgEjes when passed', () => {
+    const avgEjes = {
+      dulzor: 7.7,
+      cantidadDDL: 8.3,
+      calidadBano: 5,
+      ratioTapaRelleno: 7,
+      textura: 9,
+    };
+
+    expect(AlfajorResponseDto.from(buildAlfajor(), 4.33, avgEjes).avgEjes).toBe(
+      avgEjes,
+    );
+  });
+
+  it('defaults avgEjes to null when not passed', () => {
+    expect(AlfajorResponseDto.from(buildAlfajor(), 4.33).avgEjes).toBeNull();
+  });
 });

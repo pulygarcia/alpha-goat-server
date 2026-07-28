@@ -63,8 +63,9 @@ export class AlfajoresController {
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<AlfajorResponseDto> {
-    const { alfajor, avgRating } = await this.finder.byIdWithAverages(id);
-    return AlfajorResponseDto.from(alfajor, avgRating);
+    const { alfajor, avgRating, avgEjes } =
+      await this.finder.byIdWithAverages(id);
+    return AlfajorResponseDto.from(alfajor, avgRating, avgEjes);
   }
 
   @ApiBearerAuth()

@@ -10,6 +10,18 @@ class AlfajorMarcaDto {
   @ApiProperty({ nullable: true }) logoUrl: string | null;
 }
 
+// Promedio de cada eje sobre las reviews del alfajor. Las claves espejan
+// las de ReviewRatings, que es lo que ya consume el front.
+export class AvgEjesDto {
+  @ApiProperty() dulzor: number;
+  @ApiProperty() cantidadDDL: number;
+  @ApiProperty() calidadBano: number;
+  @ApiProperty() ratioTapaRelleno: number;
+  @ApiProperty() textura: number;
+}
+
+export type AvgEjes = AvgEjesDto;
+
 export class AlfajorResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() nombre: string;
@@ -25,8 +37,15 @@ export class AlfajorResponseDto {
   @ApiProperty({ nullable: true }) createdById: string | null;
   @ApiProperty() createdAt: Date;
   @ApiProperty({ nullable: true }) avgRating: number | null;
+  /** `null` cuando el alfajor no tiene reseñas; nunca un objeto con nulls. */
+  @ApiProperty({ type: AvgEjesDto, nullable: true })
+  avgEjes: AvgEjes | null;
 
-  static from(a: Alfajor, avgRating: number | null = null): AlfajorResponseDto {
+  static from(
+    a: Alfajor,
+    avgRating: number | null = null,
+    avgEjes: AvgEjes | null = null,
+  ): AlfajorResponseDto {
     const dto = new AlfajorResponseDto();
     dto.id = a.id;
     dto.nombre = a.nombre;
@@ -47,6 +66,7 @@ export class AlfajorResponseDto {
     dto.createdById = a.createdById;
     dto.createdAt = a.createdAt;
     dto.avgRating = avgRating;
+    dto.avgEjes = avgEjes;
     return dto;
   }
 }
