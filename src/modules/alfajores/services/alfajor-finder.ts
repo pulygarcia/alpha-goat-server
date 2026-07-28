@@ -26,7 +26,7 @@ export class AlfajorFinder {
   // Subquery correlacionada (no relations:{reviews:true}) para no traer
   // todas las reviews solo para promediar un número. Alias en minúsculas:
   // mixed-case rompe el pagination-wrapper de TypeORM (lección PR server #24).
-  async byIdWithAvgRating(
+  async byIdWithAverages(
     id: string,
   ): Promise<{ alfajor: Alfajor; avgRating: number | null }> {
     const { entities, raw } = await this.alfajores

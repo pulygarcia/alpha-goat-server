@@ -41,7 +41,7 @@ describe('AlfajorFinder', () => {
     });
   });
 
-  describe('byIdWithAvgRating', () => {
+  describe('byIdWithAverages', () => {
     function mockQb(entities: Alfajor[], raw: unknown[]) {
       const qb = {
         leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -57,7 +57,7 @@ describe('AlfajorFinder', () => {
       const a = { id: 'a1' } as Alfajor;
       const qb = mockQb([a], [{ avgrating: '4.3333333333' }]);
 
-      const result = await finder.byIdWithAvgRating('a1');
+      const result = await finder.byIdWithAverages('a1');
 
       expect(result).toEqual({ alfajor: a, avgRating: 4.33 });
       expect(qb.where).toHaveBeenCalledWith('a.id = :id', { id: 'a1' });
@@ -67,7 +67,7 @@ describe('AlfajorFinder', () => {
       const a = { id: 'a1' } as Alfajor;
       mockQb([a], [{ avgrating: null }]);
 
-      const result = await finder.byIdWithAvgRating('a1');
+      const result = await finder.byIdWithAverages('a1');
 
       expect(result).toEqual({ alfajor: a, avgRating: null });
     });
@@ -75,7 +75,7 @@ describe('AlfajorFinder', () => {
     it('throws NotFoundException when missing', async () => {
       mockQb([], [{ avgrating: null }]);
 
-      await expect(finder.byIdWithAvgRating('missing')).rejects.toThrow(
+      await expect(finder.byIdWithAverages('missing')).rejects.toThrow(
         NotFoundException,
       );
     });

@@ -63,7 +63,7 @@ export class AlfajoresController {
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<AlfajorResponseDto> {
-    const { alfajor, avgRating } = await this.finder.byIdWithAvgRating(id);
+    const { alfajor, avgRating } = await this.finder.byIdWithAverages(id);
     return AlfajorResponseDto.from(alfajor, avgRating);
   }
 
