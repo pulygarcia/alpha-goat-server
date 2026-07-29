@@ -21,7 +21,10 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
       migrations: [
         join(__dirname, '..', 'database', 'migrations', '*.{ts,js}'),
       ],
-      migrationsRun: false,
+      // En prod las migraciones corren al arrancar, desde los `.js` de `dist`:
+      // el `migration:run` del package.json usa ts-node, que es devDependency
+      // y no existe en el server. En local se corren a mano.
+      migrationsRun: isProd,
       synchronize: false,
       logging: !isProd ? ['error', 'warn'] : ['error'],
       autoLoadEntities: true,

@@ -144,6 +144,26 @@ test/                      # config de e2e (cuando arranque)
 
 ---
 
+## Deploy
+
+La API se deploya en **Render** como web service Node, con deploy automático en cada push a `main`. La config vive en `render.yaml` (blueprint), así que el servicio se puede recrear desde cero sin tocar el dashboard.
+
+Alta inicial:
+
+1. En Render: **New → Blueprint** y apuntar al repo. Lee `render.yaml` y crea el servicio `alphagoat-api`.
+2. Cargar a mano las variables marcadas como `sync: false` en **Environment** (no se versionan): `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+3. Primer deploy. Las migraciones **corren solas al arrancar** en producción (`migrationsRun` está atado a `NODE_ENV`), desde los `.js` compilados en `dist` — el script `migration:run` usa `ts-node`, que no está instalado en el server.
+4. Crear el admin: no hay seed remoto, así que se corre `npm run seed:admin` en local apuntando `DATABASE_URL` a la base de producción.
+
+Cosas a tener en cuenta:
+
+- **`FRONTEND_URL` acepta varios orígenes separados por coma** (el dominio de producción del front + los previews de Vercel). Es lo que alimenta el CORS.
+- **La cookie de auth es cross-site en producción**: `sameSite=none` + `secure`, porque el front y la API viven en dominios distintos. Si algún día los dos quedan bajo el mismo dominio (`app.dominio.com` + `api.dominio.com`), conviene volver a `lax`.
+- El **plan free se duerme** a los 15 minutos de inactividad: el primer request después de eso tarda ~50s. La base es Neon y es independiente del servicio.
+- `synchronize` está en `false` siempre. El schema solo cambia por migraciones.
+
+---
+
 ## Convenciones de Git
 
 - **Conventional Commits**: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`.
