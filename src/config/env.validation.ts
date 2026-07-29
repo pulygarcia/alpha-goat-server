@@ -26,9 +26,12 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   FRONTEND_URL: string;
 
+  // Solo se usa para interpolar el DATABASE_URL del `.env` local via
+  // dotenv-expand; en el server se setea la URL completa de una.
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  DATABASE_PASSWORD: string;
+  DATABASE_PASSWORD?: string;
 
   @IsString()
   @IsNotEmpty()

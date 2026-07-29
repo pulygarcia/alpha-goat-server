@@ -20,10 +20,14 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    origin: config.get<string>('FRONTEND_URL'),
-    credentials: true,
-  });
+  // FRONTEND_URL admite varios origenes separados por coma: en prod conviven
+  // el dominio de produccion del front y los previews de Vercel.
+  const origin = (config.get<string>('FRONTEND_URL') ?? '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  app.enableCors({ origin, credentials: true });
 
   setupSwagger(app);
 

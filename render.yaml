@@ -1,0 +1,33 @@
+# Blueprint de Render para la API. Deploy automatico en cada push a main.
+#
+# Las variables marcadas con `sync: false` NO viven aca: se cargan a mano en el
+# dashboard de Render (Environment) y no se versionan. Ver README.
+services:
+  - type: web
+    name: alphagoat-api
+    runtime: node
+    plan: free
+    region: virginia # la region mas cercana a Argentina que ofrece Render
+    branch: main
+    # --include=dev porque el build necesita el CLI de Nest y TypeScript, que
+    # son devDependencies, y NODE_ENV=production haria que npm los saltee.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Render inyecta PORT y la app ya lo lee; no hace falta declararlo.
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
