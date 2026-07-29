@@ -163,6 +163,25 @@ describe('AlfajorApprover', () => {
     expect(repo.save).not.toHaveBeenCalled();
   });
 
+  it('returns the alfajor re-read after saving, with the marca relation fresh', async () => {
+    const saved = baseAlfajor({
+      marcaId: 'm9',
+      status: AlfajorStatus.APPROVED,
+      marca: { id: 'm9', nombre: 'Dona Pepa' } as Marca,
+    });
+    finder.byId
+      .mockResolvedValueOnce(freeProposal())
+      .mockResolvedValueOnce(saved);
+    marcaFinder.byNombre.mockResolvedValue(null);
+    marcaCreator.execute.mockResolvedValue({ id: 'm9' } as Marca);
+
+    const result = await approver.execute('a1');
+
+    expect(finder.byId).toHaveBeenCalledTimes(2);
+    expect(result).toBe(saved);
+    expect(result.marca?.id).toBe('m9');
+  });
+
   it('ignores the body marcaId when the alfajor already has a marca', async () => {
     finder.byId.mockResolvedValue(baseAlfajor());
 

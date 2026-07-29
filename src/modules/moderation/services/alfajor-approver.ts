@@ -41,7 +41,12 @@ export class AlfajorApprover {
     alfajor.marcaNombrePropuesto = null;
     alfajor.status = AlfajorStatus.APPROVED;
     alfajor.rejectionReason = null;
-    return this.alfajores.save(alfajor);
+    await this.alfajores.save(alfajor);
+
+    // Releemos en vez de devolver la entidad guardada: TypeORM sincroniza
+    // `marcaId` con la relación `marca` cargada (null en una propuesta libre)
+    // y la respuesta saldría sin la marca recién resuelta.
+    return this.finder.byId(id);
   }
 
   /**
