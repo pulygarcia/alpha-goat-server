@@ -50,6 +50,21 @@ describe('AlfajorRejecter', () => {
     expect(result.rejectionReason).toBe('foto borrosa');
   });
 
+  it('keeps marcaNombrePropuesto when rejecting a free-marca proposal', async () => {
+    finder.byId.mockResolvedValue(
+      baseAlfajor({ marcaId: null, marcaNombrePropuesto: 'Doña Pepa' }),
+    );
+    repo.save.mockImplementation(async (a) => a as Alfajor);
+
+    const result = await rejecter.execute('a1', {
+      rejectionReason: 'marca inexistente',
+    });
+
+    expect(result.status).toBe(AlfajorStatus.REJECTED);
+    expect(result.marcaId).toBeNull();
+    expect(result.marcaNombrePropuesto).toBe('Doña Pepa');
+  });
+
   it('throws BadRequest when alfajor is already APPROVED', async () => {
     finder.byId.mockResolvedValue(
       baseAlfajor({ status: AlfajorStatus.APPROVED }),

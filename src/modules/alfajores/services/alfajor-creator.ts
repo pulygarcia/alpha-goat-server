@@ -1,10 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MarcaFinder } from '../../marcas/services/marca-finder';
 import { Alfajor } from '../domain/alfajor.entity';
 import { AlfajorStatus } from '../domain/alfajor-status.enum';
 import { CreateAlfajorDto } from '../dto/create-alfajor.dto';
+import { AlfajorDuplicateChecker } from './alfajor-duplicate-checker';
 
 @Injectable()
 export class AlfajorCreator {
@@ -12,23 +13,24 @@ export class AlfajorCreator {
     @InjectRepository(Alfajor)
     private readonly alfajores: Repository<Alfajor>,
     private readonly marcaFinder: MarcaFinder,
+    private readonly duplicateChecker: AlfajorDuplicateChecker,
   ) {}
 
   async execute(dto: CreateAlfajorDto, createdById: string): Promise<Alfajor> {
-    // 404 si la marca no existe
-    await this.marcaFinder.byId(dto.marcaId);
+    const { marcaId, marcaNombre, ...rest } = dto;
 
-    const exists = await this.alfajores.findOne({
-      where: { nombre: dto.nombre, marcaId: dto.marcaId },
-    });
-    if (exists) {
-      throw new ConflictException(
-        `alfajor "${dto.nombre}" already exists for that marca`,
-      );
+    // El DTO garantiza que viene exactamente uno de los dos. Con marca del
+    // catálogo se valida como siempre; con marca libre el alfajor queda sin
+    // marca y el admin la resuelve al aprobar (ahí se chequea el duplicado).
+    if (marcaId) {
+      await this.marcaFinder.byId(marcaId);
+      await this.duplicateChecker.assertUnique(dto.nombre, marcaId);
     }
 
     const alfajor = this.alfajores.create({
-      ...dto,
+      ...rest,
+      marcaId: marcaId ?? null,
+      marcaNombrePropuesto: marcaNombre ?? null,
       status: AlfajorStatus.PENDING,
       createdById,
     });

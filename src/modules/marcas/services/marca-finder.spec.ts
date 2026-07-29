@@ -34,4 +34,19 @@ describe('MarcaFinder', () => {
     repo.findOne.mockResolvedValue(null);
     await expect(finder.byId('missing')).rejects.toThrow(NotFoundException);
   });
+
+  it('finds a marca by exact nombre', async () => {
+    const marca = { id: 'm1' } as Marca;
+    repo.findOne.mockResolvedValue(marca);
+
+    await expect(finder.byNombre('Havanna')).resolves.toBe(marca);
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { nombre: 'Havanna' },
+    });
+  });
+
+  it('returns null instead of throwing when no marca has that nombre', async () => {
+    repo.findOne.mockResolvedValue(null);
+    await expect(finder.byNombre('Doña Pepa')).resolves.toBeNull();
+  });
 });

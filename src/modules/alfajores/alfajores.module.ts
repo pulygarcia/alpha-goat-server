@@ -6,6 +6,7 @@ import { UploadsModule } from '../uploads/uploads.module';
 import { AlfajoresController } from './alfajores.controller';
 import { Alfajor } from './domain/alfajor.entity';
 import { AlfajorCreator } from './services/alfajor-creator';
+import { AlfajorDuplicateChecker } from './services/alfajor-duplicate-checker';
 import { AlfajorFinder } from './services/alfajor-finder';
 import { AlfajorImageUpdater } from './services/alfajor-image-updater';
 import { AlfajorSearcher } from './services/alfajor-searcher';
@@ -22,10 +23,11 @@ import { AlfajorUpdater } from './services/alfajor-updater';
   providers: [
     AlfajorCreator,
     AlfajorFinder,
+    AlfajorDuplicateChecker,
     AlfajorSearcher,
     AlfajorUpdater,
     AlfajorImageUpdater,
   ],
-  exports: [AlfajorFinder, AlfajorSearcher],
+  exports: [AlfajorFinder, AlfajorSearcher, AlfajorDuplicateChecker],
 })
 export class AlfajoresModule {}
