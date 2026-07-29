@@ -26,7 +26,7 @@
 
 ## 5. Verificación
 
-- [ ] 5.1 `npm run lint` y `npm run build` OK
-- [ ] 5.2 `npm run test:cov` verde con branch coverage ≥ 85% y los archivos tocados al 100%
-- [ ] 5.3 Verificación end-to-end contra la Neon dev: proponer con marca libre, listar el pending como admin, aprobar creando la marca, y aprobar otra mapeando a una marca existente
-- [ ] 5.4 Archivar el change (`/opsx:archive`) como último commit de la rama, antes de abrir la PR
+- [x] 5.1 `npm run lint` y `npm run build` OK
+- [x] 5.2 `npm run test:cov` verde con branch coverage ≥ 85% y los archivos tocados al 100%
+- [x] 5.3 Verificación end-to-end contra la Neon dev: proponer con marca libre, listar el pending como admin, aprobar creando la marca, y aprobar otra mapeando a una marca existente
+- [x] 5.4 Archivar el change (`/opsx:archive`) como último commit de la rama, antes de abrir la PR
