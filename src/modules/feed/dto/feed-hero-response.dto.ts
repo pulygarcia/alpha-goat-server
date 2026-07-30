@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AlfajorTipo } from '../../alfajores/domain/alfajor-tipo.enum';
+import type { FeedHeroScope } from '../services/feed-hero-finder';
 
 export class FeedHeroMarcaDto {
   @ApiProperty() id: string;
@@ -41,6 +42,15 @@ export class FeedHeroPeriodDto {
 }
 
 export class FeedHeroResponseDto {
+  @ApiProperty({
+    enum: ['weekly', 'allTime'],
+    description:
+      'De dónde salió el pick. `weekly`: ganador de los últimos 7 días ' +
+      '("goat del momento"). `allTime`: nadie alcanzó el piso de reseñas en ' +
+      'la semana y se cayó al mejor histórico — el front debe rotularlo así.',
+  })
+  scope: FeedHeroScope;
+
   @ApiProperty({ type: FeedHeroAlfajorDto }) alfajor: FeedHeroAlfajorDto;
   @ApiProperty({ type: FeedHeroRatingsDto }) ratings: FeedHeroRatingsDto;
   @ApiProperty({ type: FeedHeroStatsDto }) stats: FeedHeroStatsDto;

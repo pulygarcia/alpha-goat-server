@@ -19,6 +19,7 @@ describe('FeedHeroFinder', () => {
       'where',
       'andWhere',
       'groupBy',
+      'having',
       'orderBy',
       'addOrderBy',
       'limit',
@@ -94,6 +95,110 @@ describe('FeedHeroFinder', () => {
       deltaPct: null,
       totalReviews: 42,
     });
+  });
+
+  it('reports scope "allTime" when the pick came from the fallback', async () => {
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(undefined)) // window empty
+      .mockReturnValueOnce(makeQb({ alfajorId: 'a1' })) // all-time
+      .mockReturnValueOnce(
+        makeQb({
+          general: '8',
+          dulzor: '8',
+          cantidadDDL: '8',
+          calidadBano: '8',
+          ratioTapaRelleno: '8',
+          textura: '8',
+        }),
+      )
+      .mockReturnValueOnce(makeQb(undefined, 0))
+      .mockReturnValueOnce(makeQb(undefined, 0));
+
+    alfajores.findOne.mockResolvedValue({
+      id: 'a1',
+      marca: {},
+    } as unknown as Alfajor);
+    reviews.count.mockResolvedValue(10);
+
+    const result = await finder.execute(new Date('2026-05-25T12:00:00Z'));
+
+    expect(result!.scope).toBe('allTime');
+  });
+
+  it('reports scope "weekly" when the window produced a winner', async () => {
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb({ alfajorId: 'a1' }))
+      .mockReturnValueOnce(
+        makeQb({
+          general: '8',
+          dulzor: '8',
+          cantidadDDL: '8',
+          calidadBano: '8',
+          ratioTapaRelleno: '8',
+          textura: '8',
+        }),
+      )
+      .mockReturnValueOnce(makeQb(undefined, 5))
+      .mockReturnValueOnce(makeQb(undefined, 5));
+
+    alfajores.findOne.mockResolvedValue({
+      id: 'a1',
+      marca: {},
+    } as unknown as Alfajor);
+    reviews.count.mockResolvedValue(10);
+
+    const result = await finder.execute(new Date('2026-05-25T12:00:00Z'));
+
+    expect(result!.scope).toBe('weekly');
+    // El fallback no se consulta si la ventana ya dio ganador.
+    expect(reviews.createQueryBuilder).toHaveBeenCalledTimes(4);
+  });
+
+  it('requires a minimum number of reviews to crown a winner', async () => {
+    const windowQb = makeQb({ alfajorId: 'a1' });
+    const allTimeQb = makeQb(undefined);
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(windowQb)
+      .mockReturnValueOnce(allTimeQb)
+      .mockReturnValueOnce(
+        makeQb({
+          general: '5',
+          dulzor: '5',
+          cantidadDDL: '5',
+          calidadBano: '5',
+          ratioTapaRelleno: '5',
+          textura: '5',
+        }),
+      )
+      .mockReturnValueOnce(makeQb(undefined, 3))
+      .mockReturnValueOnce(makeQb(undefined, 3));
+
+    alfajores.findOne.mockResolvedValue({
+      id: 'a1',
+      marca: {},
+    } as unknown as Alfajor);
+    reviews.count.mockResolvedValue(3);
+
+    await finder.execute(new Date('2026-05-25T12:00:00Z'));
+
+    expect(windowQb.having).toHaveBeenCalledWith('COUNT(*) >= :minReviews', {
+      minReviews: 3,
+    });
+  });
+
+  it('applies the same review floor to the all-time fallback', async () => {
+    const allTimeQb = makeQb(undefined);
+    reviews.createQueryBuilder
+      .mockReturnValueOnce(makeQb(undefined))
+      .mockReturnValueOnce(allTimeQb);
+
+    const result = await finder.execute(new Date('2026-05-25T12:00:00Z'));
+
+    expect(allTimeQb.having).toHaveBeenCalledWith('COUNT(*) >= :minReviews', {
+      minReviews: 3,
+    });
+    // Nadie llega al piso ni siquiera en el histórico → 204, no un pick flojo.
+    expect(result).toBeNull();
   });
 
   it('computes deltaPct as percentage change vs last week', async () => {

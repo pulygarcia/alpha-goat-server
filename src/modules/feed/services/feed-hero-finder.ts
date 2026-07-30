@@ -5,7 +5,13 @@ import { Alfajor } from '../../alfajores/domain/alfajor.entity';
 import { AlfajorStatus } from '../../alfajores/domain/alfajor-status.enum';
 import { Review } from '../../reviews/domain/review.entity';
 
+// De dónde salió el pick. El front rotula distinto cada caso: `weekly` es el
+// "goat del momento", `allTime` es el mejor histórico — llamarlo "del momento"
+// cuando el ganador no tiene actividad reciente miente sobre el dato.
+export type FeedHeroScope = 'weekly' | 'allTime';
+
 export interface FeedHeroResult {
+  scope: FeedHeroScope;
   alfajor: Alfajor;
   ratings: {
     general: number;
@@ -25,6 +31,13 @@ export interface FeedHeroResult {
 }
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Piso de reseñas para entrar al pick. Sin él, un alfajor con una sola reseña
+// de 10 le gana a uno con treinta promediando 9.4: el promedio de n=1 no es un
+// promedio. Es más bajo que el piso de 5 de `/ranking` a propósito — acá la
+// ventana es de 7 días y con 5 casi nunca calificaría alguien, así que el hero
+// caería siempre al fallback all-time y dejaría de ser "del momento".
+const MIN_REVIEWS = 3;
 
 // Una "ventana de tiempo" es un rango [from, to): un pedazo del eje temporal
 // con un inicio incluido y un fin excluido (ej: los últimos 7 días).
@@ -55,11 +68,15 @@ export class FeedHeroFinder {
       to: thisWeek.from,
     };
 
-    // Pick: ganador de la semana; si no hubo reviews en la semana, fallback al
-    // alfajor con más reviews históricas. Si la DB no tiene reviews → null
-    // (el controller responde 204).
-    const winnerId =
-      (await this.pickByTimeWindow(thisWeek)) ?? (await this.pickAllTime());
+    // Pick: ganador de la semana; si nadie alcanzó el piso de reseñas en la
+    // ventana, fallback al mejor histórico. Si tampoco hay histórico con
+    // respaldo suficiente → null (el controller responde 204).
+    let scope: FeedHeroScope = 'weekly';
+    let winnerId = await this.pickByTimeWindow(thisWeek);
+    if (!winnerId) {
+      scope = 'allTime';
+      winnerId = await this.pickAllTime();
+    }
     if (!winnerId) return null;
 
     const alfajor = await this.alfajores.findOne({
@@ -84,6 +101,7 @@ export class FeedHeroFinder {
         : ((reviewsThisWeek - reviewsLastWeek) / reviewsLastWeek) * 100;
 
     return {
+      scope,
       alfajor,
       ratings,
       stats: { reviewsThisWeek, reviewsLastWeek, deltaPct, totalReviews },
@@ -92,7 +110,8 @@ export class FeedHeroFinder {
   }
 
   // Top 1 alfajor APPROVED por promedio de ratingGeneral dentro de la ventana
-  // de tiempo. Desempate por #reviews (más respaldo gana entre empatados).
+  // de tiempo, con al menos MIN_REVIEWS reseñas en esa misma ventana.
+  // Desempate por #reviews (más respaldo gana entre empatados).
   // Las comillas dobles en `orderBy` son necesarias porque Postgres baja a
   // lowercase los identificadores sin comillar, y los aliases son camelCase.
   private async pickByTimeWindow(window: TimeWindow): Promise<string | null> {
@@ -105,6 +124,8 @@ export class FeedHeroFinder {
       .where('a.status = :status', { status: AlfajorStatus.APPROVED })
       .andWhere('r.createdAt >= :from AND r.createdAt < :to', window)
       .groupBy('r.alfajorId')
+      // HAVING y no WHERE: el piso se evalúa sobre el grupo ya agregado.
+      .having('COUNT(*) >= :minReviews', { minReviews: MIN_REVIEWS })
       .orderBy('"avgRating"', 'DESC')
       .addOrderBy('"reviewsCount"', 'DESC')
       .limit(1)
@@ -113,6 +134,8 @@ export class FeedHeroFinder {
   }
 
   // Mismo ranking que pickByTimeWindow pero sin filtro temporal (fallback all-time).
+  // El piso también aplica acá: un alfajor con una sola reseña no representa
+  // al histórico mejor de lo que representa a la semana.
   private async pickAllTime(): Promise<string | null> {
     const row = await this.reviews
       .createQueryBuilder('r')
@@ -122,6 +145,7 @@ export class FeedHeroFinder {
       .addSelect('AVG(r.ratingGeneral)', 'avgRating')
       .where('a.status = :status', { status: AlfajorStatus.APPROVED })
       .groupBy('r.alfajorId')
+      .having('COUNT(*) >= :minReviews', { minReviews: MIN_REVIEWS })
       .orderBy('"avgRating"', 'DESC')
       .addOrderBy('"reviewsCount"', 'DESC')
       .limit(1)
