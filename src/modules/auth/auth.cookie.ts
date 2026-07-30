@@ -13,6 +13,6 @@ export function accessTokenCookieOptions(): CookieOptions {
     sameSite: isProd ? 'none' : 'lax',
     secure: isProd,
     path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 60 * 24 * 60 * 60 * 1000,
   };
 }
