@@ -121,6 +121,7 @@ function toItemDto(row: FeedRow): FeedItemDto {
 
 function toHeroDto(r: FeedHeroResult): FeedHeroResponseDto {
   return {
+    scope: r.scope,
     alfajor: {
       id: r.alfajor.id,
       nombre: r.alfajor.nombre,
