@@ -17,7 +17,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: JWT_EXPIRES_IN
-        value: 7d
+        value: 60d
       # Render inyecta PORT y la app ya lo lee; no hace falta declararlo.
       - key: DATABASE_URL
         sync: false
